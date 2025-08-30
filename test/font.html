@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>test test</title>
+        
+  </head>
+
+
+
+
+  <body>
+    <h1>my test</h1>
+    <button type="button" onclick="loadXMLDoc()">Click</button>
+    <div id="mytest"></div>
+
+    <script>
+      function loadXMLDoc() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("mytest").innerHTML = "Run!";
+          }
+        };
+        xhttp.open("POST","/test/back.php", true);
+        xhttp.send("name=เบส&age=18");
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadXMLDoc()
+        });
+    </script>
+
+    
+  </body>
+</html>

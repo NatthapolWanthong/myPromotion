@@ -2,7 +2,6 @@ import { FormHelper } from "/myPromotion/src/assets/js/formHelper.js";
 import { CardEditController } from "./CardEditor.js";
 import { MainStatusData } from "/myPromotion/src/config.js";
 import { UpdateStatusCount } from "/myPromotion/src/components/status-count/status-count.js"
-import { API } from "/myPromotion/src/assets/js/api.js";
 
 
 // ✅ 1. CARD สำหรับ CAMPAIGN
@@ -17,7 +16,7 @@ export class CampaignCard {
 
   render(data, total, counts) {
     UpdateStatusCount(total, counts, this.options.status)
-    this._renderBase(data, false);
+    this._renderBase(data, false); // ไม่ใส่ field เฉพาะ promotion    
   }
 
   _renderBase(data, isPromotion) {
@@ -53,7 +52,7 @@ export class CampaignCard {
       this.originalValuesMap.set(item.id, JSON.parse(JSON.stringify(item)));
 
       card.classList.add(mainStatus.CardsStatus);
-      card.setAttribute("data-status", item.status);
+      card.setAttribute("data-status", item.status0);
       card.dataset.id_main = status.id_main;
       card.dataset.status = item.status
       card.dataset.campaign_id = item.campaign_id
@@ -166,10 +165,24 @@ export class CampaignCard {
               <div class="d-flex gap-2 align-items-center">
                 <button type="button" class="btn btn-primary btn-sm btn-open-condition" data-promotion-id="${item.id}">เงื่อนไข</button>
               </div>
+              <div class="d-flex gap-2 align-items-center">
+                <input type="search" class="form-control form-control-sm promo-search" placeholder="ค้นหา..." data-for="${item.id}" style="min-width:200px">
+                <select class="form-select form-select-sm promo-page-size" data-for="${item.id}" style="width:110px">
+                  <option value="5">5 / หน้า</option>
+                  <option value="10">10 / หน้า</option>
+                  <option value="25">25 / หน้า</option>
+                </select>
+                <button class="btn btn-outline-secondary btn-sm" id="btn-promo-summary-${item.id}" data-bs-toggle="modal" data-bs-target="#promoModal-${item.id}">สรุป</button>
+              </div>
             </div>
 
-            <div class="condition-display" id="condition-display-${item.id}">
-              <small>ยังไม่มีเงื่อนไข</small>
+            <div class="col-12">
+              <div class="promotion-detail-grid minimal-modal full-width-table">
+                <div class="promotion-table-wrap w-100">
+                  <!-- PREVIEW TABLE -->
+                  <promotion-table id="promotion-preview-table-${item.id}" data-minwidth="600"></promotion-table>
+                </div>
+              </div>
             </div>
 
             <div class="col-12">

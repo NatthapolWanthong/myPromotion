@@ -1,0 +1,152 @@
+<div class="cards card-status" onclick="expandCardForEditing(this)">
+    <!-- ========================= Card หลัก ========================= -->
+    <div class="row row-main m-0 align-item-center justify-content-between">
+        <!-- ===== Colume 1 ===== -->
+        <div class="col col1">
+            <div class="title">เทศกาลวันคริสต์มาส</div>
+            <div class="id">ACT20250701</div>
+        </div>
+        <!-- ===== Colume 2 ===== -->
+        <div class="col col2">
+            <textarea disabled class="form-control mb-0" rows="3" style="resize: none; font-size: 14px;">Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint consectetur doloribus molestias eum quisquam nisi accusantium assumenda ab, quidem iste debitis. Quis consequatur natus odio tempore quasi iste nesciunt dolores.</textarea>
+        </div>
+        <!-- ===== Colume 3 ===== -->
+        <div class="col col3">
+            <div class="row-select d-flex">
+                <label class="col-3-text" for="text">ประเภท :</label>
+                <select disabled class="form-select input-setting input-small" aria-label="Default select example">
+                    <option selected>กระตุ้นยอด</option>
+                    <option value="2">เปิดตัวสินค้าใหม่</option>
+                    <option value="3">รักษาฐานลูกค้าเก่า</option>
+                </select>
+            </div>
+            <div class="row-select d-flex">
+                <label class="col-3-text" for="text">เป้าหมาย :</label>
+                <select disabled class="form-select input-setting input-small" aria-label="Default select example">
+                    <option selected>ลูกค้าเกรด A</option>
+                    <option value="2">ร้านค้าขนาดใหญ่</option>
+                    <option value="3">ลูกค้าใหม่</option>
+                </select>
+            </div>
+        </div>
+        <!-- ===== Colume 4 ===== -->
+        <div class="col col4">
+            <div class="row-select d-flex">
+                <label class="col-4-text" for="text">เริ่ม :</label>
+                <input disabled class="form-control input-setting input-small" class="form-date" type="date" aria-label="Default select example" value="2025-06-26"></input>
+            </div>
+            <div class="row-select d-flex">
+                <label class="col-4-text" for="text">สิ้นสุด :</label>
+                <input disabled class="form-control input-setting input-small" class="form-date" type="date" aria-label="Default select example" value="2025-11-26"></input>
+            </div>
+        </div>
+        <!-- ===== Colume 5 ===== -->
+        <div class="col col5">
+            <div class="icon-status">
+                <svg xmlns="http://www.w3.org/2000/svg"  fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16" style="color:#38d538; border-color: #38d538;">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                </svg>
+                <div class="status-text kanit-semibold" data-full="Active" data-short="ACT">ACT</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================= Card ขยาย ========================= --> 
+    <div class="row row-expand m-0">
+        <!-- ===== Colume 1 ===== -->
+        <div class="col col-expand col-expand-1" style="margin-left: 0;">
+            <div class="location-form">
+                <label for="text">พื้นที่เป้าหมาย :</label>
+                <input class="form-control input-setting" type="text" aria-label="Default select example" value="BKK-1, EAST-1, COM,CONS, เชียงใหม่"></input>
+            </div>
+            <div class="col create-information m-0" >
+                <div class="create-by d-flex">
+                    <label for="text">สร้างโดย :</label>
+                    <input disabled readonly class="form-control input-setting input-small" type="text" value="kirito#1678" style="margin-left: 4px;">
+                </div>
+                <div class="create-date d-flex">
+                    <label for="text">สิ้นสุด :</label>
+                    <input disabled readonly class="form-control input-setting input-small form-date" type="date" aria-label="Default select example" value="2025-11-26" style="margin-left: 4px;"></input>
+                </div>
+            </div>
+            <div class="col total m-0" >
+                จำนวนโปรโมชั่นทั้งหมด : 9
+            </div>
+       </div>
+        <!-- ===== Colume 2 ===== -->
+       <div class="col col-expand col-expand-2 d-flex">
+            <div class="note-form d-flex">
+             <label for="text">หมายเหตุ : </label>
+                <textarea class="form-control input-setting" type="text" rows="3" aria-label="Default select example">ลูกค้าไม่มี</textarea>
+            </div>
+        </div>
+        <!-- ===== Colume 3 ===== -->
+        <div class="col col-expand col-expand-3">
+        <!-- Button เลือกสถานะ -->
+         <div class="status-form d-flex" style="text-wrap:nowrap; justify-content: center; align-items: center;">
+            <label>สถานะ : </label>
+            <button type="button" class="btn btn-outline status-form-button" data-bs-toggle="modal" data-bs-target="#statusModal" style="border: 0px; color: #38d538;">
+              <svg xmlns="http://www.w3.org/2000/svg"  fill="currentColor" class="bi bi-check-circle-fill status-form-icon" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+              </svg>
+              <label>เปิดใช้งาน</label>
+            </button>
+         </div>
+
+          <!-- Modal เลือกสถานะ -->
+          <div class="modal fade" id="statusModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">เลือกสถานะ</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <h6 class="text-success">เปิดใช้งาน</h6>
+                  <button class="btn btn-outline-success w-100 mb-2 status-form-button" style="color: #38d538;">
+                    <svg xmlns="http://www.w3.org/2000/svg"  fill="currentColor" class="bi bi-check-circle-fill status-form-icon" viewBox="0 0 16 16" style="color: #38d538;">
+                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                    <label>เปิดใช้งาน</label>
+                  </button>
+
+                  <h6 class="text-primary mt-3">รอดำเนินการ</h6>
+                  <button class="btn btn-outline-primary w-100 mb-1 status-form-button" >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hourglass-split  status-form-icon" viewBox="0 0 16 16">
+                      <path d="M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1zm2-13v1c0 .537.12 1.045.337 1.5h6.326c.216-.455.337-.963.337-1.5V2zm3 6.35c0 .701-.478 1.236-1.011 1.492A3.5 3.5 0 0 0 4.5 13s.866-1.299 3-1.48zm1 0v3.17c2.134.181 3 1.48 3 1.48a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351z"/>
+                    </svg>
+                    <label>รอดำเนินการ</label>
+                  </button>
+                  <button class="btn btn-outline-primary w-100 mb-1 status-form-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-flask-fill status-form-icon" viewBox="0 0 16 16">
+                      <path d="M11.5 0a.5.5 0 0 1 0 1H11v5.358l4.497 7.36c.099.162.16.332.192.503l.013.063.008.083q.006.053.007.107l-.003.09q-.001.047-.005.095-.006.053-.017.106l-.016.079q-.012.049-.028.096l-.028.086a1.5 1.5 0 0 1-.17.322 1.5 1.5 0 0 1-.395.394q-.04.028-.082.054-.045.026-.095.049l-.073.035-.09.033q-.05.02-.103.034-.04.01-.08.017-.053.012-.108.021l-.006.002-.202.013H1.783l-.214-.015a1.503 1.503 0 0 1-1.066-2.268L5 6.359V1h-.5a.499.499 0 0 1-.354-.854A.5.5 0 0 1 4.5 0zm.5 12a.5.5 0 0 0 0 1h1.885l-.61-1zm-1-2a.5.5 0 0 0 0 1h1.664l-.612-1zm-1-2a.5.5 0 0 0 0 1h1.441l-.61-1zM9 6a.5.5 0 0 0 0 1h1.22l-.147-.24A.5.5 0 0 1 10 6.5V6zm0-2a.5.5 0 0 0 0 1h1V4zm0-2a.5.5 0 0 0 0 1h1V2z"/>
+                    </svg>
+                    <label>กำลังทดสอบ</label>
+                  </button>
+                  <button class="btn btn-outline-primary w-100 mb-1 status-form-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill status-form-icon" viewBox="0 0 16 16">
+                      <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                    </svg>
+                    <label>กำลังรออนุมัติ</label>
+                  </button>
+
+                  <h6 class="text-danger mt-3">ปิดใช้งาน</h6>
+                  <button class="btn btn-outline-danger w-100 status-form-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pause-circle-fill status-form-icon" viewBox="0 0 16 16">
+                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.25 5C5.56 5 5 5.56 5 6.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C7.5 5.56 6.94 5 6.25 5m3.5 0c-.69 0-1.25.56-1.25 1.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C11 5.56 10.44 5 9.75 5"/>
+                    </svg>
+                    <label>ปิดใช้งาน</label>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ===== Colume 4 ===== -->
+        <div class="col col-expand col-expand-4">
+            <div type="button" class="btn btn-outline-primary">History</div>
+            <div type="button" class="btn btn-danger">Delete</div>
+            <div type="button" class="btn btn-primary">Edit</div>
+        </div>
+    </div>
+</div>

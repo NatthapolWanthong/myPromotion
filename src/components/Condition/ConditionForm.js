@@ -1,8 +1,4 @@
 // ConditionForm.js
-// Responsibilities:
-// - validateConditionForm(formEl)
-// - mapBasicFormToCompiledDSL(formEl)
-// - initFormSubmit({ getPromoId }) -> binds submit and calls API.insertCondition
 
 import { el } from './ConditionHelpers.js';
 import { parseBlocklyJsonToConditionItems, parseCompiledDslToFormDefaults } from './ConditionParser.js';
@@ -11,19 +7,16 @@ import { addConditionItem, addRewardItem, initTemplates, getCachedFormOptions } 
 import { ensureProductsLoaded } from '/myPromotion/src/components/modal/modalProductList/modalProductList.js';
 import { basicFormToAdvanceWorkspace } from '/myPromotion/src/components/Condition/modalConditionAdvance/advanceCondition.js';
 
-// Try to use global ConditionBlockHelper if available (from original project)
+
 const BlockHelper = (typeof window !== 'undefined' && window.ConditionBlockHelper) ? window.ConditionBlockHelper : ( (typeof ConditionBlockHelper !== 'undefined') ? ConditionBlockHelper : null );
 
-// keep handler references so we don't bind duplicates
+
 let _populateHandlerRef = null;
 let _basicLoadHandlerRef = null;
 let _basicSaveHandlerRef = null;
 let _createHandlerRef = null;
 let _submitBound = false;
 
-/* -----------------------
-   Small helpers
-   ----------------------- */
 function safeParseJSON(s) {
   try { return typeof s === 'string' && s.trim() ? JSON.parse(s) : (typeof s === 'object' ? s : null); } catch(e){ return null; }
 }
@@ -34,10 +27,7 @@ function normalizeToArrayOrCsv(v) {
   return String(v);
 }
 
-/* -----------------------
-   parseIdsFromRaw(raw)
-   - Accept many shapes and produce array of id strings
-   ----------------------- */
+
 function parseIdsFromRaw(raw) {
   if (raw === undefined || raw === null) return [];
   if (Array.isArray(raw)) return raw.map(String).map(s => s.trim()).filter(Boolean);
@@ -56,16 +46,10 @@ function parseIdsFromRaw(raw) {
   return parts;
 }
 
-/* -----------------------
-   createConditionItemFromDefault
-   - wrapper to call addConditionItem and set values safely
-   ----------------------- */
+
 function createConditionItemFromDefault(def, item = null) {
-  // def shape from parseCompiledDslToFormDefaults:
-  // { action, object, productId, productName, comparator, value, unit, rewards: [...] }
   const container = document.getElementById('conditionsContainer');
   if(!container) return null;
-  // prefer explicit item param; fallback to lastElementChild
   if(!item) item = container.lastElementChild || null;
   if(!item) return null;
 
@@ -76,7 +60,6 @@ function createConditionItemFromDefault(def, item = null) {
     if(def.value !== undefined && item.querySelector('.valueInput')) item.querySelector('.valueInput').value = def.value;
     if(def.unit && item.querySelector('.unitSelect')) item.querySelector('.unitSelect').value = def.unit;
 
-    // product inputs (support array or comma string)
     const pidEl = item.querySelector('.selectedProductId_condition');
     const pnameEl = item.querySelector('.selectedProductName_condition');
     if(pidEl) {
@@ -122,11 +105,6 @@ function createConditionItemFromDefault(def, item = null) {
   return item;
 }
 
-/* -----------------------
-   buildConditionFieldsFromForm
-   - Try BlockHelper.updateHiddenInput() first (many possible return shapes)
-   - else parse DOM fallback
-   ----------------------- */
 export function buildConditionFieldsFromForm(formEl){
   if(!formEl) formEl = el('condition-form');
 
@@ -160,7 +138,6 @@ export function buildConditionFieldsFromForm(formEl){
     }
   } catch(e){ /* ignore */ }
 
-  // 2) BlockHelper (if available) - support several return shapes:
   try {
     if (BlockHelper && typeof BlockHelper.updateHiddenInput === 'function') {
       const out = BlockHelper.updateHiddenInput(formEl);
@@ -184,7 +161,7 @@ export function buildConditionFieldsFromForm(formEl){
           };
         }
 
-        // if returned compiled structure, try parseCompiledDslToFormDefaults
+
         const compiledCandidate = out.compiled_dsl ?? out.conditionXml ?? out;
         if (compiledCandidate && (Array.isArray(compiledCandidate.rules) && compiledCandidate.rules.length)) {
           const defaults = parseCompiledDslToFormDefaults(compiledCandidate);
@@ -210,7 +187,6 @@ export function buildConditionFieldsFromForm(formEl){
     }
   } catch(e){ /* ignore */ }
 
-  // 3) DOM fallback (read first meaningful .condition-item)
   try {
     const form = formEl;
     const condItems = Array.from(form.querySelectorAll('.condition-item'));
@@ -292,10 +268,7 @@ export function buildConditionFieldsFromForm(formEl){
   };
 }
 
-/* -----------------------
-   validateConditionForm(formEl)
-   - lightweight checks; marks invalid fields with .is-invalid
-   ----------------------- */
+
 export function validateConditionForm(formEl){
   if(!formEl) formEl = el('condition-form');
   const missing = [];
@@ -373,14 +346,7 @@ export function validateConditionForm(formEl){
   return { ok: finalMissing.length === 0, missing: finalMissing };
 }
 
-/* -----------------------
-   mapBasicFormToCompiledDSL(formEl)
-   - ENSURE output is workspace + compiled_dsl (format 2) ALWAYS
-   - Strategy:
-     1) If #conditionBlockJson exists and contains workspace OR compiled_dsl.rules with IF -> use it
-     2) If BlockHelper.updateHiddenInput() returns workspace+compiled_dsl -> use it
-     3) Otherwise regenerate via basicFormToAdvanceWorkspace() (reads DOM and builds workspace + compiled_dsl)
-   ----------------------- */
+
 export function mapBasicFormToCompiledDSL(formEl){
   if(!formEl) formEl = el('condition-form');
 
@@ -400,7 +366,6 @@ export function mapBasicFormToCompiledDSL(formEl){
     }
   } catch(e){ /* ignore */ }
 
-  // 2) If basic regeneration not available, fallback to BlockHelper.updateHiddenInput (if it exists)
   try {
     if (BlockHelper && typeof BlockHelper.updateHiddenInput === 'function') {
       try {
@@ -431,7 +396,7 @@ export function mapBasicFormToCompiledDSL(formEl){
     }
   } catch(e){ /* ignore */ }
 
-  // 3) Fallback: try hidden input #conditionBlockJson
+
   try {
     const hid = el('conditionBlockJson');
     if (hid && hid.value) {
@@ -453,11 +418,6 @@ export function mapBasicFormToCompiledDSL(formEl){
   return { mode: "basic", workspace: { blocks: { languageVersion: 0, blocks: [] } }, compiled_dsl: { meta:{ generated_at: (new Date()).toISOString() }, rules: [] }, saved_at: (new Date()).toISOString() };
 }
 
-/* -----------------------
-   initFormSubmit({ getPromoId })
-   - binds form submit once
-   - now simplified to use mapBasicFormToCompiledDSL as the single source of truth
-   ----------------------- */
 export function initFormSubmit({ getPromoId } = {}) {
   const form = document.getElementById('condition-form');
   if(!form) return;
@@ -509,13 +469,10 @@ export function initFormSubmit({ getPromoId } = {}) {
         return;
       }
 
-      // ensure compiled_dsl exists
       if (!normalized.compiled_dsl) {
-        // if only rules present at top-level, wrap it
         if (normalized.rules && Array.isArray(normalized.rules)) {
           normalized = { mode: normalized.mode || 'basic', workspace: normalized.workspace || { blocks: { languageVersion: 0, blocks: [] } }, compiled_dsl: { meta: { origin: 'wrapped-rules', generated_at: (new Date()).toISOString() }, rules: normalized.rules }, saved_at: normalized.saved_at || (new Date()).toISOString() };
         } else {
-          // ensure at least an empty compiled_dsl
           normalized.compiled_dsl = { meta: { generated_at: (new Date()).toISOString() }, rules: [] };
         }
       }
@@ -524,7 +481,6 @@ export function initFormSubmit({ getPromoId } = {}) {
       normalized.mode = normalized.mode || 'basic';
       normalized.saved_at = normalized.saved_at || (new Date()).toISOString();
 
-      // normalization: ensure PRODUCT_ID fields are arrays in compiled_dsl.rules[*].fields
       try {
         const rules = Array.isArray(normalized.compiled_dsl.rules) ? normalized.compiled_dsl.rules : [];
         for (const r of rules) {
@@ -539,7 +495,6 @@ export function initFormSubmit({ getPromoId } = {}) {
         }
       } catch(e){/* ignore */ }
 
-      // prepare codeForStore (stringified compiled_dsl)
       let codeForStore = '';
       try {
         if (normalized && normalized.compiled_dsl) codeForStore = JSON.stringify(normalized.compiled_dsl);
@@ -558,7 +513,6 @@ export function initFormSubmit({ getPromoId } = {}) {
         mode: normalized.mode || 'basic'
       };
 
-      // UI: disable save button
       const btn = el('btn-save-condition');
       if (btn) { btn.disabled = true; btn.textContent = 'กำลังบันทึก...'; }
 
@@ -584,12 +538,6 @@ export function initFormSubmit({ getPromoId } = {}) {
   });
 }
 
-/* -----------------------
-   populateConditionForm(row = {}, parsedConditionXml = null)
-   - Accepts row and parsed conditionXml (object/string)
-   - Populates form fields and dynamically creates condition items
-   ----------------------- */
-// (แทนที่ทั้งฟังก์ชัน populateConditionForm เดิม)
 export async function populateConditionForm(row = {}, parsedConditionXml = null) {
   const formEl = el('condition-form');
   const container = document.getElementById('conditionsContainer');
@@ -633,11 +581,9 @@ export async function populateConditionForm(row = {}, parsedConditionXml = null)
     compiled = cond.compiled_dsl ?? (cond.rules ? cond : null);
   }
 
-  // Collect defaults by parsing compiled via helper (if helper exists)
   const tryParseCompiledToDefaults = (compiledObj) => {
     try {
       if (!compiledObj) return null;
-      // parseCompiledDslToFormDefaults should exist (from earlier code) and returns array of defaults
       if (typeof parseCompiledDslToFormDefaults === 'function') {
         return parseCompiledDslToFormDefaults(compiledObj);
       }
@@ -650,11 +596,9 @@ export async function populateConditionForm(row = {}, parsedConditionXml = null)
     const defs = tryParseCompiledToDefaults(compiled);
     if (Array.isArray(defs) && defs.length) {
       await createItemsFromDefaults(defs);
-      // after create, ensure product names shown by mapping IDs -> names
       try {
         const loaded = await ensureProductsLoaded();
         const productsMap = loaded && loaded.productsById ? loaded.productsById : (loaded && loaded.products ? new Map((loaded.products||[]).map(p => [String(p.id), p])) : new Map());
-        // fill in names
         container.querySelectorAll('.condition-item').forEach(ci => {
           try {
             const pidEl = ci.querySelector('.selectedProductId_condition');
@@ -818,16 +762,10 @@ export async function populateConditionForm(row = {}, parsedConditionXml = null)
       }
     }
   } catch(e){ console.warn('fallback compiled populate failed', e); }
-
-  // 4) if nothing matched, ensure at least one empty condition item
   const emptyItem = addConditionItem();
   if (emptyItem && emptyItem._ready) await emptyItem._ready.catch(()=>{});
 }
 
-/* -----------------------
-   initFormHandlers
-   - binds global events only once
-   ----------------------- */
 export function initFormHandlers() {
   // bind submit if not already
   initFormSubmit({ getPromoId: () => (window.promoId || new URLSearchParams(window.location.search).get('id')) });
@@ -846,7 +784,6 @@ export function initFormHandlers() {
     };
   }
 
-  // condition:populate -> populate form (edit). keep one handler
   if (!_populateHandlerRef) {
     _populateHandlerRef = (ev) => {
       try {
@@ -865,7 +802,6 @@ export function initFormHandlers() {
     window.addEventListener('condition:populate', _populateHandlerRef);
   }
 
-  // condition:basic:load (legacy event) -> populate using provided compiled_dsl/raw
   if (!_basicLoadHandlerRef) {
     _basicLoadHandlerRef = (ev) => {
       const det = ev.detail || {};
@@ -874,7 +810,6 @@ export function initFormHandlers() {
     window.addEventListener('condition:basic:load', _basicLoadHandlerRef);
   }
 
-  // condition:create -> reset form for new condition
   if (!_createHandlerRef) {
     _createHandlerRef = () => {
       const formEl = el('condition-form');
@@ -890,5 +825,4 @@ export function initFormHandlers() {
   }
 }
 
-// Export any helpers needed externally
 export { createConditionItemFromDefault };

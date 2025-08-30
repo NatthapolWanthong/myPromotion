@@ -1,0 +1,141 @@
+<!-- ปุ่ม Sort -->
+<div class="dropdown position-relative">
+  <button
+    class="btn btn-sort btn-outline-secondary"
+    type="button"
+    id="sortButton"
+  >
+    เรียงตาม
+  </button>
+  <ul class="dropdown-menu p-2" id="sortMenu" style="min-width: 250px">
+    <!-- เลือก field -->
+    <label class="dropdown-header">เรียงตาม</label>
+    <li >
+      <a class="dropdown-item sort-option" href="#" data-field="name" >
+        <span class="dot me-2"></span>ชื่อ
+      </a>
+    </li>
+    <li >
+      <a class="dropdown-item sort-option" href="#" data-field="type" >
+        <span class="dot me-2"></span>ประเภท
+      </a>
+    </li>
+    <li >
+      <a class="dropdown-item sort-option" href="#" data-field="target" >
+        <span class="dot me-2"></span>เป้าหมาย
+      </a>
+    </li>
+    <li >
+      <a class="dropdown-item sort-option" href="#" data-field="status" >
+        <span class="dot me-2"></span>สถานะ
+      </a>
+    </li>
+    <!-- Toggle: วันที่ -->
+    <li class="dropend position-relative" data-dropdown>
+      <a class="dropdown-item" href="#" data-toggle>
+        <span class="dot me-2"></span>วันที่
+        <i class="bi bi-chevron-right small"></i>
+      </a>
+      <ul class="dropdown-menu p-2" data-submenu>
+        <li>
+          <a class="dropdown-item sort-option active-dot" href="#" data-field="edit_date"
+            ><span class="dot me-2"></span>วันที่แก้ไข</a
+          >
+        </li>
+        <li>
+          <a class="dropdown-item sort-option" href="#" data-field="create_date"
+            ><span class="dot me-2"></span>วันที่สร้าง</a
+          >
+        </li>
+        <li>
+          <a class="dropdown-item sort-option" href="#" data-field="start_date"
+            ><span class="dot me-2"></span>วันที่เริ่ม</a
+          >
+        </li>
+        <li>
+          <a class="dropdown-item sort-option" href="#" data-field="end_date"
+            ><span class="dot me-2"></span>วันที่สิ้นสุด</a
+          >
+        </li>
+      </ul>
+    </li>
+    <!-- Toggle: เพิ่มเติม -->
+    <li class="dropend position-relative" data-dropdown>
+      <a class="dropdown-item" href="#" data-toggle>
+        <span class="dot me-2"></span>เพิ่มเติม
+        <i class="bi bi-chevron-right small"></i>
+      </a>
+      <ul class="dropdown-menu p-2" data-submenu>
+        <li>
+          <a class="dropdown-item sort-option" href="#" data-field="promotion"
+            ><span class="dot me-2"></span>โปรโมชั่น</a
+          >
+        </li>
+        <li>
+          <a class="dropdown-item sort-option" href="#" data-field="created_by"
+            ><span class="dot me-2"></span>สร้างโดย</a
+          >
+        </li>
+      </ul>
+    </li>
+
+    <!-- สถานะย่อย -->
+    <!-- <li class="dropend position-relative mt-2" id="statusDropdown">
+    <a class="dropdown-item" href="#" id="statusToggle">
+        สถานะย่อย <i class="bi bi-chevron-right small"></i>
+    </a>
+    <ul class="dropdown-menu p-2" id="statusSubmenu">
+        <li><label class="form-check-label"><input class="form-check-input me-1 status-checkbox" type="checkbox" value="active">ใช้งาน</label></li>
+        <li><label class="form-check-label"><input class="form-check-input me-1 status-checkbox" type="checkbox" value="pending">รอดำเนินการ</label></li>
+        <li><label class="form-check-label"><input class="form-check-input me-1 status-checkbox" type="checkbox" value="inactive">ปิดใช้งาน</label></li>
+        <li><label class="form-check-label"><input class="form-check-input me-1 status-checkbox" type="checkbox" value="expired">หมดอายุ</label></li>
+    </ul>
+    </li> -->
+
+    <!-- ลำดับ -->
+
+    <li><hr class="dropdown-divider" /></li>
+    <label class="dropdown-header">ลำดับ</label>
+    <li>
+      <a class="dropdown-item order-option" href="#" data-order="asc">
+        <span class="dot me-2"></span>จากน้อยไปมาก
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item order-option active-dot" href="#" data-order="desc">
+        <span class="dot me-2"></span>จากมากไปน้อย
+      </a>
+    </li>
+
+    <!-- จัดกลุ่ม -->
+    <!-- <li><hr class="dropdown-divider" /></li>
+    <li class="dropend position-relative" data-dropdown>
+      <a class="dropdown-item" href="#" data-toggle>
+        <span class="dot me-2"></span>จัดกลุ่มโดย
+        <i class="bi bi-chevron-right small"></i>
+      </a>
+      <ul class="dropdown-menu p-2" data-submenu>
+        <li>
+          <a class="dropdown-item group-option" href="#" data-field="editDateGroup"
+            ><span class="dot me-2"></span>วันที่แก้ไข</a
+          >
+        </li>
+        <li>
+          <a class="dropdown-item group-option" href="#" data-field="createDateGroup"
+            ><span class="dot me-2"></span>วันที่สร้าง</a
+          >
+        </li>
+        <li>
+          <a class="dropdown-item group-option" href="#" data-field="beginDateGroup"
+            ><span class="dot me-2"></span>วันที่เริ่ม</a
+          >
+        </li>
+        <li>
+          <a class="dropdown-item group-option" href="#" data-field="endDateGroup"
+            ><span class="dot me-2"></span>วันที่สิ้นสุด</a
+          >
+        </li>
+      </ul>
+    </li> -->
+  </ul>
+</div>

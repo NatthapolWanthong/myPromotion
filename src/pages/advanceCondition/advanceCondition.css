@@ -1,0 +1,46 @@
+/* overlay ให้เต็มจอ */
+#condition-overlay {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #fff;
+  z-index: 1050;
+}
+
+/* header + tabs */
+#condition-overlay > div:first-child {
+  flex: 0 0 auto;
+}
+
+/* container ของ tab content ให้เต็มที่เหลือ */
+#condition-overlay .tab-content-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0.5rem 1rem;
+}
+
+/* Advance content ให้เต็ม */
+#advance-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+/* Blockly div ให้เต็มพื้นที่ Advance */
+#blocklyDiv {
+  flex: 1 1 auto;
+  min-height: 300px;
+  border: 1px solid #ccc;
+}
+
+/* z-index ของ controls ให้กดได้ */
+.blockly-controls, 
+.blocklyDropdownDiv, .blocklyWidgetDiv, .blocklyTooltipDiv {
+  z-index: 99999999 !important;
+}
+

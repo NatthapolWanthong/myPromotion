@@ -1,0 +1,19 @@
+.toast-custom {
+  min-width: 300px;
+  max-width: 90vw;
+  animation: slide-up 0.4s ease;
+  box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.1);
+  border-radius: 0.75rem;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}

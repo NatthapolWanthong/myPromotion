@@ -1,0 +1,249 @@
+<!-- modalCondition.html -->
+<!-- Overlay Promotion Condition (single overlay for both list & edit) -->
+<div id="condition-overlay" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-white" style="z-index:100;">
+  <div class="d-flex justify-content-between align-items-center p-3 border-bottom condition-overlay-header">
+    <div class="d-flex align-items-center gap-3">
+      <h5 id="overlay-title" class="m-0">เงื่อนไข</h5>
+      <span id="condition-count" class="badge bg-secondary">0</span>
+    </div>
+<!-- Tabs -->
+    <ul class="nav nav-tabs" id="conditionTab">
+        <li class="nav-item">
+            <a class="nav-link active" data-target="#basic-content" href="#">Basic</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link nonActive" data-target="#advance-content" href="#">Advance</a>
+        </li>
+    </ul>
+    <!-- header controls -->
+    <div class="d-flex align-items-center gap-2">
+      <button id="btn-create-condition" class="btn btn-primary">สร้างเงื่อนไข</button>
+      <button id="btn-close-condition" class="btn btn-secondary">X</button>
+    </div>
+  </div>
+
+  <div class="p-0 d-flex flex-column" style="height: calc(100% - 56px);">
+    <!-- ===========================
+         LIST VIEW (default)
+         =========================== -->
+    <div id="condition-list-view" class="tab-content-container p-4">
+      <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div>
+          <h6 class="mb-0">รายการเงื่อนไข</h6>
+          <small class="text-muted">เงื่อนไขทั้งหมดที่ผูกกับโปรโมชั่นปัจจุบัน</small>
+        </div>
+      </div>
+
+      <div class="table-responsive mb-3">
+        <table class="table table-sm table-bordered" id="conditionsListTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>ชื่อเงื่อนไข</th>
+              <th>Data Base</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div id="no-conditions" class="text-center text-muted my-4 d-none">
+        ยังไม่มีเงื่อนไข — กด "สร้างเงื่อนไข" เพื่อเพิ่ม
+      </div>
+      <!-- Add inside list-view (above table) -->
+        <div class="d-flex gap-2 mb-3">
+          <input id="conditionSearch" class="form-control form-control-sm" placeholder="ค้นหาเงื่อนไข (ชื่อ)..." />
+          <select id="perPageSelect" class="form-select form-select-sm" style="width:120px;">
+            <option value="5">5 / page</option>
+            <option value="10">10 / page</option>
+            <option value="20" selected>20 / page</option>
+            <option value="50">50 / page</option>
+          </select>
+        </div>
+
+        <!-- Add pagination bar below table -->
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <div>
+            <button id="btn-prev-page" class="btn btn-sm btn-outline-secondary">Prev</button>
+            <button id="btn-next-page" class="btn btn-sm btn-outline-secondary">Next</button>
+          </div>
+          <div>
+            <small id="paginationInfo">Page 1 / 1</small>
+          </div>
+        </div>
+    </div>
+
+    <!-- ===========================
+         EDIT VIEW (form) — reuse your modalEditCondition content here
+         =========================== -->
+    <!-- ... ภาคบนของ overlay เหมือนเดิม ... -->
+
+    <!-- ในส่วน edit view -->
+    <div id="condition-edit-view" class="tab-content-container p-0 d-none">
+      <!-- header / back button ... -->
+
+      <div class="tab-content-container">
+        <!-- Basic -->
+        <div id="basic-content" class="tab-pane" style="display:flex;">
+
+          <form id="condition-form" class="row g-3 needs-validation" novalidate>
+            <div class="col-sm-6">
+              <label for="condition-form-name" class="form-label">ชื่อเงื่อนไข</label>
+              <input type="text" class="form-control" id="condition-form-name" placeholder="กรอกชื่อเงื่อนไข" required>
+              <div class="invalid-feedback">ต้องกรอกชื่อเงื่อนไข</div>
+            </div>
+            <div class="col-md-6">
+              <label for="form-type" class="form-label">เทมเพลต</label>
+              <select class="form-select ch" id="form-type">
+                <option value="">save1</option>
+              </select>
+              <div class="invalid-feedback">ต้องเลือกประเภทเงื่อนไข</div>
+            </div>
+
+            <!-- Condition: ปุ่ม + เพิ่มเงื่อนไข -->
+            <div class="condition form-border p-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="modal-title fs-6 m-0">เงื่อนไข</h6>
+                <div>
+                  <button type="button" id="btn-add-condition" class="btn btn-sm btn-outline-primary">+ เพิ่มเงื่อนไข</button>
+                </div>
+              </div>
+
+              <!-- container สำหรับเก็บ condition items -->
+              <div id="conditionsContainer" class="d-flex flex-column gap-3">
+                <!-- จะถูกเติมด้วย JS -->
+              </div>
+
+              <!-- template hint (ซ่อน) -->
+              <template id="condition-template">
+                <div class="condition-item border rounded p-3 position-relative">
+                  <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 btn-remove-condition" title="ลบเงื่อนไข">✕</button>
+
+                  <div class="row g-2">
+                    <div class="col-md-5">
+                      <label class="form-label">Action / Object</label>
+                      <div class="input-group">
+                        <select class="form-select ch condition-form-action" required></select>
+                        <select class="form-select ch condition-form-object" required></select>
+                        <div class="invalid-feedback">ต้องเลือกประเภท</div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-5 condition-product-block">
+                      <label class="form-label">สินค้า</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control selectedProductName_condition" placeholder="ยังไม่ได้เลือกสินค้า" readonly>
+                        <input type="hidden" class="selectedProductId_condition">
+                        <button type="button" class="btn btn-outline-primary btn-open-product-modal ">เลือกสินค้า</button>
+                      </div>
+                    </div>
+
+                    <div class="col-md-2">
+                      <label class="form-label">ตัวเปรียบเทียบ</label>
+                      <select class="form-select ch comparatorSelect" required></select>
+                      <div class="invalid-feedback">ต้องเลือกตัวเปรียบเทียบ</div>
+                    </div>
+
+                    <div class="col-md-5 mt-2">
+                      <label class="form-label">จำนวน/หน่วย</label>
+                      <div class="input-group">
+                        <input class="form-control ch valueInput" type="text" placeholder="เลือกจำนวน" required>
+                        <select class="form-select ch unitSelect" required></select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Reward list สำหรับเงื่อนไขนี้ -->
+                  <div class="mt-3 reward-block-list">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <small class="text-muted">ผลตอบแทน (สำหรับเงื่อนไขนี้)</small>
+                      <button type="button" class="btn btn-sm btn-outline-success btn-add-reward">+ เพิ่มผลตอบแทน</button>
+                    </div>
+                    <div class="rewardsContainer d-flex flex-column gap-2"></div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- reward template -->
+              <template id="reward-template">
+                <div class="reward-item border rounded p-2 position-relative">
+                  <button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 btn-remove-reward" title="ลบผลตอบแทน">✕</button>
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <label class="form-label">ผลตอบแทน</label>
+                      <div class="input-group">
+                        <select class="form-select ch condition-form-reward-action" required></select>
+                        <select class="form-select ch condition-form-reward-object" required disabled></select>
+                        <div class="invalid-feedback">ต้องเลือกผลตอบแทน/รายการ</div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6 reward-product-block">
+                      <label class="form-label">สินค้า (ผลตอบแทน ถ้ามี)</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control selectedProductName_reward" placeholder="ยังไม่ได้เลือกสินค้า" readonly>
+                        <input type="hidden" class="selectedProductId_reward">
+                        <button type="button" class="btn btn-outline-primary btn-open-product-modal">เลือกสินค้า</button>
+                      </div>
+                      <div class="invalid-feedback">กรุณาเลือกสินค้า</div>
+                    </div>
+
+                    <div class="col-md-6 mt-2">
+                      <label class="form-label">จำนวน/หน่วย</label>
+                      <div class="input-group">
+                        <input class="form-control ch rewardValueInput" type="text" placeholder="เลือกจำนวน" required>
+                        <select class="form-select ch rewardUnitSelect" required></select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+            </div>
+
+
+            <input type="hidden" id="conditionBlockJson" name="conditionBlockJson">
+            <input type="hidden" id="savedConditionId">
+
+            <!-- Table preview
+            <div class="mt-3">
+              <h6>Preview เงื่อนไขที่สร้าง</h6>
+              <table class="table table-sm table-bordered" id="conditionTable">
+                <thead>
+                  <tr>
+                    <th>Action</th>
+                    <th>Object</th>
+                    <th>Product</th>
+                    <th>Comparator</th>
+                    <th>Value</th>
+                    <th>Unit</th>
+                    <th>Reward</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div> -->
+
+
+            <div class="d-flex gap-2 mt-3">
+              <button type="button" id="btn-save-condition" class="btn btn-primary">บันทึก</button>
+              <button type="button" id="btn-cancel-edit" class="btn btn-outline-secondary">ยกเลิก</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Advance -->
+        <div id="advance-content" class="tab-pane" style="display:none; flex-direction:column;">
+          <!-- ใส่ blocklyContainer ตรงนี้ ให้เป็น child ของ advance-content -->
+          <div id="blocklyContainer" style="position:relative; width:100%; height:100%; overflow:visible;">
+            <div id="blocklyDiv" style="position:absolute; left:0; width:100%; height:100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTE: เอา blocklyContainer อะไรที่อยู่นอกออกให้หมด -->
+    </div>
+
+  </div>
+</div>

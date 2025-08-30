@@ -1,0 +1,320 @@
+/* ==========================================================================
+   modalCondition.css (FULL)
+   - Overlay แบบเต็มจอ
+   - แก้ปัญหา flex + overflow (min-height:0) เพื่อให้ inner area ฟscroll ได้
+   - ทำให้ตารางเลื่อนเองได้โดยไม่ทำลาย layout table ตามปกติ
+   - ปรับให้ blockly (advance) เติมพื้นที่ได้อย่างถูกต้อง
+   ========================================================================== */
+
+/* ---------------------------
+   Overlay หลัก (เต็มหน้าจอ)
+   --------------------------- */
+#condition-overlay {
+  position: fixed;
+  inset: 0;                      /* top:0; right:0; bottom:0; left:0; */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;                 /* ครอบเต็มหน้าจอ */
+  background-color: #fff;
+  overflow: hidden;              /* ห้าม overlay เอง scroll — ให้ inner scroll แทน */
+  overscroll-behavior: contain;  /* ป้องกัน background scroll chaining */
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* header (first child) — sticky เพื่อไม่เลื่อนไปพร้อมเนื้อหา */
+#condition-overlay > .d-flex:first-child,
+#condition-overlay .condition-overlay-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #fff;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+/* badge ขนาดเล็ก */
+#condition-overlay .badge {
+  font-size: 0.85rem;
+}
+
+/* ---------------------------
+   พื้นที่เนื้อหา (scrollable)
+   ---------------------------
+   สำคัญ: ต้องมี min-height:0 ที่ parent/child ในระบบ flex
+*/
+#condition-overlay > .p-0.d-flex.flex-column,
+#condition-overlay .tab-content-container {
+  flex: 1 1 auto;
+  min-height: 0;           /* สำคัญ — ถ้าไม่ใส่ child ที่ overflow จะไม่ทำงาน */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;        /* inner element จะควบคุม scroll เอง */
+  padding: 0.75rem 1rem;
+}
+
+/* เอา overflow ให้ container ของแท็บแท้จริง (list/edit) */
+#condition-overlay .tab-content-container {
+  overflow-y: auto;               /* scroll อยู่ตรงนี้ */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---------------------------
+   Nav tabs (ซ่อนโดยค่าเริ่มต้น) — แสดงเมื่อ mode-edit
+   --------------------------- */
+#condition-overlay .nav-tabs {
+  display: none !important;
+  margin: 0 1rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+#condition-overlay.mode-edit .nav-tabs {
+  display: flex !important;
+}
+
+/* ปรับลิงก์ของ tab ให้ชัดเจน */
+#conditionTab .nav-link {
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+}
+#conditionTab .nav-link.active {
+  font-weight: 600;
+}
+
+/* ---------------------------
+   List view / Edit view containers
+   --------------------------- */
+#condition-list-view,
+#condition-edit-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+/* เมื่อซ่อน ให้ pointer-events none เพื่อปิดการโต้ตอบ */
+#condition-overlay .d-none {
+  display: none !important;
+  pointer-events: none;
+}
+
+/* ---------------------------
+   Table responsive area
+   --------------------------- */
+/* ให้ wrapper .table-responsive คุม scrollของตาราง */
+.table-responsive {
+  overflow: auto;
+  max-height: 60vh; /* ปรับตามต้องการ */
+  border-radius: 6px;
+}
+
+/* อย่าเปลี่ยน table ให้เป็น display:block ถ้าไม่จำเป็น */
+#conditionsListTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+/* ให้ thead ติดอยู่ข้างบนเมื่อเลื่อน (simple sticky) */
+#conditionsListTable thead th {
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+  z-index: 2;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+/* style ตารางเล็ก */
+#conditionsListTable th,
+#conditionsListTable td {
+  padding: 0.4rem 0.6rem;
+  vertical-align: middle;
+  font-size: 0.9rem;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* ===========================
+   Form / Controls
+   =========================== */
+.form-border {
+  border: 2px solid rgba(175, 175, 175, 0.12);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #fff;
+}
+
+/* ให้ field ที่ readonly ดูต่างจากปกติ */
+input[readonly].form-control {
+  background-color: #f8f9fa;
+  cursor: default;
+}
+
+/* ปุ่ม ไอคอน กลุ่มปุ่ม */
+#condition-overlay .btn {
+  white-space: nowrap;
+}
+
+/* Preview table ภายใน form (ถ้ามี) ให้อยู่ในพื้นที่ไม่เกะกะ */
+#conditionTable {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* ---------------------------
+   Advance / Blockly area
+   --------------------------- */
+#advance-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ให้ blocklyContainer เติมพื้นที่ภายใน advance-content */
+#advance-content #blocklyContainer {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  height: 100%;
+}
+
+/* blocklyDiv เป็น absolute ภายใน container ที่มีขนาด */
+#advance-content #blocklyDiv {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Blockly controls layering */
+.blockly-controls, .blocklyDropdownDiv, .blocklyWidgetDiv, .blocklyTooltipDiv {
+  z-index: 99999999 !important;
+}
+
+/* ---------------------------
+   Scrollbar styles (เล็กน้อย)
+   --------------------------- */
+#condition-overlay .tab-content-container::-webkit-scrollbar,
+.table-responsive::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+#condition-overlay .tab-content-container::-webkit-scrollbar-thumb,
+.table-responsive::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.08);
+  border-radius: 6px;
+}
+
+/* ---------------------------
+   Accessibility & small helpers
+   --------------------------- */
+#condition-overlay .form-control.is-invalid,
+#condition-overlay .form-select.is-invalid {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.125rem rgba(220,53,69,0.08);
+}
+
+/* ป้องกัน body scroll เมื่อ overlay เปิด (คุณมีแล้ว แต่รักษาซ้ำ) */
+body.overlay-open {
+  overflow: hidden;
+  position: relative;
+}
+
+/* transition เล็กน้อยเมื่อสลับโหมด */
+#condition-overlay .tab-content-container {
+  transition: opacity 160ms ease-in-out;
+}
+#condition-overlay .tab-content-container.d-none {
+  opacity: 0;
+}
+#condition-overlay .tab-content-container:not(.d-none) {
+  opacity: 1;
+}
+
+/* ---------------------------
+   Optional: responsive tweaks
+   --------------------------- */
+@media (max-width: 700px) {
+  #condition-overlay > .d-flex:first-child {
+    padding: 0.5rem;
+  }
+  #conditionTab .nav-link {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.9rem;
+  }
+  .table-responsive {
+    max-height: 50vh;
+  }
+}
+
+
+/* ---------------------------
+   modalCondition extra styles
+   (append to your modalCondition.css)
+   --------------------------- */
+
+/* Condition block visual */
+.condition-item {
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 8px;
+  padding: 0.6rem;
+  margin-bottom: 0.6rem;
+  background: #ededed;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Reward list inside a condition */
+.rewardsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Single reward item */
+.reward-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.45rem;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+/* Make product input not shrink too small */
+.selectedProductName_condition,
+.selectedProductName_reward {
+  min-width: 160px;
+  max-width: 100%;
+}
+
+/* Add-reward button alignment */
+.btn-add-reward {
+  margin-left: auto;
+}
+
+/* Remove buttons small and unobtrusive */
+.btn-remove-condition,
+.btn-remove-reward {
+  padding: 0.25rem 0.45rem;
+  font-size: 0.85rem;
+}
+
+/* ensure rewards container scroll if many */
+.conditions-scroll-wrapper {
+  max-height: 40vh;
+  overflow: auto;
+}
+
+/* small screens tweaks */
+@media (max-width: 700px) {
+  .reward-item { gap: 0.4rem; }
+  .selectedProductName_condition, .selectedProductName_reward { min-width: 120px; }
+}
+

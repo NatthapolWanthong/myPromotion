@@ -1,0 +1,27 @@
+#modalProductList .modal-body { padding: 1rem 1.25rem; }
+#product-search-input { border-radius: 8px; }
+
+/* category header */
+.product-category { border-bottom: 1px solid #e9ecef; padding: .5rem .75rem; display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+.product-category .cat-left { display:flex; align-items:center; gap:.5rem; }
+.product-category .cat-title { font-weight:600; }
+
+/* product row */
+.product-row { display:flex; align-items:center; gap:.75rem; padding:.5rem .75rem; border-bottom:1px solid #f1f3f5; }
+.product-row:hover { background:#fbfcfe; cursor:pointer; }
+
+/* highlight selected */
+.product-row.selected { background:#e9f7ef !important; }
+.btn-select-product.btn-selected { background-color:#198754 !important; border-color:#198754 !important; color:#fff; }
+
+/* small sku */
+.product-sku { width:140px; font-family:monospace; }
+
+/* collapse content */
+.cat-products { padding-left:2.5rem; }
+
+/* pagination info */
+#flat-pagination { padding-top: .5rem; }
+
+/* selected count */
+#selected-count { font-weight:500; }

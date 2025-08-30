@@ -1,0 +1,26 @@
+<div class="modal fade" id="statusModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">เลือกสถานะ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      
+      <!-- generateModalSelectStatus.js เรียกใช้ Class ตัวนี้ -->
+      <div class="modal-body modal-select-status-option modal-body">
+        <h6 class="text-success mt-3">เปิดใช้งาน</h6>
+        <div class="modal-select-status-option-active"></div>
+
+        <h6 class="text-primary mt-3">รอดำเนินการ</h6>
+        <div class="modal-select-status-option-pending"></div>
+
+        <h6 class="text-danger mt-3">ปิดใช้งาน</h6>
+        <div class="modal-select-status-option-close"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel-status" class="btn btn-primary">Edit</button>
+        <button id="btn-select-status" data-bs-dismiss="modal" class="btn btn-primary">Select</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "blockly": "^12.2.0",
+    "express": "^5.1.0",
+    "sweetalert2": "^11.22.2"
+  }
+}

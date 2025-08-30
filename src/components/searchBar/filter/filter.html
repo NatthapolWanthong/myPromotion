@@ -1,0 +1,84 @@
+
+<div class="dropstart position-relative">
+    <button class="btn btn-filter btn-outline-secondary d-flex align-items-center justify-content-center" type="button" id="filterButton">
+        <i class="bi bi-funnel-fill me-1"></i> Filter
+    </button>
+    <ul class="dropdown-menu p-3" id="filterMenu" style="min-width: 230px;">
+        <!-- ประเภท -->
+        <li class="dropend position-relative" data-dropdown>
+        <a class="dropdown-item" href="#" data-toggle>
+            <span class="dot me-2"></span>ประเภท
+            <i class="bi bi-chevron-right small"></i>
+        </a>
+        <ul class="dropdown-menu p-2 subMenuFilter" data-submenu>
+            <li>ประเภท</li>
+            <li><hr class="dropdown-divider"/></li>
+            <input class="form-control me-2 form-control-sm" type="search" placeholder="Search.." id="/" data-target="typeOptionFilterDropDown">
+             <!-- <input class="form-control me-2 form-control-sm" type="search" placeholder="Search" aria-label="Search"/> -->
+            <li><label class="form-check-label"><input class="form-check-input me-1 status-checkbox select-all-checkbox" type="checkbox" value="0" id="select-all-option" checked>เลือกทั้งหมด</label></li>
+            <li><hr class="dropdown-divider"/></li>
+            <div class="typeOptionFilter OptionFilter" id="typeOptionFilterDropDown">
+                <!-- Generate Option -->
+            </div>
+        </ul>
+        </li> 
+        <!-- เป้าหมาย -->
+        <li class="dropend position-relative" data-dropdown>
+        <a class="dropdown-item" href="#" data-toggle>
+            <span class="dot me-2"></span>เป้าหมาย
+            <i class="bi bi-chevron-right small"></i>
+        </a>
+        <ul class="dropdown-menu p-2 subMenuFilter" data-submenu>
+            <li>เป้าหมาย</li>
+            <li><hr class="dropdown-divider"/></li>
+            <input class="form-control me-2 form-control-sm" type="search" placeholder="Search.." id="targetSearchInput" data-target="targetOptionFilterDropDown">
+            <li><label class="form-check-label"><input class="form-check-input me-1 status-checkbox select-all-checkbox" type="checkbox" value="0" id="select-all-option" checked>เลือกทั้งหมด</label></li>
+            <li><hr class="dropdown-divider"/></li>
+            <div class="targetOptionFilter OptionFilter" id="targetOptionFilterDropDown">
+                <!-- Generate Option -->
+            </div>
+        </ul>
+        </li>
+
+        <!-- สถานะ -->
+        <li class="dropend position-relative" data-dropdown>
+        <a class="dropdown-item" href="#" data-toggle>
+            <span class="dot me-2"></span>สถานะ
+            <i class="bi bi-chevron-right small"></i>
+        </a>
+        <ul class="dropdown-menu p-2 subMenuFilter" data-submenu>
+            <li>สถานะ</li>
+            <li><hr class="dropdown-divider"/></li>
+            <input class="form-control me-2 form-control-sm" type="search" placeholder="Search.." id="myInput" data-target="statusOptionFilterDropDown">
+            <li><label class="form-check-label"><input class="form-check-input me-1 status-checkbox select-all-checkbox" type="checkbox" value="0" id="select-all-option" checked>เลือกทั้งหมด</label></li>
+            <li><hr class="dropdown-divider"/></li>
+            <div class="statusOptionFilter OptionFilter" id="statusOptionFilterDropDown">
+                <!-- Generate Option -->
+            </div>
+        </ul>
+        </li>
+
+        <!-- ปุ่มล้าง / ยืนยัน -->
+        <li><hr class="dropdown-divider"/></li>
+        <li class="mt-3 d-flex justify-content-between">
+            <button class="btn btn-sm btn-secondary clear-filter" type="button">ล้าง</button>
+            <button class="btn btn-sm btn-primary apply-filter" type="button">ใช้ตัวกรอง</button>
+        </li>
+    </ul>
+</div>
+
+<script>
+
+
+</script>
+
+<!-- function filterFunction(inputElement, dropdownId) {
+  const filter = inputElement.value.toUpperCase();
+  const dropdown = document.getElementById(dropdownId);
+  const items = dropdown.getElementsByTagName("li");
+
+  for (let i = 0; i < items.length; i++) {
+    const txtValue = items[i].textContent || items[i].innerText;
+    items[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+  }
+} -->

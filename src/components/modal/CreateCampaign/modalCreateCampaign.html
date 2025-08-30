@@ -1,0 +1,96 @@
+<!-- Form สร้างกิจกรรม -->
+
+<div
+  class="modal fade"
+  id="my-form"
+  tabindex="-1"
+  aria-labelledby="my-form-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="my-form-label">สร้างกิจกรรม</h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form class="row g-3 needs-validation" novalidate>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label for="firstName" class="form-label">ชื่อ</label>
+              <input type="text" class="form-control" id="form-name" placeholder="กรอกชื่อกิจกรรม" value="" required>
+              <div class="invalid-feedback">
+                ต้องกรอกชื่อกิจกรรม
+              </div>
+            </div>
+
+            <div class="col-sm-6">
+              <label for="form-code" class="form-label">รหัส</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="form-code" placeholder="กรอกรหัสกิจกรรม" required>
+                <div class="input-group-text">
+                  <input class="form-check-input mt-0" type="checkbox" id="auto-code-toggle" title="สร้างรหัสอัตโนมัติ">
+                  <label for="auto-code-toggle" style="margin-left:5px;">Auto</label>
+                </div>
+              </div>
+              <div class="invalid-feedback">ต้องกรอกรหัสกิจกรรม</div>
+            </div>
+
+            <div class="col-12">
+              <label for="form-description" class="form-label">คำอธิบายเพิ่มเติม</label>
+              <div class="input-group has-validation">
+                <textarea type="text" class="form-control" id="form-description" placeholder="กรอกคำอธิบายเพิ่มเติม" ></textarea>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="form-type" class="form-label">ประเภท</label>
+              <select class="form-select ch" id="form-type" placeholder="เลือกประเภท" required></select>
+              <div class="invalid-feedback">
+                ต้องเลือกประเภท
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="form-target" class="form-label">เป้าหมาย</label>
+              <select class="form-select" id="form-target" placeholder="เลือกเป้าหมาย" required></select>
+              <div class="invalid-feedback">
+                ต้องเลือกเป้าหมาย
+              </div>
+            </div>
+
+            <div class="col-md-6">
+                <label for="form-start" class="form-label">เริ่มต้น</label>
+                <input type="text" class="form-control date-picker" id="form-begin" required />
+                <div class="invalid-feedback">
+                    ต้องใส่วันที่เริ่มต้น
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label for="form-end" class="form-label">สิ้นสุด</label>
+                <input type="text" class="form-control date-picker" id="form-end" required />
+                <div class="invalid-feedback">
+                    ต้องใส่วันที่สิ้นสุด
+                </div>
+                <p id="thai-datetime" style="margin-top:5px; color:blue;"></p>
+            </div>
+            <div class="col-md-6">
+              <label for="inputEmail4" class="form-label">พื้นที่เป้าหมาย</label>
+              <input type="text"class="form-control" id="form-location" placeholder="กรอกพื้นที่เป้าหมาย"/>
+            </div>
+            <div class="col-md-6">
+              <label for="inputPassword4" class="form-label">หมายเหตุ</label>
+              <input type="text" class="form-control" id="form-note" placeholder="กรอกหมายเหตุ"/>
+            </div>
+          </div>
+          <button type="submit" id="btn-create-campaign" class="btn btn-primary">สร้างกิจกรรม</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

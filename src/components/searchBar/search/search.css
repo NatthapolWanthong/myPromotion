@@ -1,0 +1,12 @@
+.searchBar {
+  display: flex;
+  height: 30px;
+}
+
+.searchBar button {
+  margin-right: 17px;
+  width: 100px;
+  text-align: center;
+  align-self: center;
+  padding: 2px;
+}

@@ -1,0 +1,37 @@
+<!-- modalProductList.html -->
+<!-- Modal: Product List -->
+<div id="modalProductList" class="modal fade" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">เลือกสินค้า</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="text" id="product-search-input" class="form-control mb-3" placeholder="ค้นหาสินค้า...">
+
+        <!-- แสดงหมวดและสินค้า -->
+        <div id="product-list-body" class="list-group" style="max-height:420px; overflow:auto;">
+          <!-- categories & product rows จะถูก render โดย JS -->
+        </div>
+      </div>
+
+      <div class="modal-footer d-flex justify-content-between align-items-center">
+        <div>
+          <button id="btn-select-visible" type="button" class="btn btn-sm btn-outline-primary">เลือกทั้งหมดที่แสดง</button>
+          <button id="btn-clear-selection" type="button" class="btn btn-sm btn-outline-secondary">ยกเลิกทั้งหมด</button>
+        </div>
+
+        <div class="text-muted me-3" id="selected-count">เลือกแล้ว 0 รายการ</div>
+
+        <div>
+          <button id="btn-confirm-selection" type="button" class="btn btn-primary">ยืนยันการเลือก</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

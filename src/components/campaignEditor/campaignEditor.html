@@ -1,0 +1,85 @@
+<div class="campaignEditorContainer card-status">
+    <div class="row row-main m-0 align-item-center justify-content-between">
+        <div class="col col1">
+            <div>
+                <label>ชื่อ :</label>
+                <div data-field="form-name" class="title editable-text input-class" data-field="name"></div>
+            </div>
+            <div >
+                <label>รหัส :</label>
+                <div data-field="form-code" style="width: 170px;" class="id editable-text input-class" data-field="code"></div>
+            </div>
+        </div>
+        <div class="col col2">
+            <textarea data-field="form-description"  class="form-control mb-0" rows="3" placeholder="คำอธิบายเพิ่มเติม" style="resize: none; font-size: 14px;"></textarea>
+        </div>
+        <div class="col col3">
+        <div class="row-select d-flex">
+            <label class="col-3-text">ประเภท :</label>
+            <select  data-field="form-type" class="form-select input-setting input-small"></select>
+        </div>
+        <div class="row-select d-flex">
+            <label class="col-3-text">เป้าหมาย :</label>
+            <select  data-field="form-target" class="form-select input-setting input-small"></select>
+        </div>
+        </div>
+        <div class="col col4">
+            <div class="row-select d-flex">
+                <label class="col-4-text">เริ่ม :</label>
+                <input data-field="form-begin" data-datetime class="form-control input-setting input-small form-begin date-picker" type="text" value="${item.start_date}">
+            </div>
+            <div class="row-select d-flex">
+                <label class="col-4-text">สิ้นสุด :</label>
+                <input data-field="form-end"  class="form-control input-setting input-small form-end date-picker" type="text" value="${item.end_date}">
+            </div>
+        </div>
+        <div class="icon-status">
+              
+        </div>
+    </div>
+    <div class="row row m-0">
+    <div class="col col-expand col-expand-1">
+        <div class="location-form">
+            <label>พื้นที่เป้าหมาย :</label>
+            <input data-field="form-location" class="form-control input-setting form-location" type="text">
+        </div>
+        <div class="col create-information m-0">
+            <div class="create-by d-flex">
+                <label>สร้างโดย :</label>
+                <input readonly class="form-control input-setting input-small date-picker-disabled" type="text" value="${item.created_by}">
+            </div>
+                <div class="create-date d-flex">
+                <label>สร้างเมื่อ :</label>
+                <input readonly class="form-control input-setting input-small date-picker-disabled" type="text" value="${item.create_date}">
+            </div>
+        </div>
+        <div class="col total m-0 promotion-total">
+            จำนวนโปรโมชั่นทั้งหมด : 
+        </div>
+    </div>
+    <div class="col col-expand col-expand-2 d-flex">
+        <div class="note-form d-flex">
+            <label>หมายเหตุ : </label>
+            <textarea data-field="form-note" class="form-control input-setting form-note" placeholder="หมายเหตุ" rows="3"></textarea>
+        </div>
+    </div>
+        <div class="col col-expand col-expand-3">
+            <div class="d-flex flex-row">
+                <div class="status-form d-flex" style="text-wrap:nowrap; justify-content: center; align-items: center;">
+                <label>สถานะ : </label>
+                <button type="button" class="btn SelectStatus-button" data-bs-toggle="modal" data-bs-target="#statusModal" style="border: 0px;">
+                    <i class="bi bi-${CampaignStatus.icon} SelectStatus-icon"></i>
+                    <label class="SelectStatus-label" data-field="SelectStatus-label"></label>
+                </button>
+                </div>
+            </div>
+        </div>
+        <div class="col col-expand-4">
+            <button class="btn btn-outline-primary btn-history">History</button>
+            <button class="btn btn-danger btn-delete">Delete</button>
+            <button class="btn btn-primary btn-edit">Edit</button>
+            <button class="btn btn-secondary btn-cancel d-none">Cancel</button>
+            <button class="btn btn-success btn-save d-none">Save</button>
+          </div>
+    </div>
+</div>

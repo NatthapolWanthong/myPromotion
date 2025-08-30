@@ -1,0 +1,2133 @@
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-11T10:54",
+    "end": "2025-08-11T10:54",
+    "location": "",
+    "note": "",
+    "campaign_id": "15"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-11T11:00",
+    "end": "2025-08-11T11:00",
+    "location": "",
+    "note": "",
+    "campaign_id": null
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-12T11:05",
+    "end": "2025-08-14T11:05",
+    "location": "",
+    "note": "",
+    "campaign_id": "15"
+}
+{
+    "name": "testtest",
+    "code": "testtesttesttest",
+    "status": "2",
+    "description": "testtesttesttesttesttest",
+    "type": "4",
+    "target": "2",
+    "begin": "2025-08-11T11:09",
+    "end": "2025-08-29T11:10",
+    "location": "testtesttesttesttesttesttesttest",
+    "note": "testtesttesttesttesttesttesttesttesttesttesttest",
+    "campaign_id": "15"
+}
+{
+    "id": "102",
+    "name": "testtest",
+    "code": "testtesttesttest",
+    "status": "6",
+    "description": "testtesttesttesttesttest",
+    "type": "4",
+    "target": "2",
+    "begin": "2025-08-11T11:09",
+    "end": "2025-08-29T11:10",
+    "location": "testtesttesttesttesttesttesttest",
+    "note": "testtesttesttesttesttesttesttesttesttesttesttest",
+    "campaign_id": "15"
+}
+{
+    "id": "102",
+    "name": "testtest",
+    "code": "testtesttesttest",
+    "status": "1",
+    "description": "testtesttesttesttesttest",
+    "type": "4",
+    "target": "2",
+    "begin": "2025-08-11T11:09",
+    "end": "2025-08-29T11:10",
+    "location": "testtesttesttesttesttesttesttest",
+    "note": "testtesttesttesttesttesttesttesttesttesttesttest",
+    "campaign_id": "15"
+}
+{
+    "name": "test",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-11T11:15",
+    "end": "2025-08-05T11:15",
+    "location": "",
+    "note": "",
+    "campaign_id": "15"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-11T11:15",
+    "end": "2025-08-05T11:15",
+    "location": "",
+    "note": "",
+    "campaign_id": "15"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-11T11:15",
+    "end": "2025-08-05T11:15",
+    "location": "",
+    "note": "",
+    "campaign_id": "15"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-11T11:21",
+    "end": "2025-08-11T11:21",
+    "location": "tes",
+    "note": "",
+    "campaign_id": "15"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-29T11:27",
+    "end": "2025-08-26T11:27",
+    "location": "",
+    "note": "",
+    "campaign_id": "15"
+}
+{
+    "id": "106",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "fsfsfsefsf",
+    "type": "1",
+    "target": "2",
+    "begin": "2025-08-29T11:27",
+    "end": "2025-08-26T11:27",
+    "location": "efsfe",
+    "note": "sfsfsf",
+    "campaign_id": "15"
+}
+{
+    "id": "106",
+    "name": "test",
+    "code": "test",
+    "status": "6",
+    "description": "fsfsfsefsf",
+    "type": "1",
+    "target": "2",
+    "begin": "2025-08-29T11:27",
+    "end": "2025-08-26T11:27",
+    "location": "efsfe",
+    "note": "sfsfsf",
+    "campaign_id": "15"
+}
+{
+    "name": "",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "9"
+}
+{
+    "name": "\u0e08\u0e14\u0e42\u0e1b\u0e23NEO (2025)",
+    "code": "PROMO1",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01T11:29",
+    "end": "2025-08-31T11:29",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "\u0e08\u0e14\u0e42\u0e1b\u0e23FS \u0e04\u0e25\u0e30\u0e44\u0e0b\u0e2a\u0e4c (2025)",
+    "code": "PROMO2",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01T11:30",
+    "end": "2025-08-31T11:31",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "\u0e08\u0e14\u0e42\u0e1b\u0e23STL (2025)",
+    "code": "PROMO3",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01T11:31",
+    "end": "2025-08-31T11:31",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "\u0e08\u0e14\u0e42\u0e1b\u0e23RHINO (2025)",
+    "code": "PROMO4",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01T00:00",
+    "end": "2025-08-31T00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "\u0e08\u0e14\u0e42\u0e1b\u0e23EUTEK (2025)",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01T00:00",
+    "end": "2025-08-31T00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "\u0e08\u0e14\u0e42\u0e1b\u0e23EUTEK (2025)",
+    "code": "PROMO5",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01T00:00",
+    "end": "2025-08-31T00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "107",
+    "name": "\u0e08\u0e14\u0e42\u0e1b\u0e23NEO (2025)",
+    "code": "PROMO1",
+    "status": "1",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01T11:29",
+    "end": "2025-08-31T11:29",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "107",
+    "name": "\u0e08\u0e14\u0e42\u0e1b\u0e23NEO (2025)",
+    "code": "PROMO1",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01T11:29",
+    "end": "2025-08-31T11:29",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "06\/08\/2025 20:00:20 \u0e19.",
+    "end": "30\/08\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "06\/08\/2025 00:00:00 \u0e19.",
+    "end": "06\/08\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "06\/08\/2025 00:00:00 \u0e19.",
+    "end": "06\/08\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "06\/08\/2025 01:00:00 \u0e19.",
+    "end": "21\/08\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "06\/08\/2025 01:00:00 \u0e19.",
+    "end": "21\/08\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "testtesttest",
+    "code": "testtesttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-14 00:00:00",
+    "end": "2025-08-23 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-13 00:00:00",
+    "end": "2025-08-21 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "115",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "2025-08-13 00:00:00",
+    "note": "s",
+    "campaign_id": "139"
+}
+{
+    "id": "115",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "0000-00-00 00:00:00",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "115",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "30\/11\/2025 00:00:00 \u0e19.",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-14 00:00:00",
+    "end": "2025-08-30 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "115",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "01\/11\/2025 00:00:00 \u0e19.",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "115",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "01\/11\/2025 15:00:00 \u0e19.",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "115",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "30\/11\/2025 00:00:00 \u0e19.",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "14\/08\/2025 00:00:00 \u0e19.",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "115",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "115",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "testtesttest",
+    "code": "testtesttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "testtesttesttest",
+    "code": "testtesttesttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "testtesttesttesttesttesttesttest",
+    "code": "testtesttesttesttesttesttesttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-05-08 00:00:00",
+    "end": "2025-08-07 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "119",
+    "name": "testtesttesttesttesttesttesttest",
+    "code": "testtesttesttesttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "119",
+    "name": "testtesttesttesttesttesttesttest",
+    "code": "testtesttesttesttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "119",
+    "name": "testtesttesttesttesttesttesttest",
+    "code": "testtesttesttesttest",
+    "status": "2",
+    "description": "s",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "119",
+    "name": "testtesttesttesttesttesttesttest",
+    "code": "testtesttesttesttest",
+    "status": "2",
+    "description": "s",
+    "type": "1",
+    "target": "1",
+    "end": "25\/11\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "119",
+    "name": "testtesttesttesttesttesttesttest",
+    "code": "testtesttesttesttest",
+    "status": "2",
+    "description": "s",
+    "type": "1",
+    "target": "1",
+    "end": "19\/11\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "118",
+    "name": "testtesttesttest",
+    "code": "testtesttesttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "end": "01\/11\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "117",
+    "name": "testtesttest",
+    "code": "testtesttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "end": "12\/11\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "115",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "end": "26\/11\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "end": "17\/11\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "end": "29\/11\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "end": "25\/11\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "end": "25\/11\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "wadadd",
+    "type": "1",
+    "target": "1",
+    "end": "30\/11\/00-1 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "wadadd",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "wadadd",
+    "type": "1",
+    "target": "1",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "wadadd",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-11-03 00:00:00",
+    "end": "24\/11\/2025 00:00:00 \u0e19.",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "wadadd",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-11-03 00:00:00",
+    "end": "2025-11-23 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "115",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-06-01 00:00:00",
+    "end": "2025-07-07 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "117",
+    "name": "testtesttest",
+    "code": "testtesttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-03-02 00:00:00",
+    "end": "2025-03-30 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "118",
+    "name": "testtesttesttest",
+    "code": "testtesttesttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-11-30 00:00:00",
+    "end": "2025-11-30 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "id": "116",
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "wadadd",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-11-03 00:00:00",
+    "end": "2025-11-23 00:00:00",
+    "location": "adawdad",
+    "note": "",
+    "campaign_id": "139"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "9"
+}
+{
+    "id": "120",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "desc",
+    "type": "1",
+    "target": "1",
+    "begin": "0000-00-00 00:00:00",
+    "end": "0000-00-00 00:00:00",
+    "location": "CHINA",
+    "note": "note",
+    "campaign_id": "9"
+}
+{
+    "id": "120",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "desc",
+    "type": "1",
+    "target": "1",
+    "begin": "0000-00-00 00:00:00",
+    "end": "2025-11-11 00:00:00",
+    "location": "CHINA",
+    "note": "note",
+    "campaign_id": "9"
+}
+{
+    "id": "120",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "desc",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-11-12 00:00:00",
+    "end": "2025-11-11 00:00:00",
+    "location": "CHINA",
+    "note": "note",
+    "campaign_id": "9"
+}
+{
+    "name": "testtesttest",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-14 00:00:00",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "140"
+}
+{
+    "name": "",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "140"
+}
+{
+    "name": "",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "140"
+}
+{
+    "name": "testtesttest",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "140"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "141"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "141"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-14 00:00:00",
+    "end": "2025-08-16 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "141"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-14 00:00:00",
+    "end": "2025-08-16 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "141"
+}
+{
+    "name": "test",
+    "code": "tets",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "141"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "141"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "141"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-14 00:00:00",
+    "end": "00-2-12-31 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "141"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "145"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-14 00:00:00",
+    "end": "2025-08-16 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "145"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "145"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-14 00:00:00",
+    "end": "2025-08-15 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "145"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "145"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "2025-08-21 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "145"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-16 00:00:00",
+    "end": "2025-08-21 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "145"
+}
+{
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "147"
+}
+{
+    "name": "testtest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-14 00:00:00",
+    "end": "2025-08-14 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "147"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-30 00:00:00",
+    "end": "2025-08-19 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "150"
+}
+{
+    "name": "",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-22 00:00:00",
+    "end": "2025-08-30 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "150"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-22 00:00:00",
+    "end": "2025-08-30 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "150"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-20 00:00:00",
+    "end": "2025-08-25 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "150"
+}
+{
+    "name": "",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-01 00:00:00",
+    "end": "2025-08-27 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "150"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-01 00:00:00",
+    "end": "2025-08-27 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "150"
+}
+{
+    "name": "tset",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "150"
+}
+{
+    "name": "tset",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-09-27 00:00:00",
+    "end": "2025-08-28 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "150"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "3"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-22 00:00:00",
+    "end": "2025-08-27 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "3"
+}
+{
+    "name": "test",
+    "code": "testsets",
+    "status": "2",
+    "description": "test",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-15 00:00:00",
+    "end": "2025-08-20 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "3"
+}
+{
+    "name": "testt",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "3"
+}
+{
+    "name": "testt",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-16 00:00:00",
+    "end": "2025-08-26 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "3"
+}
+{
+    "name": "",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "151"
+}
+{
+    "name": "testtesttest",
+    "code": "testtest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-14 00:00:00",
+    "end": "2025-08-16 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "151"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-30 00:00:00",
+    "end": "2025-08-20 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "151"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-15 00:00:00",
+    "end": "2025-08-20 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "151"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-21 00:00:00",
+    "end": "2025-08-20 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "151"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-08-01 00:00:00",
+    "end": "2025-08-02 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "151"
+}
+{
+    "name": "",
+    "code": "",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "",
+    "end": "",
+    "location": "",
+    "note": "",
+    "campaign_id": "153"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "173"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01 00:00:00",
+    "end": "2025-01-04 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "173"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01 00:00:00",
+    "end": "2025-01-04 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "173"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "174"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "174"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "174"
+}
+{
+    "name": "test",
+    "code": "ttest",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "174"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01 00:00:00",
+    "end": "2025-01-06 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "174"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "174"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "175"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "173"
+}
+{
+    "name": "test",
+    "code": "tset",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "175"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-01 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": null
+}
+{
+    "name": "test",
+    "code": "tset",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "175"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "175"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "176"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "186"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "186"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "186"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "186"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "186"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "187"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "187"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-03 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "172",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-03 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "171",
+    "name": "test",
+    "code": "test",
+    "status": "3",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-23 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "168",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "169",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "178",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "177",
+    "name": "test",
+    "code": "test",
+    "status": "6",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "176",
+    "name": "test",
+    "code": "test",
+    "status": "3",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "170",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "\u0e1f",
+    "campaign_id": "188"
+}
+{
+    "id": "170",
+    "name": "test",
+    "code": "test",
+    "status": "2",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "170",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-02 00:00:00",
+    "end": "2025-01-03 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "172",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-03 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "s",
+    "campaign_id": "188"
+}
+{
+    "id": "172",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-03 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "",
+    "campaign_id": "188"
+}
+{
+    "id": "172",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-03 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "s",
+    "campaign_id": "188"
+}
+{
+    "id": "172",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "s",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-03 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "s",
+    "campaign_id": "188"
+}
+{
+    "id": "172",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "s",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-03 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "ss",
+    "campaign_id": "188"
+}
+{
+    "id": "172",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "s",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-03 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "ss\u0e2b",
+    "campaign_id": "188"
+}
+{
+    "id": "172",
+    "name": "test",
+    "code": "test",
+    "status": "1",
+    "description": "s",
+    "type": "1",
+    "target": "1",
+    "begin": "2025-01-03 00:00:00",
+    "end": "2025-01-02 00:00:00",
+    "location": "",
+    "note": "ss\u0e2b\u0e2b",
+    "campaign_id": "188"
+}

@@ -1,0 +1,421 @@
+/* ========================
+   CARD LAYOUT & BASE STYLE
+   ======================== */
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1.5px solid #d1d5db;
+  margin: 4px 0;
+  transition: all 0.3s ease-in;
+  height: 80px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.cards .btn:hover{
+  transform: scale(1.05);
+  transition: all 0.1s ease-in;
+}
+
+.card-status{
+  --after-display: block;
+}
+
+.card-status::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  background-color: #198754;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  transition: background-color 0.3s ease;
+  display: var(--after-display);
+}
+
+.card-status.cards-Active::after {
+  background-color: #198754;
+}
+
+.card-status.cards-Pending::after {
+  background-color: #0d6efd;
+}
+
+.card-status.cards-Close::after {
+  background-color: #dc3545;
+}
+
+.card-status.cards-Expire::after {
+  background-color: #7b4b2a;
+}
+
+.cards.form-control {
+  width: 120px;
+  height: 25px;
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.5;
+  padding: 2px 4px;
+  background-position: right 7px center;
+  background-size: 10px 10px;
+}
+
+/* =====================
+   INPUT STYLE SETTINGS
+   ===================== */
+
+.input-setting {
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.5;
+  padding: 2px 4px;
+  background-position: right 7px center;
+  background-size: 10px 10px;
+}
+
+.input-small {
+  width: 200px;
+  height: 25px;
+}
+
+.cards input:disabled,
+.cards select:disabled,
+.cards textarea:disabled {
+  background-color: rgb(244, 244, 244);
+  cursor: not-allowed;
+}
+
+.cards.expanded input,
+.cards.expanded select,
+.cards.expanded textarea {
+  background-color: #ffffff;
+  border: 1px solid #badbcc;
+  transition: background-color 0.2s, border 0.2s;
+}
+
+/* ===================
+   CARD EXPANDED STYLE
+   =================== */
+
+.cards.expanded {
+  height: 190px;
+  margin: 14px 0;
+  border: 2px solid #198754;
+  border-radius: 12px;
+  background-color: #d1e7dd;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  padding: 4px;
+  position: relative;
+}
+
+.cards.expanded.cardPromotion {
+  height: 800px;
+}
+
+/* สีตอนขยาย */
+.cards.expanded.cards-Active{
+  border: 2px solid #198754;
+  background-color: #d1e7dd;
+  
+}
+
+.cards.expanded.cards-Pending{
+  border: 2px solid #195b87;
+  background-color: #e7f1ff;
+}
+
+.cards.expanded.cards-Close{
+  border: 2px solid #871919;
+  background-color: #f8d7da;
+}
+
+.cards.expanded.cards-Expire{
+  border: 2px solid #872619;
+  background-color: #f3e3d3;
+}
+
+
+
+.cards.expanded .row-main {
+  height: 80px;
+}
+
+.cards.expanded .row-expand {
+  display: flex;
+  flex: 1;
+  height: auto;
+  padding-top: 10px;
+  gap: 12px;
+  animation: fadeInExpand 0.3s ease-out;
+}
+
+/* ==================
+   FLEX GRID SYSTEM
+   ================== */
+
+.row {
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+
+.row-main {
+  height: 80px;
+}
+
+.row-expand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  padding-top: 10px;
+}
+
+.col {
+  flex: 1 1 auto;
+  min-width: 120px;
+  margin: 0 10px;
+}
+
+/* col1: เน้นชื่อ/โค้ด → กว้างสุด */
+.col1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 200px; /* กว้างกว่าคอลอื่น */
+  padding: 3px 0;
+}
+
+.col1 .title{
+  height: 50px;
+}
+
+.cards.expanded .col1 {
+  margin-bottom: 10px;
+}
+
+.code-row {
+  display: relative;
+  color: red;
+  position: static;
+  bottom: 0;
+}
+
+/* ID แคมเปญ */
+.campaign-id {
+  position: absolute;
+  display: block;
+  color: #0d6efd;
+  right: 0;
+  margin-top: 4px;
+}
+
+/* col2: คำอธิบาย */
+.col2 {
+  display: flex;
+  flex: 4 1 250px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* col3, col4: select/input */
+.col3,
+.col4 {
+  display: flex;
+  flex-direction: column;
+  flex: 2 1 160px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* col5: icon/status → 1:1 ขนาดเล็ก */
+.col5 {
+  display: flex;
+  flex: 0 0 60px;       /* fix width */
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+
+.col-expand-1 { flex: 8; margin: 0; }
+.col-expand-2 { flex: 7; }
+.col-expand-3 { flex: 2; }
+.col-expand-4 { flex: 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin-bottom: 6px;
+  margin-right: 3px;
+}
+
+.col-expand-4 .btn {
+  width: auto;
+  height: fit-content;
+  flex: 1 1 auto;
+  margin: 4px;
+}
+
+/* =========================
+   COMPONENT ELEMENT STYLES
+   ========================= */
+
+.title { padding-top: 2px; }
+.id { font-size: 12px; }
+
+.col2 textarea { height: 60px; }
+
+.row-select { margin: 3px; }
+
+.col-3-text { display: inline; width: 80px; }
+.col-4-text { width: 50px; }
+
+.icon-status {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-status .icon {
+  font-size: 32px;
+  color: #146c43;
+  margin: 0;
+  padding: 0;
+}
+
+.cards.expanded .icon-status { top: 6px; }
+.cards.expanded .icon-status .icon {
+  font-size: 50px;
+  transition: transform 0.3s;
+  color: #146c43;
+}
+
+.cards.expanded .icon-status .icon:hover {
+  transform: scale(1.1);
+}
+
+.status-text {
+  text-align: center;
+}
+
+.location-form {
+  display: flex;
+  flex-direction: row;
+  height: 31px;
+  width: auto;
+  justify-content: space-around;
+}
+
+.location-form label {
+  padding-right: 5px;
+}
+
+.location-form input {
+  width: 50px;
+  height: 20px;
+  flex: 1;
+  text-align: start;
+  margin-left: 2px;
+}
+
+.create-information {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  text-wrap: nowrap;
+}
+
+.create-information label { margin-right: 4px; }
+.create-information .create-by { margin-right: 14px; }
+
+.note-form {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.note-form textarea {
+  flex: 1;
+  font-size: 13px;
+  text-align: left;
+  line-height: 1.2;
+  height: 60px;
+  margin-left: 4px;
+  resize: none;
+}
+
+.btn-outline-brown{
+  color: #7b4b2a;
+}
+
+
+
+.btn-outline:hover {
+  background-color: #72482e;
+  color: red;
+}
+
+.editable-text {
+  display: inline-block;
+  max-width: 100%;             /* จำกัดไม่ให้ทะลุ col */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+textarea, input, select {
+  max-width: 100%;
+}
+
+
+
+
+
+
+/* ===== Promotion: Minimal & full-width table ===== */
+.promotion-detail-grid { margin-top: 8px; }
+.minimal-modal { background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(2,6,23,0.06); border: 1px solid rgba(15,23,42,0.04); }
+.promotion-table-wrap { width: 100%; overflow-x: auto; padding: 6px 0; }
+.promotion-table-component .table-inner-wrap { min-width: 1400px; } /* ปรับตามจำนวนคอลัมน์จริง */
+.table.table-hover { border-collapse: separate; border-spacing: 0 8px; }
+.table.table-hover thead th { position: sticky; top: 0; background: #fff; z-index: 3; border-bottom: 1px solid rgba(0,0,0,0.06); font-weight:600; }
+.table.table-hover tbody tr { background: #fff; border-radius: 8px; box-shadow: 0 1px 0 rgba(15,23,42,0.02); }
+.promo-toolbar { padding: 6px 0; }
+.promo-toolbar .form-control { min-width: 200px; }
+/* modal content minimal */
+.modal-content.minimal-modal { border: none; background: #fff; }
+/* responsive: small screens stack toolbar controls */
+@media (max-width: 780px) {
+  .promo-toolbar { flex-direction: column; gap:8px; align-items: stretch; }
+  .promo-toolbar .promo-search { width:100% !important; }
+}
+
+
+/* select look for condition field */
+.condition-select {
+  min-width: 140px;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+/* for table small variant */
+.condition-select.form-select-sm {
+  height: calc(1.5em + 0.5rem + 2px);
+  font-size: 0.85rem;
+}
+
+/* little hover */
+.condition-select:hover { box-shadow: 0 6px 14px rgba(2,6,23,0.04); }

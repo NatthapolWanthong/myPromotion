@@ -1,0 +1,37 @@
+.count {
+  margin-left: 15px;
+  line-height: 1.2;
+}
+
+.status-count {
+  display: flex;
+}
+
+nav {
+  margin-right: 30px;
+}
+
+.status {
+  width: 16px;
+  height: 16px;
+}
+
+label {
+  font-size: 15px;
+}
+
+.act {
+  color: green;
+}
+
+.pnd {
+  color: dodgerblue;
+}
+
+.cls {
+  color: red;
+}
+
+.exp {
+  color: rgb(174, 73, 19);
+}

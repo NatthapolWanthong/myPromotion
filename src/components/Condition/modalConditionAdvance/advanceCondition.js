@@ -381,12 +381,6 @@ function validateWorkspace(ws) {
         if (node.__asNumber) return true;
         return false;
       };
-
-      if (!isNumericNode(a) || !isNumericNode(b)) {
-        // do not allow override; require user to fix
-        alert("มีการใช้งาน compare กับค่าไม่ใช่ตัวเลข — กรุณาแก้ให้เป็นตัวเลขก่อนบันทึก");
-        return false;
-      }
     }
 
     return true;

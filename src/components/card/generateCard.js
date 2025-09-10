@@ -2,7 +2,7 @@ import { FormHelper } from "/myPromotion/src/assets/js/formHelper.js";
 import { CardEditController } from "./CardEditor.js";
 import { MainStatusData } from "/myPromotion/src/config.js";
 import { UpdateStatusCount } from "/myPromotion/src/components/status-count/status-count.js"
-
+import { API } from '/myPromotion/src/assets/js/api.js';
 
 // ✅ 1. CARD สำหรับ CAMPAIGN
 export class CampaignCard {
@@ -160,66 +160,228 @@ export class CampaignCard {
           </div>
         </div>
         ${isPromotion ? `
-          <div class="row row-expand-promotion-detail m-0">
-            <div class="col-12 d-flex justify-content-between align-items-center mb-2 promo-toolbar" id="promo-toolbar-${item.id}">
-              <div class="d-flex gap-2 align-items-center">
-                <button type="button" class="btn btn-primary btn-sm btn-open-condition" data-promotion-id="${item.id}">เงื่อนไข</button>
+        <div class="row row-expand-promotion-detail mb-0">     
+
+          <div class="col-12 condition-list-view mb-2" style="margin-bottom: 20px"> <!-- ตรงนี้เป็น list view -->
+            <div class="promotion-detail-grid minimal-modal full-width-table">            
+              <div class="d-flex align-items-center gap-2">
+                <button id="btn-create-condition" class="btn btn-primary">สร้างเงื่อนไข</button>
               </div>
-              <div class="d-flex gap-2 align-items-center">
-                <input type="search" class="form-control form-control-sm promo-search" placeholder="ค้นหา..." data-for="${item.id}" style="min-width:200px">
-                <select class="form-select form-select-sm promo-page-size" data-for="${item.id}" style="width:110px">
-                  <option value="5">5 / หน้า</option>
-                  <option value="10">10 / หน้า</option>
-                  <option value="25">25 / หน้า</option>
+              <div class="mb-3 d-f ex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-0">รายการเงื่อนไข</h6>
+                  <small class="text-muted">เงื่อนไขทั้งหมดที่ผูกกับโปรโมชั่นปัจจุบัน</small>
+                </div>
+              </div>
+
+              <div class="table-responsive mb-3">
+                <table class="table table-sm table-bordered" id="conditionsListTable-${item.id}">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>ชื่อเงื่อนไข</th>
+                      <th>Data Base</th>
+                      <th>จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
+              <div id="no-conditions-${item.id}" class="text-center text-muted my-4 d-none">
+                ยังไม่มีเงื่อนไข — กด "สร้างเงื่อนไข" เพื่อเพิ่ม
+              </div>
+              <!-- Add inside list-view (above table) -->
+              <div class="d-flex gap-2 mb-3">
+                <input id="conditionSearch-${item.id}" class="form-control form-control-sm" placeholder="ค้นหาเงื่อนไข (ชื่อ)..." />
+                <select id="perPageSelect-${item.id}" class="form-select form-select-sm" style="width:120px;">
+                  <option value="5" selected>5 / page</option>
+                  <option value="10">10 / page</option>
+                  <option value="20">20 / page</option>
+                  <option value="50">50 / page</option>
                 </select>
-                <button class="btn btn-outline-secondary btn-sm" id="btn-promo-summary-${item.id}" data-bs-toggle="modal" data-bs-target="#promoModal-${item.id}">สรุป</button>
               </div>
-            </div>
 
-            <div class="col-12">
-              <div class="promotion-detail-grid minimal-modal full-width-table">
-                <div class="promotion-table-wrap w-100">
-                  <!-- PREVIEW TABLE -->
-                  <promotion-table id="promotion-preview-table-${item.id}" data-minwidth="600"></promotion-table>
+              <!-- Add pagination bar below table -->
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <div>
+                  <button id="btn-prev-page-${item.id}" class="btn btn-sm btn-outline-secondary">Prev</button>
+                  <button id="btn-next-page-${item.id}" class="btn btn-sm btn-outline-secondary">Next</button>
+                </div>
+                <div>
+                  <small id="paginationInfo-${item.id}">Page 1 / 1</small>
                 </div>
               </div>
-            </div>
 
-            <div class="col-12">
-              <div class="promotion-detail-grid minimal-modal full-width-table">
-                <div class="promotion-table-wrap w-100">
-                  <!-- MAIN TABLE -->
-                  <promotion-table id="promotion-table-${item.id}" data-minwidth="1400"></promotion-table>
-                </div>
+            </div>
+          </div>
+
+          <div class="col-12 customer-list-view">
+            <div class="promotion-detail-grid minimal-modal full-width-table">
+              <div class="promotion-table-wrap w-100">
+                <!-- MAIN TABLE -->
+                <promotion-table id="promotion-table-${item.id}" data-minwidth="1400"></promotion-table>
               </div>
             </div>
+          </div>
 
-            <!-- SUMMARY MODAL (แยกออกไป) -->
-            <div class="modal fade" id="promoModal-${item.id}" tabindex="-1" aria-labelledby="promoModalLabel-${item.id}" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content minimal-modal">
-                  <div class="modal-header">
-                    <h6 class="modal-title" id="promoModalLabel-${item.id}">สรุปโปรโมชั่น: ${item.name}</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body" id="promo-modal-body-${item.id}">
-                    <p>จำนวนลูกค้า: <strong id="promo-count-modal-${item.id}">0</strong></p>
-                    <p>จำนวนเงื่อนไข: <strong id="promo-condition-count-modal-${item.id}">0</strong></p>
-                    <!-- เพิ่มรายละเอียดสรุปอื่น ๆ ได้ที่นี่ -->
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">ปิด</button>
-                  </div>
+          <!-- SUMMARY MODAL (แยกออกไป) -->
+          <div class="modal fade" id="promoModal-${item.id}" tabindex="-1" aria-labelledby="promoModalLabel-${item.id}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content minimal-modal">
+                <div class="modal-header">
+                  <h6 class="modal-title" id="promoModalLabel-${item.id}">สรุปโปรโมชั่น: ${item.name}</h6>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="promo-modal-body-${item.id}">
+                  <p>จำนวนลูกค้า: <strong id="promo-count-modal-${item.id}">0</strong></p>
+                  <p>จำนวนเงื่อนไข: <strong id="promo-condition-count-modal-${item.id}">0</strong></p>
+                  <!-- เพิ่มรายละเอียดสรุปอื่น ๆ ได้ที่นี่ -->
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">ปิด</button>
                 </div>
               </div>
             </div>
           </div>
+        </div>
       ` : ``}
         
       `;
 
       card.originalCampaignDataMapRef = this.originalValuesMap;
       this.container.appendChild(card);
+
+      // --- START: render short condition-list inside card (per-promotion unique) ---
+      (async () => {
+        try {
+          const promoId = Number(item.id);
+          // find the table inside card (we changed id in the template above to include item.id)
+          const tbody = card.querySelector(`#conditionsListTable-${promoId} tbody`);
+          const noEl = card.querySelector(`#no-conditions-${promoId}`);
+          const paginationInfoEl = card.querySelector(`#paginationInfo-${promoId}`);
+
+          if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="text-center">กำลังโหลด...</td></tr>`;
+
+          // fetch first page (few items) for preview
+          const res = await API.getCondition({ promotion_id: promoId, page: 1, per_page: 5 });
+          if (!res || !res.success || !Array.isArray(res.data) || res.data.length === 0) {
+            if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">ยังไม่มีเงื่อนไข</td></tr>`;
+            if (noEl) noEl.classList.remove('d-none');
+            if (paginationInfoEl) paginationInfoEl.textContent = `Page 1 / 1`;
+            return;
+          }
+
+          // render rows (compact)
+          tbody.innerHTML = '';
+          (res.data || []).forEach((c, idx) => {
+            const parsed = (() => {
+              try {
+                return (c.condition_xml && typeof c.condition_xml === 'object') ? c.condition_xml :
+                      (typeof c.condition_xml === 'string' && c.condition_xml.trim() ? JSON.parse(c.condition_xml) : c.condition_xml);
+              } catch (e) { return c.condition_xml; }
+            })();
+
+            // compute mode badge
+            const mode = (parsed && parsed.mode) ? parsed.mode : (c.mode || 'unknown');
+            const modeClass = (mode === 'advance') ? 'info' : 'secondary';
+            const savedAt = c.updated_at || c.created_at || (parsed && parsed.saved_at) || '';
+
+            const name = c.condition_name || c.name || `Condition #${c.id || idx+1}`;
+            const small = `
+              <div style="display:flex;gap:8px;align-items:center;">
+                <div style="flex:1">
+                  <div style="font-weight:600">${escapeHtml(name)}</div>
+                  <div class="small text-muted">${escapeHtml(savedAt)}</div>
+                </div>
+                <div style="white-space:nowrap;">
+                  <span class="badge bg-${modeClass}">${escapeHtml(String(mode))}</span>
+                </div>
+              </div>
+            `;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td style="width:36px">${idx+1}</td>
+              <td>${small}</td>
+              <td style="width:110px; text-align:center;">
+                <button class="btn btn-sm btn-outline-primary btn-edit-cond" data-id="${c.id}">แก้ไข</button>
+                <button class="btn btn-sm btn-outline-danger btn-del-cond" data-id="${c.id}">ลบ</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+
+          // update pagination/info if present
+          if (paginationInfoEl) paginationInfoEl.textContent = `Page 1 / ${res.total_pages || 1}`;
+
+          // bind edit / delete events (delegation)
+          tbody.querySelectorAll('.btn-edit-cond').forEach(btn => {
+            if (btn._bound) return; btn._bound = true;
+            btn.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              const cid = btn.dataset.id;
+              // open overlay for editing (existing global from your modal module)
+              if (typeof window.OpenConditionOverlay === 'function') {
+                window.OpenConditionOverlay(promoId, item.name, card);
+                // you may also want to signal which condition to load after overlay open:
+                // the overlay's load logic looks for a list + user picks id; to auto-select,
+                // you can dispatch an event after overlay open:
+                setTimeout(()=> {
+                  window.dispatchEvent(new CustomEvent('condition:open-for-edit', { detail: { condition_id: cid, promotion_id: promoId } }));
+                }, 250);
+              } else {
+                console.warn('OpenConditionOverlay not available');
+              }
+            });
+          });
+
+          tbody.querySelectorAll('.btn-del-cond').forEach(btn => {
+            if (btn._boundDel) return; btn._boundDel = true;
+            btn.addEventListener('click', async (ev) => {
+              ev.stopPropagation();
+              const cid = Number(btn.dataset.id);
+              if (!confirm('ต้องการลบเงื่อนไขนี้ใช่หรือไม่?')) return;
+              btn.disabled = true;
+              try {
+                const d = await API.deleteCondition(cid);
+                if (d && d.success) {
+                  // update UI: remove row
+                  const row = btn.closest('tr');
+                  if (row) row.remove();
+                  // update modal summary count if exists
+                  const countEl = card.querySelector(`#promo-condition-count-modal-${promoId}`);
+                  if (countEl) countEl.textContent = String(d.total ?? 0);
+                  alert('ลบเงื่อนไขสำเร็จ');
+                } else {
+                  throw new Error(d?.error || 'delete failed');
+                }
+              } catch (err) {
+                console.error(err);
+                alert('ลบล้มเหลว: ' + (err.message || err));
+              } finally {
+                btn.disabled = false;
+              }
+            });
+          });
+
+        } catch (err) {
+          console.warn('renderConditionListForCard error', err);
+        }
+      })();
+
+      // small helper to escape HTML when injecting strings
+      function escapeHtml(s) {
+        if (s === null || s === undefined) return '';
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+      // --- END render short condition-list inside card ---
+
 
       // ----- wire button to open overlay (no duplicate IDs) -----
       const openBtn = card.querySelector('.btn-open-condition');

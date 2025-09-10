@@ -2,8 +2,9 @@
 // Parsing + mapping utilities for condition JSON (Blockly-like).
 // Returns both array-form (productIds/productNames) and single-first (productId/productName) for compatibility.
 
-// Toggle debug logs
-const DEBUG = true;
+// DEBUG: default false. To enable runtime debugging in browser console:
+// window.CONDITION_PARSER_DEBUG = true;
+const DEBUG = (typeof window !== 'undefined' && !!window.CONDITION_PARSER_DEBUG) || false;
 
 /* -----------------------
    Utilities
@@ -346,7 +347,7 @@ export function parseBlocklyJsonToConditionItems(blocklyJson){
 
       // non-if block
       const f = b.fields || {};
-      let productIds = (Array.isArray(f.PRODUCT_IDS) ? f.PRODUCT_IDS.map(String) : (f.PRODUCT_ID ? (Array.isArray(f.PRODUCT_ID) ? f.PRODUCT_ID.map(String) : [String(f.PRODUCT_ID)]) : []));
+      let productIds = (Array.isArray(f.PRODUCT_IDS) ? f.PRODUCT_IDS.map(String) : (f.PRODUCT_ID ? toArrayOfStrings(f.PRODUCT_ID) : []));
       if(!productIds.length) productIds = extractProductIdsFromNode(b);
       const productNames = extractProductNamesFromNode(b);
       const value = (f.Value !== undefined ? f.Value : (f.NUM !== undefined ? f.NUM : (f.NUMBER !== undefined ? f.NUMBER : (f.AMOUNT !== undefined ? f.AMOUNT : (f.VALUE !== undefined ? f.VALUE : '')))));
@@ -441,32 +442,33 @@ export function parseCompiledDslToFormDefaults(compiledDsl) {
                   else if(o.product !== undefined) productIds = [asString(o.product)];
                   productNames = extractProductNamesFromNode(o);
                 } else if (cond.A.fields) {
-                  objectKind = asString(cond.A.fields.OBJECT ?? cond.A.fields.PRODUCT_SELECT ?? '');
-                  if(Array.isArray(cond.A.fields.PRODUCT_IDS) && cond.A.fields.PRODUCT_IDS.length) productIds = cond.A.fields.PRODUCT_IDS.map(String);
-                  else if(cond.A.fields.PRODUCT_ID) productIds = toArrayOfStrings(cond.A.fields.PRODUCT_ID);
-                  if(cond.A.fields.PRODUCT_NAMES) productNames = toArrayOfStrings(cond.A.fields.PRODUCT_NAMES);
-                  else if(cond.A.fields.PRODUCT_NAME) productNames = toArrayOfStrings(cond.A.fields.PRODUCT_NAME);
-                  if(Array.isArray(cond.A.fields.PRODUCT_CATEGORY_ALL) && cond.A.fields.PRODUCT_CATEGORY_ALL.length) productCategoryAll = cond.A.fields.PRODUCT_CATEGORY_ALL.map(String);
+                  const f = cond.A.fields;
+                  objectKind = asString(f.OBJECT ?? f.PRODUCT_SELECT ?? '');
+                  if(Array.isArray(f.PRODUCT_IDS) && f.PRODUCT_IDS.length) productIds = f.PRODUCT_IDS.map(String);
+                  else if(f.PRODUCT_ID) productIds = toArrayOfStrings(f.PRODUCT_ID);
+                  if(f.PRODUCT_NAMES) productNames = toArrayOfStrings(f.PRODUCT_NAMES);
+                  else if(f.PRODUCT_NAME) productNames = toArrayOfStrings(f.PRODUCT_NAME);
+                  if(Array.isArray(f.PRODUCT_CATEGORY_ALL) && f.PRODUCT_CATEGORY_ALL.length) productCategoryAll = f.PRODUCT_CATEGORY_ALL.map(String);
                 }
                 if(productIds.length === 0) {
                   const fallbackIds = extractProductIdsFromNode(cond.A);
                   if(fallbackIds.length) productIds = fallbackIds;
                 }
                 if(productNames.length === 0) {
-                  const fallbackNames = extractProductNamesFromNode(cond.A);
-                  if(fallbackNames.length) productNames = fallbackNames;
+                  const fallbackN = extractProductNamesFromNode(cond.A);
+                  if(fallbackN.length) productNames = fallbackN;
                 }
               }
             } catch(e){ if (DEBUG) console.warn('[CP] cond.A extraction error', e); }
 
             // comparator/value extraction
-            if(cond.type === 'COMPARE' || cond.type === 'COMPARE'){
+            if(cond.type === 'COMPARE'){
               comparator = mapOpToComparator(cond.op || '');
               const sides = [cond.A, cond.B];
               for(const side of sides){
                 if(!side) continue;
                 const candidate = (side.type === 'ACTION' && side.object) ? side.object : side;
-                if(candidate && (candidate.type === 'VALUE_UNIT' || candidate.type === 'VALUE_UNIT')){
+                if(candidate && (candidate.type === 'VALUE_UNIT')){
                   value = value || (candidate.value !== undefined ? asString(candidate.value) : '');
                   unit = unit || asString(candidate.unit || '');
                 }
@@ -535,7 +537,7 @@ export function parseCompiledDslToFormDefaults(compiledDsl) {
               }
               rewardsArr = chain;
             } else if(br.rewards && Array.isArray(br.rewards) && br.rewards.length){
-              rewardsArr = br.rewards.map(rr => normalizeReward(rr.left || rr, rr.right || null)).filter(Boolean);
+              rewardsArr = br.rewards.map(rr => normalizeReward(rr.left || rr, rr.right || rr.right)).filter(Boolean);
             }
 
             if (DEBUG) console.log('[CP] pushing rule ->', { action, objectKind, productIds, productNames, comparator, value }, 'rewards=', rewardsArr.length);

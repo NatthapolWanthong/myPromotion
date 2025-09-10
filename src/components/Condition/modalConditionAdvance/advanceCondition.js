@@ -132,7 +132,6 @@ Blockly.defineBlocksWithJsonArray([
   { "type": "object_promotion", "message0": "โปรโมชั่น", "output": "Object", "colour": 230 },
   { "type": "object_event", "message0": "กิจกรรม", "output": "Object", "colour": 230 },
 
-  // reward_discount: target dropdown + optional product input when target === PRODUCT
   {
     "type": "reward_discount",
     "message0": "ส่วนลด: %1",
@@ -145,7 +144,6 @@ Blockly.defineBlocksWithJsonArray([
     "inputsInline": true
   },
 
-  // reward_gift: target dropdown + optional item input when target === PRODUCT
   {
     "type": "reward_gift",
     "message0": "ของแถม: %1",

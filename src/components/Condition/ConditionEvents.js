@@ -1,5 +1,6 @@
 // ConditionEvents.js
 // Responsible for: Open/Hide overlay, load list (API), render table, delete, pagination, search, tab switch.
+// Extended to also support rendering a compact list-view inside promotion cards.
 
 import { $, el, eHtml, debounce, trap, release, cleanBootstrapBackdrops } from './ConditionHelpers.js';
 import { initTemplates } from './ConditionTemplates.js';
@@ -95,7 +96,7 @@ function showEditView(data = null){
 }
 
 /* ---------------------------
-   Data: load & render
+   Data: load & render for overlay (full list)
    --------------------------- */
 async function loadConditions(opts = {}) {
   pageState = { ...pageState, ...opts };
@@ -174,8 +175,8 @@ function renderList(){
               } else if (Array.isArray(br.then.rewards)) {
                 totalRewards += br.then.rewards.length;
               } else {
-                // fallback: if then is REWARD_BLOCK single
-                totalRewards += 0;
+                // fallback: if then is single reward
+                // can't reliably count — skip
               }
             }
           }
@@ -280,6 +281,192 @@ function renderList(){
   });
 
   paginationInfo && (paginationInfo.textContent = `Page ${pageState.page} / ${pageState.total_pages}`);
+}
+
+/* ---------------------------
+   NEW: render compact preview into card
+   - cardElOrSelector: DOM element or selector (string)
+   - promoId: promotion id (number or string)
+   - opts: { page=1, per_page=5, tableSelector, noSelector, paginationInfoSelector, searchSelector, prevBtnSelector, nextBtnSelector, perPageSelector }
+   --------------------------- */
+export async function renderConditionPreviewInto(cardElOrSelector, promoIdArg, opts = {}) {
+  try {
+    const cardEl = (typeof cardElOrSelector === 'string') ? document.querySelector(cardElOrSelector) : cardElOrSelector;
+    if(!cardEl) return;
+    const promoIdLocal = Number(promoIdArg || cardEl.dataset?.id || cardEl.dataset?.promotionId);
+    if(!promoIdLocal) return;
+
+    const defaults = {
+      page: 1, per_page: 5,
+      tableSelector: `#conditionsListTable-${promoIdLocal}`,
+      noSelector: `#no-conditions-${promoIdLocal}`,
+      paginationInfoSelector: `#paginationInfo-${promoIdLocal}`,
+      searchSelector: `#conditionSearch-${promoIdLocal}`,
+      prevBtnSelector: `#btn-prev-page-${promoIdLocal}`,
+      nextBtnSelector: `#btn-next-page-${promoIdLocal}`,
+      perPageSelector: `#perPageSelect-${promoIdLocal}`
+    };
+    const cfg = { ...defaults, ...(opts || {}) };
+
+    const tableEl = document.querySelector(cfg.tableSelector);
+    const tbody = tableEl ? tableEl.querySelector('tbody') : null;
+    const noElLocal = document.querySelector(cfg.noSelector);
+    const paginationInfoEl = document.querySelector(cfg.paginationInfoSelector);
+    const searchEl = document.querySelector(cfg.searchSelector);
+    const prevBtnEl = document.querySelector(cfg.prevBtnSelector);
+    const nextBtnEl = document.querySelector(cfg.nextBtnSelector);
+    const perPageEl = document.querySelector(cfg.perPageSelector);
+
+    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="text-center">กำลังโหลด...</td></tr>`;
+
+    const page = opts.page || defaults.page;
+    const per_page = opts.per_page || defaults.per_page;
+
+    let res;
+    try {
+      res = await API.getCondition({ promotion_id: promoIdLocal, page, per_page });
+    } catch (err) {
+      console.warn('renderConditionPreviewInto: API.getCondition failed', err);
+      res = null;
+    }
+
+    if (!res || !res.success || !Array.isArray(res.data) || res.data.length === 0) {
+      if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">ยังไม่มีเงื่อนไข</td></tr>`;
+      if (noElLocal) noElLocal.classList.remove('d-none');
+      if (paginationInfoEl) paginationInfoEl.textContent = `Page 1 / ${res?.total_pages || 1}`;
+      return;
+    }
+
+    if (noElLocal) noElLocal.classList.add('d-none');
+
+    tbody.innerHTML = '';
+    (res.data || []).forEach((c, idx) => {
+      const parsed = (() => {
+        try {
+          return (c.condition_xml && typeof c.condition_xml === 'object') ? c.condition_xml :
+                 (typeof c.condition_xml === 'string' && c.condition_xml.trim() ? JSON.parse(c.condition_xml) : c.condition_xml);
+        } catch (e) { return c.condition_xml; }
+      })();
+
+      const mode = (parsed && parsed.mode) ? parsed.mode : (c.mode || 'unknown');
+      const modeClass = (mode === 'advance') ? 'info' : 'secondary';
+      const savedAt = c.updated_at || c.created_at || (parsed && parsed.saved_at) || '';
+
+      const name = c.condition_name || c.name || `Condition #${c.id || idx+1}`;
+      const small = `
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div style="flex:1">
+            <div style="font-weight:600">${eHtml(name)}</div>
+            <div class="small text-muted">${eHtml(savedAt)}</div>
+          </div>
+          <div style="white-space:nowrap;">
+            <span class="badge bg-${modeClass}">${eHtml(String(mode))}</span>
+          </div>
+        </div>
+      `;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="width:36px">${idx+1}</td>
+        <td>${small}</td>
+        <td style="width:110px; text-align:center;">
+          <button class="btn btn-sm btn-outline-primary btn-edit-cond" data-id="${c.id}">แก้ไข</button>
+          <button class="btn btn-sm btn-outline-danger btn-del-cond" data-id="${c.id}">ลบ</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    if (paginationInfoEl) paginationInfoEl.textContent = `Page ${page} / ${res.total_pages || 1}`;
+
+    // bind events
+    tbody.querySelectorAll('.btn-edit-cond').forEach(btn => {
+      if (btn._bound) return; btn._bound = true;
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const cid = btn.dataset.id;
+        if (typeof window.OpenConditionOverlay === 'function') {
+          window.OpenConditionOverlay(promoIdLocal, cardEl.dataset?.name || '', cardEl);
+          // optionally tell overlay which condition to focus
+          setTimeout(()=> {
+            window.dispatchEvent(new CustomEvent('condition:open-for-edit', { detail: { condition_id: cid, promotion_id: promoIdLocal } }));
+          }, 250);
+        } else {
+          console.warn('OpenConditionOverlay not available');
+        }
+      });
+    });
+
+    tbody.querySelectorAll('.btn-del-cond').forEach(btn => {
+      if (btn._boundDel) return; btn._boundDel = true;
+      btn.addEventListener('click', async (ev) => {
+        ev.stopPropagation();
+        const cid = Number(btn.dataset.id);
+        if (!confirm('ต้องการลบเงื่อนไขนี้ใช่หรือไม่?')) return;
+        btn.disabled = true;
+        try {
+          const d = await API.deleteCondition(cid);
+          if (d && d.success) {
+            const row = btn.closest('tr');
+            if (row) row.remove();
+            const countEl = cardEl.querySelector(`#promo-condition-count-modal-${promoIdLocal}`);
+            if (countEl) countEl.textContent = String(d.total ?? 0);
+            alert('ลบเงื่อนไขสำเร็จ');
+          } else {
+            throw new Error(d?.error || 'delete failed');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('ลบล้มเหลว: ' + (err.message || err));
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // optionally bind per-card pagination/search controls if present
+    if (searchEl && !searchEl._bound) {
+      searchEl._bound = true;
+      searchEl.addEventListener('input', debounce(() => {
+        renderConditionPreviewInto(cardEl, promoIdLocal, { page: 1, per_page });
+      }, 350));
+    }
+    if (perPageEl && !perPageEl._bound) {
+      perPageEl._bound = true;
+      perPageEl.addEventListener('change', () => {
+        const p = Number(perPageEl.value) || per_page;
+        renderConditionPreviewInto(cardEl, promoIdLocal, { page: 1, per_page: p });
+      });
+    }
+    if (prevBtnEl && !prevBtnEl._bound) {
+      prevBtnEl._bound = true;
+      prevBtnEl.addEventListener('click', () => {
+        const curPage = opts.page || 1;
+        if (curPage > 1) renderConditionPreviewInto(cardEl, promoIdLocal, { page: curPage - 1, per_page });
+      });
+    }
+    if (nextBtnEl && !nextBtnEl._bound) {
+      nextBtnEl._bound = true;
+      nextBtnEl.addEventListener('click', () => {
+        const curPage = opts.page || 1;
+        const totalPages = res.total_pages || 1;
+        if (curPage < totalPages) renderConditionPreviewInto(cardEl, promoIdLocal, { page: curPage + 1, per_page });
+      });
+    }
+
+  } catch (err) {
+    console.warn('renderConditionPreviewInto error', err);
+  }
+}
+
+export function renderConditionPreviewForCard(cardEl) {
+  try {
+    const card = (typeof cardEl === 'string') ? document.querySelector(cardEl) : cardEl;
+    if(!card) return;
+    const id = Number(card.dataset?.id || card.dataset?.promotionId);
+    if(!id) return;
+    renderConditionPreviewInto(card, id);
+  } catch(e) { console.warn('renderConditionPreviewForCard failed', e); }
 }
 
 /* ---------------------------
@@ -424,6 +611,7 @@ export function initConditionModule(){
 
   try { initFormHandlers(); } catch(e){}
 
+  // listen global events that overlay expects
   window.addEventListener('condition:requery', () => { loadConditions({ page: 1 }); });
   window.addEventListener('condition:changed', (ev) => {
     const det = ev.detail || {};
@@ -437,6 +625,18 @@ export function initConditionModule(){
     loadConditions({ page:1 }).then(()=> showListView()).catch(()=> showListView());
   });
 
+  // allow external code to request preview rendering into a card:
+  // listen for custom event: condition:render-preview { detail: { cardEl, promotion_id } }
+  window.addEventListener('condition:render-preview', (ev) => {
+    try {
+      const d = ev.detail || {};
+      if(!d) return;
+      const card = d.cardEl ? (typeof d.cardEl === 'string' ? document.querySelector(d.cardEl) : d.cardEl) : null;
+      if(card && d.promotion_id) renderConditionPreviewInto(card, d.promotion_id, d.opts || {});
+    } catch(e) { console.warn('condition:render-preview handler failed', e); }
+  });
+
+  // init bindings for any .btn-open-condition elements on page
   document.querySelectorAll('.btn-open-condition').forEach(b => {
     if(b._boundOpen) return;
     b._boundOpen = true;

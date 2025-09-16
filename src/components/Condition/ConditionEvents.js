@@ -155,51 +155,6 @@ function renderListForCard(promotionId, scope, data, state){
     return;
   }
 
-  data.forEach((c, idx) => {
-    const compiled = c.condition_xml_parsed ?? c.condition_xml ?? null;
-    const rules = (compiled && compiled.rules) ? compiled.rules : (Array.isArray(compiled) ? compiled : []);
-    let totalSubConditions = 0;
-    let totalRewards = 0;
-    try {
-      for (const rule of rules) {
-        if (rule && rule.type === 'IF' && Array.isArray(rule.branches)) {
-          totalSubConditions += rule.branches.length;
-          for (const br of rule.branches) {
-            if (br && br.then) {
-              if (br.then.type === 'REWARD_BLOCK' && Array.isArray(br.then.rewards)) {
-                totalRewards += br.then.rewards.length;
-              } else if (Array.isArray(br.then.rewards)) {
-                totalRewards += br.then.rewards.length;
-              }
-            }
-          }
-        } else {
-          totalSubConditions += 1;
-          if (rule && rule.rewards && Array.isArray(rule.rewards)) totalRewards += rule.rewards.length;
-        }
-      }
-    } catch(e){}
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="vertical-align:top; width:56px">${(state.page - 1) * state.per_page + idx + 1}</td>
-      <td style="vertical-align:top"><div><strong>${eHtml(c.condition_name ?? c.name ?? '-')}</strong></div></td>
-      <td style="vertical-align:top">
-        <div class="small mb-1">
-          <strong>เงื่อนไขย่อย:</strong> ${totalSubConditions} &nbsp; <strong>ผลตอบแทน:</strong> ${totalRewards}
-        </div>
-        <details class="condition-raw"><summary class="small">รายละเอียด JSON (คลิก)</summary>
-          <pre style="max-height:240px;overflow:auto;">${eHtml(JSON.stringify(compiled || c.condition_xml || '-', null, 2))}</pre>
-        </details>
-      </td>
-      <td style="vertical-align:top; white-space:nowrap">
-        <button class="btn btn-sm btn-outline-primary btn-edit-condition" data-id="${c.id}" data-promotion="${pid}">แก้ไข</button>
-        <button class="btn btn-sm btn-outline-danger btn-delete-condition" data-id="${c.id}" data-promotion="${pid}">ลบ</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-
   // bind buttons scoped to this table (to avoid duplicate binding across cards)
   tbody.querySelectorAll('.btn-edit-condition').forEach(btn => {
     if (btn._bound) return;

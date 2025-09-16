@@ -92,20 +92,14 @@
   cursor: not-allowed;
 }
 
-.cards.expanded input,
-.cards.expanded select,
-.cards.expanded textarea {
-  background-color: #ffffff;
-  border: 1px solid #badbcc;
-  transition: background-color 0.2s, border 0.2s;
-}
 
 /* ===================
    CARD EXPANDED STYLE
    =================== */
 
 .cards.expanded {
-  height: 190px;
+  min-height: 120px;
+  height: auto;
   margin: 14px 0;
   border: 2px solid #198754;
   border-radius: 12px;
@@ -114,6 +108,14 @@
   transition: all 0.3s ease;
   padding: 4px;
   position: relative;
+}
+
+.cards.expanded input,
+.cards.expanded select,
+.cards.expanded textarea {
+  background-color: #ffffff;
+  border: 1px solid #badbcc;
+  transition: background-color 0.2s, border 0.2s;
 }
 
 .cards.expanded.cardPromotion {
@@ -150,11 +152,14 @@
 
 .cards.expanded .row-expand {
   display: flex;
-  flex: 1;
   height: auto;
   padding-top: 10px;
   gap: 12px;
   animation: fadeInExpand 0.3s ease-out;
+}
+
+.cards.expanded.cardPromotion {
+  height: auto;
 }
 
 /* ==================
@@ -419,3 +424,44 @@ textarea, input, select {
 
 /* little hover */
 .condition-select:hover { box-shadow: 0 6px 14px rgba(2,6,23,0.04); }
+
+.promotion-conditions .promo-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  width: 100%;
+  padding: 4px 0;
+}
+
+.promotion-conditions .btn-manage-conditions {
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* 6) table containers should not force scroll/height in the card */
+.promotion-conditions .table-responsive,
+.promotion-detail-grid .table-responsive {
+  overflow: visible;
+  max-height: none;
+}
+
+/* 7) make sure bootstrap-table or native tables fill the available width */
+.promotion-conditions table,
+.promotion-detail-grid table {
+  width: 100% !important;
+  table-layout: auto;
+}
+
+/* 8) small responsive tweak: toolbar controls wrap on small screens */
+@media (max-width: 780px) {
+  .promotion-conditions .promo-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .promotion-conditions .promo-toolbar .promo-condition-search {
+    width: 100% !important;
+  }
+}

@@ -1,8 +1,6 @@
-// ConditionIndex.js
-// Central entrypoint for Condition module.
-// Re-exports and small shims so external code can import a single module.
+// ConditionIndex.js (updated exports)
 
-import { OpenConditionOverlay, initConditionModule } from './ConditionEvents.js';
+import { OpenConditionForm, initConditionModule, initConditionListForCard, loadConditionsForCard, refreshConditionsListUI } from './ConditionEvents.js';
 import { init as initCondition } from './ConditionInit.js';
 import {
   parseBlocklyJsonToConditionItems,
@@ -18,61 +16,39 @@ import {
 } from './ConditionForm.js';
 import { $, $$, el, genId, eHtml, debounce } from './ConditionHelpers.js';
 
-/**
- * Public re-exports
- * - OpenConditionOverlay: เปิด overlay (จาก ConditionEvents)
- * - initConditionModule: init event listeners (จาก ConditionEvents)
- * - initCondition: bootstrap (จาก ConditionInit)
- */
-export { OpenConditionOverlay, initConditionModule, initCondition };
+export { OpenConditionForm, initConditionModule, initConditionListForCard, loadConditionsForCard, refreshConditionsListUI };
 
-/**
- * Small adapter / helper API for external usage
- */
-
+/* existing wrappers */
 export function parseConditionData(blocklyJson) {
-  // wrapper around parser to keep naming consistent
   return parseBlocklyJsonToConditionItems(blocklyJson);
 }
-
 export function serializeConditionData(formEl) {
-  // wrapper around form-to-DSL mapper
   return mapBasicFormToCompiledDSL(formEl);
 }
-
 export function buildFieldsFromForm(formEl) {
   return buildConditionFieldsFromForm(formEl);
 }
-
 export function validateForm(formEl) {
   return validateConditionForm(formEl);
 }
-
 export function bootFormSubmit(getPromoId) {
-  // convenience wrapper to bind form submit handlers
   return initFormSubmit({ getPromoId });
 }
 
-/**
- * Expose some low-level parser utilities for advanced usage/testing
- */
 export const ParserUtils = {
   mapOpToComparator,
   extractRewardFromBlock,
   collectRewardsChain
 };
 
-/**
- * Expose small DOM helpers (handy for quick integrations)
- */
 export const Helpers = { $, $$, el, genId, eHtml, debounce };
 
-/**
- * Default export: aggregated module
- */
 export default {
-  OpenConditionOverlay,
+  OpenConditionForm,
   initConditionModule,
+  initConditionListForCard,
+  loadConditionsForCard,
+  refreshConditionsListUI,
   initCondition,
   parseConditionData,
   serializeConditionData,
@@ -83,12 +59,10 @@ export default {
   Helpers
 };
 
-// หลัง export ทั้งหมดแล้ว (ConditionIndex.js)
 if (typeof window !== 'undefined') {
-  // ช่วยให้โค้ดเก่าที่เรียก window.OpenConditionOverlay ทำงานได้ทันที
   try {
-    window.OpenConditionOverlay = OpenConditionOverlay;
+    window.OpenConditionForm = OpenConditionForm;
     window.initConditionModule = initConditionModule;
-    window.initCondition = initCondition;
+    // keep backward compat for OpenConditionOverlay (original name) if needed
   } catch(e) { console.warn('Expose condition API failed', e); }
 }

@@ -24,57 +24,6 @@
 
   <div class="p-0 d-flex flex-column" style="height: calc(100% - 56px);">
     <!-- ===========================
-         LIST VIEW (default)
-         =========================== -->
-    <div id="condition-list-view" class="tab-content-container p-4">
-      <div class="mb-3 d-flex justify-content-between align-items-center">
-        <div>
-          <h6 class="mb-0">รายการเงื่อนไข</h6>
-          <small class="text-muted">เงื่อนไขทั้งหมดที่ผูกกับโปรโมชั่นปัจจุบัน</small>
-        </div>
-      </div>
-
-      <div class="table-responsive mb-3">
-        <table class="table table-sm table-bordered" id="conditionsListTable">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>ชื่อเงื่อนไข</th>
-              <th>Data Base</th>
-              <th>จัดการ</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div id="no-conditions" class="text-center text-muted my-4 d-none">
-        ยังไม่มีเงื่อนไข — กด "สร้างเงื่อนไข" เพื่อเพิ่ม
-      </div>
-      <!-- Add inside list-view (above table) -->
-        <div class="d-flex gap-2 mb-3">
-          <input id="conditionSearch" class="form-control form-control-sm" placeholder="ค้นหาเงื่อนไข (ชื่อ)..." />
-          <select id="perPageSelect" class="form-select form-select-sm" style="width:120px;">
-            <option value="5">5 / page</option>
-            <option value="10">10 / page</option>
-            <option value="20" selected>20 / page</option>
-            <option value="50">50 / page</option>
-          </select>
-        </div>
-
-        <!-- Add pagination bar below table -->
-        <div class="d-flex justify-content-between align-items-center mt-2">
-          <div>
-            <button id="btn-prev-page" class="btn btn-sm btn-outline-secondary">Prev</button>
-            <button id="btn-next-page" class="btn btn-sm btn-outline-secondary">Next</button>
-          </div>
-          <div>
-            <small id="paginationInfo">Page 1 / 1</small>
-          </div>
-        </div>
-    </div>
-
-    <!-- ===========================
          EDIT VIEW (form) — reuse your modalEditCondition content here
          =========================== -->
     <!-- ... ภาคบนของ overlay เหมือนเดิม ... -->

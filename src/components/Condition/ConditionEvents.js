@@ -1,5 +1,9 @@
-// ConditionEvents.js
-// Responsible for: Open/Hide overlay, load list (API), render table, delete, pagination, search, tab switch.
+// ConditionEvents.js (REFACOTRED for per-card lists + modal form)
+/* Responsibilities:
+   - Provide per-card condition list UI (pagination/search) via initConditionListForCard
+   - Provide modal form opening via OpenConditionForm (keeps edit view modal)
+   - Reuse existing API.getCondition / deleteCondition
+*/
 
 import { $, el, eHtml, debounce, trap, release, cleanBootstrapBackdrops } from './ConditionHelpers.js';
 import { initTemplates } from './ConditionTemplates.js';
@@ -7,30 +11,20 @@ import { initFormHandlers } from './ConditionForm.js';
 import { API } from '/myPromotion/src/assets/js/api.js';
 import { parseBlocklyJsonToConditionItems } from './ConditionParser.js';
 
-let overlay, listView, editView, tbodyEl, badgeEl, noEl, paginationInfo;
-let btnPrev, btnNext, perPageSelect, searchInput;
-let pageState = { page: 1, per_page: 20, total_pages: 1, q: '' };
-let promoId = null;
-let currentConditions = [];
+// per-card UI state map: promotionId -> { page, per_page, total_pages, q, currentConditions, elements... }
+const perCardState = new Map();
+
+// overlay/edit modal references (shared)
+let overlay = null;
+let editView = null;
 
 /* ---------------------------
-   UI helpers
+   Modal (edit) helpers (shared)
    --------------------------- */
-function setCreateButtonMode(mode){
-  const btn = el('btn-create-condition');
-  if(!btn) return;
-  if(mode === 'back'){
-    btn.dataset.mode = 'back'; btn.textContent = 'ย้อนกลับ'; btn.classList.add('btn-back-mode');
-  } else {
-    btn.dataset.mode = 'create'; btn.textContent = 'สร้างเงื่อนไข'; btn.classList.remove('btn-back-mode');
-  }
-}
-
 function showOverlay(){
   overlay = overlay || $('#condition-overlay');
   if(!overlay) return;
   overlay.classList.remove('d-none');
-  showListView();
   if(!document.body.classList.contains('overlay-open')) document.body.classList.add('overlay-open');
   if(overlay) trap(overlay);
   document.addEventListener('keydown', escHandler);
@@ -46,72 +40,73 @@ function hideOverlay(){
   setTimeout(cleanBootstrapBackdrops, 80);
 }
 
-function escHandler(e){ if(e.key === 'Escape' || e.key === 'Esc'){ const ev = editView || $('#condition-edit-view'); if(ev && !ev.classList.contains('d-none')) showListView(); else hideOverlay(); } }
-
-function showListView(){
-  listView = listView || $('#condition-list-view');
-  editView = editView || $('#condition-edit-view');
-  if(editView) editView.classList.add('d-none');
-  if(listView) listView.classList.remove('d-none');
-  overlay && overlay.classList.remove('mode-edit');
-  const t = $('#overlay-title'); if(t) t.textContent='เงื่อนไข';
-  setCreateButtonMode('create');
-}
+function escHandler(e){ if(e.key === 'Escape' || e.key === 'Esc'){ const ev = editView || $('#condition-edit-view'); if(ev && !ev.classList.contains('d-none')) { showOverlay(); showEditView(null); } else hideOverlay(); } }
 
 function showEditView(data = null){
-  listView = listView || $('#condition-list-view');
+  // show edit view portion of modal and hide others (list removed)
   editView = editView || $('#condition-edit-view');
-  if(listView) listView.classList.add('d-none');
-  if(editView) editView.classList.remove('d-none');
-  overlay && overlay.classList.add('mode-edit');
-  const t = $('#overlay-title'); if(t) t.textContent = data ? 'แก้ไขเงื่อนไข' : 'สร้างเงื่อนไข';
+  if(!editView) return;
+  document.querySelectorAll('#conditionTab .nav-link').forEach(t => t.classList.remove('active'));
+  const bas = document.querySelector('#conditionTab .nav-link[data-target="#basic-content"]');
+  if(bas) bas.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(c => c.style.display = 'none');
+  const basEl = document.querySelector('#basic-content');
+  if(basEl) basEl.style.display = 'flex';
 
-  let cond = data?.condition_xml;
-  try { cond = (typeof cond === 'string' && cond.trim()) ? JSON.parse(cond) : cond; } catch(e){}
-
-  const mode = (data && (data.mode === 'advance' || data.mode === 'basic')) ? data.mode : null;
-
-  if(mode === 'advance'){
-    document.querySelectorAll('#conditionTab .nav-link').forEach(t => t.classList.remove('active'));
-    const adv = document.querySelector('#conditionTab .nav-link[data-target="#advance-content"]');
-    if(adv) adv.classList.add('active');
-    document.querySelectorAll('.tab-pane').forEach(c => c.style.display = 'none');
-    const advEl = document.querySelector('#advance-content');
-    if(advEl) advEl.style.display = 'flex';
-    setTimeout(()=>{ try { if(typeof Blockly !== 'undefined' && Blockly.svgResize){ const ws = Blockly.getMainWorkspace ? Blockly.getMainWorkspace() : (window.workspace || null); if(ws) Blockly.svgResize(ws); } }catch(e){} }, 120);
-  } else {
-    document.querySelectorAll('#conditionTab .nav-link').forEach(t => t.classList.remove('active'));
-    const bas = document.querySelector('#conditionTab .nav-link[data-target="#basic-content"]');
-    if(bas) bas.classList.add('active');
-    document.querySelectorAll('.tab-pane').forEach(c => c.style.display = 'none');
-    const basEl = document.querySelector('#basic-content');
-    if(basEl) basEl.style.display = 'flex';
+  // parse data.condition_xml if string
+  let cond = data?.condition_xml ?? null;
+  if (typeof cond === 'string' && cond.trim()) {
+    try { cond = JSON.parse(cond); } catch(e){ /* ignore */ }
   }
 
-  // delegate population to listeners (form module or advance module)
-  window.dispatchEvent(new CustomEvent('condition:populate', { detail: { row: data, condition_xml: cond, mode } }));
-
-  setCreateButtonMode('back');
+  // dispatch populate event for form to handle
+  window.dispatchEvent(new CustomEvent('condition:populate', { detail: { row: data || {}, condition_xml: cond || null, mode: (data && data.mode) || null } }));
 }
 
 /* ---------------------------
-   Data: load & render
+   Per-card: helpers to query elements
    --------------------------- */
-async function loadConditions(opts = {}) {
-  pageState = { ...pageState, ...opts };
-  const effectivePromo = opts.promotion_id ?? promoId ?? (new URLSearchParams(window.location.search).get('id'));
-  if(!effectivePromo){ currentConditions = []; renderList(); return; }
-  promoId = Number(effectivePromo);
+function resolveCardElements(promotionId, cardEl = null){
+  const pid = String(promotionId);
+  // if cardEl passed, search within, otherwise global document
+  const scope = cardEl || document;
+  const tbody = scope.querySelector(`#conditionsListTable-${pid} tbody`);
+  const elSearch = scope.querySelector(`#conditionSearch-${pid}`);
+  const elPerPage = scope.querySelector(`#perPageSelect-${pid}`);
+  const btnPrev = scope.querySelector(`#btn-prev-page-${pid}`);
+  const btnNext = scope.querySelector(`#btn-next-page-${pid}`);
+  const paginationInfo = scope.querySelector(`#paginationInfo-${pid}`);
+  return { tbody, elSearch, elPerPage, btnPrev, btnNext, paginationInfo, scope };
+}
 
-  tbodyEl = tbodyEl || $('#conditionsListTable tbody');
-  badgeEl = badgeEl || $('#condition-count');
-  if(tbodyEl) tbodyEl.innerHTML = `<tr><td colspan="4" class="text-center">กำลังโหลด...</td></tr>`;
+/* ---------------------------
+   loadConditionsForCard(promotionId, opts)
+   - fetch conditions via API.getCondition and render into table scoped to card
+   --------------------------- */
+export async function loadConditionsForCard(promotionId, opts = {}, cardEl = null){
+  const pid = Number(promotionId);
+  if(!pid) return;
+
+  // initialize state
+  const existing = perCardState.get(pid) || { page:1, per_page:10, total_pages:1, q: '' };
+  const state = { ...existing, ...opts };
+  perCardState.set(pid, state);
+
+  // resolve elements
+  const els = resolveCardElements(pid, cardEl);
+  if(!els.tbody){
+    // nothing to render into
+    return;
+  }
+
+  // show loading row
+  els.tbody.innerHTML = `<tr><td colspan="4" class="text-center">กำลังโหลด...</td></tr>`;
 
   const params = {
-    promotion_id: Number(promoId),
-    page: Number(pageState.page || 1),
-    per_page: Number(pageState.per_page || 20),
-    q: pageState.q || ''
+    promotion_id: pid,
+    page: Number(state.page || 1),
+    per_page: Number(state.per_page || 10),
+    q: state.q || ''
   };
 
   let res;
@@ -123,49 +118,51 @@ async function loadConditions(opts = {}) {
   }
 
   if(res && res.success){
-    currentConditions = (res.data || []).map(r => {
+    const data = (res.data || []).map(r => {
       const out = { ...r };
       try { out.condition_xml_parsed = (r.condition_xml && typeof r.condition_xml === 'object') ? r.condition_xml : (typeof r.condition_xml === 'string' && r.condition_xml.trim() ? JSON.parse(r.condition_xml) : r.condition_xml); } catch(e){ out.condition_xml_parsed = r.condition_xml; }
       out.name = out.condition_name ?? out.name;
       return out;
     });
-    pageState.total_pages = res.total_pages || 1;
-    badgeEl && (badgeEl.textContent = String(res.total ?? currentConditions.length));
-    renderList();
+    state.total_pages = res.total_pages || 1;
+    state.total = res.total ?? data.length;
+    state.currentConditions = data;
+    perCardState.set(pid, state);
+    renderListForCard(pid, els.scope, data, state);
   } else {
-    currentConditions = [];
-    if(tbodyEl) tbodyEl.innerHTML = `<tr><td colspan="4" class="text-center text-danger">โหลดข้อมูลล้มเหลว: ${eHtml(res?.error || 'unknown')}</td></tr>`;
-    badgeEl && (badgeEl.textContent = '0');
+    // error
+    els.tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">โหลดข้อมูลล้มเหลว: ${eHtml(res?.error || 'unknown')}</td></tr>`;
   }
 }
 
-function renderList(){
-  tbodyEl = tbodyEl || $('#conditionsListTable tbody');
-  badgeEl = badgeEl || $('#condition-count');
-  noEl = noEl || $('#no-conditions');
-  paginationInfo = paginationInfo || $('#paginationInfo');
+/* ---------------------------
+   renderListForCard: render rows into table within given scope (card or document)
+   --------------------------- */
+function renderListForCard(promotionId, scope, data, state){
+  const pid = String(promotionId);
+  const tbody = scope.querySelector(`#conditionsListTable-${pid} tbody`);
+  const paginationInfo = scope.querySelector(`#paginationInfo-${pid}`);
+  const badge = scope.querySelector(`#condition-count`) || document.querySelector('#condition-count'); // keep badge global fallback
+  const noEl = null;
 
-  if(!tbodyEl) return;
-  tbodyEl.innerHTML = '';
+  if(!tbody) return;
+  tbody.innerHTML = '';
 
-  if(!currentConditions || !currentConditions.length){
-    noEl && noEl.classList.remove('d-none');
-    badgeEl && (badgeEl.textContent = '0');
-    paginationInfo && (paginationInfo.textContent = `Page ${pageState.page} / ${pageState.total_pages}`);
+  if(!data || !data.length){
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">ยังไม่มีเงื่อนไข</td></tr>`;
+    if(badge) badge.textContent = String(state.total ?? 0);
+    if(paginationInfo) paginationInfo.textContent = `Page ${state.page} / ${state.total_pages}`;
     return;
   }
-  noEl && noEl.classList.add('d-none');
 
-  // helper to compute counts and preview
-  function analyzeCondition(c) {
-    const parsed = c.condition_xml_parsed ?? c.condition_xml ?? null;
-    const compiled = (parsed && parsed.compiled_dsl) ? parsed.compiled_dsl : (parsed && parsed.rules ? parsed : null);
+  data.forEach((c, idx) => {
+    const compiled = c.condition_xml_parsed ?? c.condition_xml ?? null;
     const rules = (compiled && compiled.rules) ? compiled.rules : (Array.isArray(compiled) ? compiled : []);
     let totalSubConditions = 0;
     let totalRewards = 0;
     try {
       for (const rule of rules) {
-        if (rule.type === 'IF' && Array.isArray(rule.branches)) {
+        if (rule && rule.type === 'IF' && Array.isArray(rule.branches)) {
           totalSubConditions += rule.branches.length;
           for (const br of rule.branches) {
             if (br && br.then) {
@@ -173,102 +170,78 @@ function renderList(){
                 totalRewards += br.then.rewards.length;
               } else if (Array.isArray(br.then.rewards)) {
                 totalRewards += br.then.rewards.length;
-              } else {
-                // fallback: if then is REWARD_BLOCK single
-                totalRewards += 0;
               }
             }
           }
         } else {
-          // other rule types: count as 1 subcondition (best-effort)
           totalSubConditions += 1;
-          if (rule.rewards && Array.isArray(rule.rewards)) totalRewards += rule.rewards.length;
+          if (rule && rule.rewards && Array.isArray(rule.rewards)) totalRewards += rule.rewards.length;
         }
       }
-    } catch(e){ console.warn('analyzeCondition failed', e); }
-    return { totalSubConditions, totalRewards, compiled, parsed };
-  }
-
-  currentConditions.forEach((c, idx) => {
-    const an = analyzeCondition(c);
-    const mode = (c.condition_xml_parsed && c.condition_xml_parsed.mode) ? c.condition_xml_parsed.mode : (c.mode || 'unknown');
-    const modeBadge = `<span class="badge ${mode==='advance'?'bg-info text-dark':'bg-secondary'}">${eHtml(String(mode))}</span>`;
-
-    const detailsHtml = `
-      <div class="small mb-1">
-        <strong>เงื่อนไขย่อย:</strong> ${an.totalSubConditions} &nbsp; 
-        <strong>ผลตอบแทน:</strong> ${an.totalRewards}
-      </div>
-      <details class="condition-raw"><summary class="small">รายละเอียด JSON (คลิก)</summary>
-        <pre style="max-height:240px;overflow:auto;">${eHtml(JSON.stringify(an.parsed || c.condition_xml || '-', null, 2))}</pre>
-      </details>
-    `;
+    } catch(e){}
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="vertical-align:top; width:56px">${(pageState.page - 1) * pageState.per_page + idx + 1}</td>
-      <td style="vertical-align:top"><div><strong>${eHtml(c.condition_name ?? c.name ?? '-')}</strong> ${modeBadge}</div></td>
-      <td style="vertical-align:top">${detailsHtml}</td>
+      <td style="vertical-align:top; width:56px">${(state.page - 1) * state.per_page + idx + 1}</td>
+      <td style="vertical-align:top"><div><strong>${eHtml(c.condition_name ?? c.name ?? '-')}</strong></div></td>
+      <td style="vertical-align:top">
+        <div class="small mb-1">
+          <strong>เงื่อนไขย่อย:</strong> ${totalSubConditions} &nbsp; <strong>ผลตอบแทน:</strong> ${totalRewards}
+        </div>
+        <details class="condition-raw"><summary class="small">รายละเอียด JSON (คลิก)</summary>
+          <pre style="max-height:240px;overflow:auto;">${eHtml(JSON.stringify(compiled || c.condition_xml || '-', null, 2))}</pre>
+        </details>
+      </td>
       <td style="vertical-align:top; white-space:nowrap">
-        <button class="btn btn-sm btn-outline-primary btn-edit-condition" data-id="${c.id}">แก้ไข</button>
-        <button class="btn btn-sm btn-outline-danger btn-delete-condition" data-id="${c.id}">ลบ</button>
+        <button class="btn btn-sm btn-outline-primary btn-edit-condition" data-id="${c.id}" data-promotion="${pid}">แก้ไข</button>
+        <button class="btn btn-sm btn-outline-danger btn-delete-condition" data-id="${c.id}" data-promotion="${pid}">ลบ</button>
       </td>
     `;
-    tbodyEl.appendChild(tr);
+    tbody.appendChild(tr);
   });
 
-  // bind edit buttons
-  tbodyEl.querySelectorAll('.btn-edit-condition').forEach(btn => {
+  // bind buttons scoped to this table (to avoid duplicate binding across cards)
+  tbody.querySelectorAll('.btn-edit-condition').forEach(btn => {
     if (btn._bound) return;
     btn._bound = true;
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', async (ev) => {
+      ev.stopPropagation();
       const id = String(btn.dataset.id);
-      let row = currentConditions.find(x => String(x.id) === id);
-
+      const promo = Number(btn.dataset.promotion || promotionId);
+      let row = (perCardState.get(promo) && perCardState.get(promo).currentConditions) ? perCardState.get(promo).currentConditions.find(x => String(x.id) === id) : null;
       if (!row) {
         try {
-          const res = await API.getCondition({ promotion_id: promoId, page: 1, per_page: 200 });
-          if (res && res.success) {
-            row = (res.data || []).find(x => String(x.id) === id);
-          }
-        } catch (err) {
-          console.error('getCondition (on edit) failed', err);
-        }
+          const res = await API.getCondition({ promotion_id: promo, page: 1, per_page: 200 });
+          if (res && res.success) row = (res.data || []).find(x => String(x.id) === id);
+        } catch (err) { console.error('getCondition (on edit) failed', err); }
       }
-
-      if (!row) {
-        alert('ไม่พบเงื่อนไข id นี้');
-        return;
+      if (!row) { alert('ไม่พบเงื่อนไข id นี้'); return; }
+      // open modal with row populated
+      if (typeof window.OpenConditionForm === 'function') {
+        window.OpenConditionForm(promo, row.condition_name || '', btn.closest('.cards') || null, row);
+      } else {
+        // fallback: dispatch populate event and show overlay
+        showOverlay();
+        showEditView(row);
       }
-
-      try {
-        if (!row.mode) {
-          const parsed = row.condition_xml_parsed ?? row.condition_xml ?? null;
-          if (parsed && (parsed.mode === 'advance' || parsed.mode === 'basic')) row.mode = parsed.mode;
-          else if (row.condition_xml && typeof row.condition_xml === 'string' && row.condition_xml.trim()) {
-            try { const tmp = JSON.parse(row.condition_xml); if (tmp && (tmp.mode === 'advance' || tmp.mode === 'basic')) row.mode = tmp.mode; } catch(e){}
-          }
-        }
-      } catch (e) { console.warn('infer mode failed', e); }
-
-      showEditView(row);
     });
   });
 
-  // bind delete buttons
-  tbodyEl.querySelectorAll('.btn-delete-condition').forEach(btn => {
-    if(btn._boundDel) return;
+  tbody.querySelectorAll('.btn-delete-condition').forEach(btn => {
+    if (btn._boundDel) return;
     btn._boundDel = true;
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', async (ev) => {
+      ev.stopPropagation();
       const id = Number(btn.dataset.id);
+      const promo = Number(btn.dataset.promotion || promotionId);
       if(!confirm('ต้องการลบเงื่อนไขนี้ ใช่หรือไม่?')) return;
       btn.disabled = true;
       try{
-        const res = await API.deleteCondition(id);
+        const res = await API.deleteCondition({ id });
         if(res && res.success){
-          window.dispatchEvent(new CustomEvent('condition:changed', { detail: { promotion_id: promoId, total: res.total ?? null } }));
-          await loadConditions({ page: pageState.page });
-          try { alert('ลบเงื่อนไขสำเร็จ'); }catch(e){}
+          // reload this card's list
+          await loadConditionsForCard(promo, { page: 1 });
+          try { alert('ลบเงื่อนไขสำเร็จ'); } catch(e){}
         } else {
           throw new Error(res?.error || 'delete failed');
         }
@@ -279,173 +252,185 @@ function renderList(){
     });
   });
 
-  paginationInfo && (paginationInfo.textContent = `Page ${pageState.page} / ${pageState.total_pages}`);
+  // update pagination info & badge (badge global fallback)
+  if(paginationInfo) paginationInfo.textContent = `Page ${state.page} / ${state.total_pages}`;
+  if(badge) badge.textContent = String(state.total ?? 0);
 }
 
 /* ---------------------------
-   UI bindings: pagination, search, tabs, header
+   initConditionListForCard(promotionId, cardElement)
+   - bind search / page-size / prev/next for that specific card
+   - call loadConditionsForCard initially
    --------------------------- */
-function bindPaginationControls(){
-  btnPrev = btnPrev || $('#btn-prev-page');
-  btnNext = btnNext || $('#btn-next-page');
-  perPageSelect = perPageSelect || $('#perPageSelect');
+export function initConditionListForCard(promotionId, cardElement){
+  const pid = Number(promotionId);
+  if(!pid || !cardElement) return;
+  // ensure DOM exists (table etc)
+  const els = resolveCardElements(pid, cardElement);
+  if(!els.tbody) return;
 
-  if(btnPrev && !btnPrev._bound){
-    btnPrev._bound = true;
-    btnPrev.addEventListener('click', ()=> { if(pageState.page > 1){ pageState.page--; loadConditions({ page: pageState.page }); }});
+  // init default state if missing
+  if(!perCardState.has(pid)){
+    perCardState.set(pid, { page:1, per_page: Number(els.elPerPage?.value || 10), total_pages:1, q:'', currentConditions: [] });
   }
-  if(btnNext && !btnNext._bound){
-    btnNext._bound = true;
-    btnNext.addEventListener('click', ()=> { if(pageState.page < pageState.total_pages){ pageState.page++; loadConditions({ page: pageState.page }); }});
-  }
-  if(perPageSelect && !perPageSelect._bound){
-    perPageSelect._bound = true;
-    perPageSelect.addEventListener('change', () => { pageState.per_page = Number(perPageSelect.value); pageState.page = 1; loadConditions({ page:1, per_page: pageState.per_page }); });
-  }
-}
 
-function bindSearch(){
-  searchInput = searchInput || $('#conditionSearch');
-  if(!searchInput || searchInput._bound) return;
-  searchInput._bound = true;
-  searchInput.addEventListener('input', debounce(()=> {
-    pageState.q = searchInput.value.trim();
-    pageState.page = 1;
-    loadConditions({ page:1, q: pageState.q });
-  }, 350));
-}
+  const state = perCardState.get(pid);
 
-function bindTabs(){
-  document.querySelectorAll('#conditionTab .nav-link').forEach(tab => {
-    if(tab._boundTab) return;
-    tab._boundTab = true;
-    tab.addEventListener('click', e => {
-      e.preventDefault();
-      if(tab.classList.contains('active')) return;
-      document.querySelectorAll('#conditionTab .nav-link').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      document.querySelectorAll('.tab-pane').forEach(c => c.style.display = 'none');
-      const target = tab.getAttribute('data-target');
-      const targetEl = document.querySelector(target);
-      if(targetEl) targetEl.style.display = 'flex';
-      const overlayEl = el('condition-overlay'); if(overlayEl && target === '#advance-content') overlayEl.classList.add('mode-edit');
-      if(target === '#advance-content'){
-        setTimeout(()=>{ try { if(typeof Blockly !== 'undefined' && Blockly.svgResize){ const ws = Blockly.getMainWorkspace ? Blockly.getMainWorkspace() : (window.workspace || null); if(ws) Blockly.svgResize(ws); } }catch(e){} }, 120);
-      }
+  // bind search (debounced)
+  if(els.elSearch && !els.elSearch._bound){
+    els.elSearch._bound = true;
+    els.elSearch.addEventListener('input', debounce(()=> {
+      state.q = els.elSearch.value.trim();
+      state.page = 1;
+      perCardState.set(pid, state);
+      loadConditionsForCard(pid, { page:1, q: state.q }, cardElement);
+    }, 350));
+  }
+
+  // bind per-page select
+  if(els.elPerPage && !els.elPerPage._bound){
+    els.elPerPage._bound = true;
+    els.elPerPage.addEventListener('change', () => {
+      state.per_page = Number(els.elPerPage.value || 10);
+      state.page = 1;
+      perCardState.set(pid, state);
+      loadConditionsForCard(pid, { page:1, per_page: state.per_page }, cardElement);
     });
-  });
-}
-
-function bindHeaderButtons(){
-  const closeBtn = el('btn-close-condition');
-  if(closeBtn && !closeBtn._boundClose){
-    closeBtn._boundClose = true;
-    closeBtn.addEventListener('click', ()=> hideOverlay());
   }
 
-  const createBtn = el('btn-create-condition');
-  if(createBtn && !createBtn._boundCreate){
-    createBtn._boundCreate = true;
-    createBtn.dataset.mode = createBtn.dataset.mode || 'create';
-    createBtn.addEventListener('click', ()=> {
-      if(String(createBtn.dataset.mode) === 'back') {
-        showListView();
-      } else {
-        showEditView(null);
+  // bind prev/next
+  if(els.btnPrev && !els.btnPrev._bound){
+    els.btnPrev._bound = true;
+    els.btnPrev.addEventListener('click', ()=> {
+      if(state.page > 1){ state.page--; perCardState.set(pid, state); loadConditionsForCard(pid, { page: state.page }, cardElement); }
+    });
+  }
+  if(els.btnNext && !els.btnNext._bound){
+    els.btnNext._bound = true;
+    els.btnNext.addEventListener('click', ()=> {
+      if(state.page < state.total_pages){ state.page++; perCardState.set(pid, state); loadConditionsForCard(pid, { page: state.page }, cardElement); }
+    });
+  }
+
+  // initial load
+  loadConditionsForCard(pid, { page: state.page, per_page: state.per_page, q: state.q }, cardElement);
+}
+
+/* ---------------------------
+   refreshConditionsListUI(promotionId)
+   - public helper to force reload UI for this card
+   --------------------------- */
+export function refreshConditionsListUI(promotionId){
+  const pid = Number(promotionId);
+  const state = perCardState.get(pid);
+  const cardEl = document.querySelector(`#promotion-conditions-${pid}`)?.closest('.cards') || null;
+  if(!pid) return;
+  return loadConditionsForCard(pid, { page: state?.page || 1, per_page: state?.per_page || 10, q: state?.q || '' }, cardEl);
+}
+
+/* ---------------------------
+   Modal form opening for edit/create
+   OpenConditionForm(promotionId, promotionName, triggerEl = null, row=null)
+   - Opens modal and shows edit form (populated with row if provided)
+   --------------------------- */
+export async function OpenConditionForm(promotionId, promotionName = '', triggerEl = null, row = null){
+  try{
+    // set promoId globally for form operations
+    const pid = Number(promotionId || (triggerEl && triggerEl.dataset?.promotionId) || window.promoId || new URLSearchParams(window.location.search).get('id'));
+    if(!pid) {
+      console.warn('OpenConditionForm: promotion id not found'); 
+      return;
+    }
+    window.promoId = pid;
+
+    overlay = overlay || $('#condition-overlay');
+    if(overlay) overlay.dataset.promotionId = String(pid);
+
+    // init templates & form handlers (safe)
+    try { initTemplates(); } catch(e){}
+    try { initFormHandlers(); } catch(e){}
+
+    showOverlay();
+    // ensure edit view visible & dispatch populate/create
+    if(row){
+      showEditView(row);
+    } else {
+      // create mode
+      try { 
+        // reset form fields and fire condition:create
+        window.dispatchEvent(new CustomEvent('condition:create', {}));
+        // open basic tab
         const basicTab = document.querySelector('#conditionTab .nav-link[data-target="#basic-content"]');
         if(basicTab) basicTab.click();
-      }
-    })
-  }
+      } catch(e){}
+    }
 
-  const cancelBtn = el('btn-cancel-edit');
-  if(cancelBtn && !cancelBtn._boundCancel){
-    cancelBtn._boundCancel = true;
-    cancelBtn.addEventListener('click', ()=> showListView());
-  }
-}
-
-/* ---------------------------
-   Public entrypoint
-   --------------------------- */
-export async function OpenConditionOverlay(promotionId, promotionName = '', triggerEl = null){
-  if (!promotionId && triggerEl && triggerEl.dataset) {
-    const fromTrigger = Number(triggerEl.dataset.promotionId || triggerEl.dataset.id || 0);
-    if (fromTrigger > 0) promotionId = fromTrigger;
-  }
-  try{
-    promoId = Number(promotionId || promoId || new URLSearchParams(window.location.search).get('id'));
-    if(!promoId){ console.warn('OpenConditionOverlay: promotion id not found'); return; }
-
-    window.promoId = Number(promoId);
-    overlay = overlay || $('#condition-overlay');
-    if(overlay) overlay.dataset.promotionId = String(promoId); 
-
-    overlay = overlay || $('#condition-overlay');
-    listView = listView || $('#condition-list-view');
-    editView = editView || $('#condition-edit-view');
-    tbodyEl = tbodyEl || $('#conditionsListTable tbody');
-    badgeEl = badgeEl || $('#condition-count');
-    noEl = noEl || $('#no-conditions');
-    paginationInfo = paginationInfo || $('#paginationInfo');
-
-    initTemplates();
-
-    // ensure form handlers bound early
-    try { initFormHandlers(); } catch (e) { console.warn('initFormHandlers failed', e); }
-
-    showOverlay();
     const t = $('#overlay-title'); if(t) t.textContent = promotionName ? `เงื่อนไข: ${promotionName}` : 'เงื่อนไข';
-    pageState.page = 1;
-    bindPaginationControls();
-    bindSearch();
-    bindTabs();
-    bindHeaderButtons();
-
-    await loadConditions({ page:1, per_page: pageState.per_page, promotion_id: promoId });
-    try{ searchInput = searchInput || $('#conditionSearch'); searchInput && searchInput.focus(); }catch(e){}
   }catch(err){
-    console.error('OpenConditionOverlay error', err);
+    console.error('OpenConditionForm error', err);
     showOverlay();
   }
 }
 
 /* ---------------------------
-   init module
+   initConditionModule (keeps event listeners for older .btn-open-condition, and global events)
    --------------------------- */
 export function initConditionModule(){
-  overlay = overlay || $('#condition-overlay');
-  listView = listView || $('#condition-list-view');
-  editView = editView || $('#condition-edit-view');
-  tbodyEl = tbodyEl || $('#conditionsListTable tbody');
-  badgeEl = badgeEl || $('#condition-count');
-  noEl = noEl || $('#no-conditions');
-  paginationInfo = paginationInfo || $('#paginationInfo');
+  // initTemplates safe
+  try { initTemplates(); } catch(e){}
 
-  try { initFormHandlers(); } catch(e){}
+  // global events
+  window.addEventListener('condition:requery', (ev) => {
+    // optionally accept promotion_id in event.detail
+    const pid = ev?.detail?.promotion_id;
+    if(pid) refreshConditionsListUI(pid);
+    else {
+      // refresh all known cards
+      perCardState.forEach((_, key) => refreshConditionsListUI(key));
+    }
+  });
 
-  window.addEventListener('condition:requery', () => { loadConditions({ page: 1 }); });
   window.addEventListener('condition:changed', (ev) => {
     const det = ev.detail || {};
-    if(det.promotion_id && Number(det.promotion_id) !== promoId) return;
-    pageState.page = 1;
-    loadConditions({ page:1 });
+    if(det.promotion_id){
+      refreshConditionsListUI(Number(det.promotion_id));
+    } else {
+      perCardState.forEach((_, key) => refreshConditionsListUI(key));
+    }
   });
 
   window.addEventListener('condition:saved', (ev) => {
-    pageState.page = 1;
-    loadConditions({ page:1 }).then(()=> showListView()).catch(()=> showListView());
+    const det = ev.detail || {};
+    if(det && det.promotion_id) refreshConditionsListUI(Number(det.promotion_id));
   });
 
+  // legacy button selector: if any .btn-open-condition exist (older places), bind to open modal form
   document.querySelectorAll('.btn-open-condition').forEach(b => {
     if(b._boundOpen) return;
     b._boundOpen = true;
     b.addEventListener('click', (ev) => {
       ev.preventDefault();
-      let pid = b.dataset?.promotionId ?? new URLSearchParams(window.location.search).get('id');
-      if(!pid){ const card = b.closest?.('.cards'); if(card) pid = card.dataset?.id; }
-      if(!pid){ console.warn('OpenConditionOverlay: promotion id not found'); return; }
-      OpenConditionOverlay(pid, b.dataset?.promotionName || '');
+      const pid = Number(b.dataset?.promotionId || new URLSearchParams(window.location.search).get('id'));
+      if(!pid){ console.warn('OpenConditionForm: promotion id not found'); return; }
+      OpenConditionForm(pid, b.dataset?.promotionName || '', b);
     });
   });
+}
+
+/* ---------------------------
+   Exports
+   --------------------------- */
+export default {
+  initConditionModule,
+  initConditionListForCard,
+  loadConditionsForCard,
+  refreshConditionsListUI,
+  OpenConditionForm
+};
+
+// also expose to window for backward compat
+if (typeof window !== 'undefined') {
+  try {
+    window.OpenConditionForm = OpenConditionForm;
+  } catch(e){}
 }

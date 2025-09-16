@@ -13,7 +13,7 @@ import { parseBlocklyJsonToConditionItems } from './ConditionParser.js';
 
 // per-card UI state map: promotionId -> { page, per_page, total_pages, q, currentConditions, elements... }
 const perCardState = new Map();
-
+const conditionOverlay = document.getElementById("condition-overlay")
 // overlay/edit modal references (shared)
 let overlay = null;
 let editView = null;
@@ -308,7 +308,9 @@ export async function OpenConditionForm(promotionId, promotionName = '', trigger
     showOverlay();
     // ensure edit view visible & dispatch populate/create
     if(row){
+      // edit mode
       showEditView(row);
+      conditionOverlay.classList.remove("mode-create")
     } else {
       // create mode
       try { 
@@ -317,6 +319,7 @@ export async function OpenConditionForm(promotionId, promotionName = '', trigger
         // open basic tab
         const basicTab = document.querySelector('#conditionTab .nav-link[data-target="#basic-content"]');
         if(basicTab) basicTab.click();
+        conditionOverlay.classList.add("mode-create")
       } catch(e){}
     }
 

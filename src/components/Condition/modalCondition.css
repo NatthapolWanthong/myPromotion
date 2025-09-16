@@ -61,7 +61,7 @@
 }
 
 /* ---------------------------
-   Nav tabs (ซ่อนโดยค่าเริ่มต้น) — แสดงเมื่อ mode-edit
+   Nav tabs (ซ่อนโดยค่าเริ่มต้น) — แสดงเมื่อ mode-create
    --------------------------- */
 #condition-overlay .nav-tabs {
   display: none !important;
@@ -69,7 +69,7 @@
   align-items: center;
   gap: 0.5rem;
 }
-#condition-overlay.mode-edit .nav-tabs {
+#condition-overlay.mode-create .nav-tabs {
   display: flex !important;
 }
 

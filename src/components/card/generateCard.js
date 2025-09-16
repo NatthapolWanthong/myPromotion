@@ -4,7 +4,6 @@ import { FormHelper } from "/myPromotion/src/assets/js/formHelper.js";
 import { CardEditController } from "./CardEditor.js";
 import { MainStatusData } from "/myPromotion/src/config.js";
 import { UpdateStatusCount } from "/myPromotion/src/components/status-count/status-count.js";
-import ConditionIndex, { initConditionModule, initConditionListForCard, OpenConditionForm } from '/myPromotion/src/components/Condition/ConditionIndex.js';
 import { API } from '/myPromotion/src/assets/js/api.js'; // ถูกเรียกใช้ในการดึง/ลบ condition
 // jQuery & bootstrap-table expected to be available globally (page already loads them)
 
@@ -38,6 +37,12 @@ import { API } from '/myPromotion/src/assets/js/api.js'; // ถูกเรี�
 function makeConditionListHTML(promotionId){
   const pid = String(promotionId);
   return `
+    <div class="d-flex">
+      <h5 id="overlay-title" class="m-0">เงื่อนไข</h5>
+      <span id="condition-count" class="badge bg-secondary ms-1">0</span>
+    </div>
+    
+
     <div class="promotion-conditions" id="promotion-conditions-${pid}">
       <!-- toolbar for bootstrap-table + our manage button -->
       <div id="toolbar-conditions-${pid}" class="promo-toolbar d-flex justify-content-between align-items-center mb-2">

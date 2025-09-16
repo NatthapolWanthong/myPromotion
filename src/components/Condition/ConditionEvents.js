@@ -28,6 +28,7 @@ function showOverlay(){
   if(!document.body.classList.contains('overlay-open')) document.body.classList.add('overlay-open');
   if(overlay) trap(overlay);
   document.addEventListener('keydown', escHandler);
+  console.log("show")
 }
 
 function hideOverlay(){
@@ -38,6 +39,7 @@ function hideOverlay(){
   try{ document.body.classList.remove('overlay-open'); }catch(e){}
   document.removeEventListener('keydown', escHandler);
   setTimeout(cleanBootstrapBackdrops, 80);
+  console.log("hide")
 }
 
 function escHandler(e){ if(e.key === 'Escape' || e.key === 'Esc'){ const ev = editView || $('#condition-edit-view'); if(ev && !ev.classList.contains('d-none')) { showOverlay(); showEditView(null); } else hideOverlay(); } }
@@ -142,8 +144,10 @@ function renderListForCard(promotionId, scope, data, state){
   const pid = String(promotionId);
   const tbody = scope.querySelector(`#conditionsListTable-${pid} tbody`);
   const paginationInfo = scope.querySelector(`#paginationInfo-${pid}`);
-  const badge = scope.querySelector(`#condition-count`) || document.querySelector('#condition-count'); // keep badge global fallback
-  const noEl = null;
+  // prefer per-card badge id "condition-count-<pid>", fallback to scoped/global ones
+  const badge = scope.querySelector(`#condition-count-${pid}`) 
+             || scope.querySelector(`#condition-count`) 
+             || document.querySelector('#condition-count');
 
   if(!tbody) return;
   tbody.innerHTML = '';
@@ -211,6 +215,7 @@ function renderListForCard(promotionId, scope, data, state){
   if(paginationInfo) paginationInfo.textContent = `Page ${state.page} / ${state.total_pages}`;
   if(badge) badge.textContent = String(state.total ?? 0);
 }
+
 
 /* ---------------------------
    initConditionListForCard(promotionId, cardElement)
@@ -283,6 +288,37 @@ export function refreshConditionsListUI(promotionId){
   return loadConditionsForCard(pid, { page: state?.page || 1, per_page: state?.per_page || 10, q: state?.q || '' }, cardEl);
 }
 
+
+function bindHeaderButtons(){
+  const closeBtn = el('btn-close-condition');
+  if(closeBtn && !closeBtn._boundClose){
+    closeBtn._boundClose = true;
+    closeBtn.addEventListener('click', ()=> hideOverlay());
+  }
+
+  const createBtn = el('btn-create-condition');
+  if(createBtn && !createBtn._boundCreate){
+    console.log("Run")
+    createBtn._boundCreate = true;
+    createBtn.dataset.mode = createBtn.dataset.mode || 'create';
+    createBtn.addEventListener('click', ()=> {
+      if(String(createBtn.dataset.mode) === 'back') {
+        showListView();
+      } else {
+        showEditView(null);
+        const basicTab = document.querySelector('#conditionTab .nav-link[data-target="#basic-content"]');
+        if(basicTab) basicTab.click();
+      }
+    })
+  }
+
+  const cancelBtn = el('btn-cancel-edit');
+  if(cancelBtn && !cancelBtn._boundCancel){
+    cancelBtn._boundCancel = true;
+    cancelBtn.addEventListener('click', ()=> showListView());
+  }
+}
+
 /* ---------------------------
    Modal form opening for edit/create
    OpenConditionForm(promotionId, promotionName, triggerEl = null, row=null)
@@ -311,6 +347,7 @@ export async function OpenConditionForm(promotionId, promotionName = '', trigger
       // edit mode
       showEditView(row);
       conditionOverlay.classList.remove("mode-create")
+      conditionOverlay.classList.add("mode-edit")
     } else {
       // create mode
       try { 
@@ -319,11 +356,21 @@ export async function OpenConditionForm(promotionId, promotionName = '', trigger
         // open basic tab
         const basicTab = document.querySelector('#conditionTab .nav-link[data-target="#basic-content"]');
         if(basicTab) basicTab.click();
+        conditionOverlay.classList.remove("mode-edit")
         conditionOverlay.classList.add("mode-create")
       } catch(e){}
     }
 
-    const t = $('#overlay-title'); if(t) t.textContent = promotionName ? `เงื่อนไข: ${promotionName}` : 'เงื่อนไข';
+
+    const t = $('#overlay-title'); 
+    console.log(conditionOverlay.classList.contains("mode-create"))
+    if(conditionOverlay.classList.contains("mode-create")){
+      t.textContent = 'สร้างเงื่อนไข';
+    }else {
+      if(t) t.textContent = promotionName ? `แก้ไขเงื่อนไข: ${promotionName}` : 'แก้ไขเงื่อนไข';
+    }
+    
+
   }catch(err){
     console.error('OpenConditionForm error', err);
     showOverlay();
@@ -334,6 +381,7 @@ export async function OpenConditionForm(promotionId, promotionName = '', trigger
    initConditionModule (keeps event listeners for older .btn-open-condition, and global events)
    --------------------------- */
 export function initConditionModule(){
+  bindHeaderButtons()
   // initTemplates safe
   try { initTemplates(); } catch(e){}
 

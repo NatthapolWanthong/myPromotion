@@ -829,6 +829,7 @@ function bindHeaderButtons() {
 
   $("#btn-close-condition")?.addEventListener("click", () => {
     $("#condition-overlay")?.classList.add("d-none");
+    
   });
 
   $("#btn-save-condition")?.addEventListener("click", (e) => {

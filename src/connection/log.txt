@@ -5991,3 +5991,915 @@ null
     "pageSize": 10,
     "campaign_id": "1"
 }
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": null
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": null
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "6"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "3"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "2"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": null
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": null
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "6"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "6"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "6"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "6"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "6"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": null
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "3"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}
+null
+{
+    "keyword": "",
+    "type": [],
+    "target": [],
+    "status": [],
+    "sortBy": "edit_date",
+    "sortOrder": "desc",
+    "page": 1,
+    "pageSize": 10,
+    "campaign_id": "1"
+}

@@ -33,8 +33,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // แก้ไขไม่ได้
   flatpickr(".date-picker-disabled", {
     ...defaultOptions,
-    clickOpens: false, // ปิดการเปิดปฏิทิน
-    allowInput: false  // ห้ามพิมพ์
+    clickOpens: false,
+    allowInput: false
   });
 
   try {

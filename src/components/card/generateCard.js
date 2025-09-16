@@ -6,18 +6,47 @@ import { MainStatusData } from "/myPromotion/src/config.js";
 import { UpdateStatusCount } from "/myPromotion/src/components/status-count/status-count.js";
 import ConditionIndex, { initConditionModule, initConditionListForCard, OpenConditionForm } from '/myPromotion/src/components/Condition/ConditionIndex.js';
 import { API } from '/myPromotion/src/assets/js/api.js'; // ถูกเรียกใช้ในการดึง/ลบ condition
+// jQuery & bootstrap-table expected to be available globally (page already loads them)
 
-// helper to return per-promotion list-view html (IDs unique by promotionId)
-// รวม sample customToolbar เป็น placeholder (commented) ตามคำขอ
+/* -------------------------
+   Helper: clean leftover modal artifacts
+   ------------------------- */
+(function installModalCleanup() {
+  // ensure we remove stray backdrops / classes after any modal hidden
+  if (typeof document === 'undefined') return;
+  document.addEventListener('hidden.bs.modal', function _onModalHidden(ev) {
+    // small delay so bootstrap finished internal cleanup
+    setTimeout(() => {
+      try {
+        // remove stray backdrops
+        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+        // remove modal-open / overlay-open classes and padding-right
+        document.body.classList.remove('modal-open', 'overlay-open');
+        document.body.style.paddingRight = '';
+        // if any custom overlay element present, remove trap/listeners if they exist
+      } catch (e) {
+        // swallow
+        console.warn('modal-cleanup failed', e);
+      }
+    }, 40);
+  });
+})();
+
+/* -------------------------
+   makeConditionListHTML - toolbar ABOVE table (bootstrap-table will render search/pagination)
+   ------------------------- */
 function makeConditionListHTML(promotionId){
   const pid = String(promotionId);
   return `
     <div class="promotion-conditions" id="promotion-conditions-${pid}">
-      <!-- toolbar: ปุ่มจัดการเงื่อนไข อยู่ด้านบนของตาราง -->
+      <!-- toolbar for bootstrap-table + our manage button -->
       <div id="toolbar-conditions-${pid}" class="promo-toolbar d-flex justify-content-between align-items-center mb-2">
         <div class="d-flex align-items-center gap-2">
           <button type="button" class="btn btn-primary btn-sm btn-manage-conditions" data-promotion-id="${pid}">สร้างเงื่อนไข</button>
-          <!-- สามารถเพิ่มปุ่ม/controls อื่นๆ ตรงนี้ได้ -->
+        </div>
+        <!-- bootstrap-table will create its own search / export UI; toolbar div is passed into options -->
+        <div class="d-flex align-items-center gap-2">
+          <!-- optional space: bootstrap-table will place toolbar items before/after table -->
         </div>
       </div>
 
@@ -26,21 +55,14 @@ function makeConditionListHTML(promotionId){
           class="table table-sm table-bordered promo-conditions-table"
           id="conditionsListTable-${pid}"
           data-unique-id="id"
-          data-pagination="true"
-          data-page-size="25"
-          data-search="true"
-          data-show-columns="true"
-          data-show-export="true"
-          data-side-pagination="server"
-          data-locale="th-TH"
         >
           <thead>
             <tr>
               <th data-field="id" data-visible="false">ID</th>
-              <th data-field="index" data-formatter="indexFormatter" data-width="56">#</th>
+              <th data-field="index" data-width="56">#</th>
               <th data-field="condition_name" data-sortable="true">ชื่อเงื่อนไข</th>
-              <th data-field="compiled" data-formatter="compiledFormatter">Data</th>
-              <th data-field="actions" data-formatter="actionFormatter" data-align="center" data-width="180">จัดการ</th>
+              <th data-field="compiled">Data</th>
+              <th data-field="actions" data-align="center" data-width="180">จัดการ</th>
             </tr>
           </thead>
         </table>
@@ -49,7 +71,9 @@ function makeConditionListHTML(promotionId){
   `;
 }
 
-
+/* -------------------------
+   Main class
+   ------------------------- */
 export class CampaignCard {
   constructor(container, options, campaign) {
     this.container = container;
@@ -190,16 +214,12 @@ export class CampaignCard {
         </div>
 
         ${isPromotion ? `
-
             <div style="margin-left: 5px; margin-right: 12px;">
-              <!-- Insert dynamic list-view HTML for this promotion -->
               <div class="col-12 mt-3">
                 ${makeConditionListHTML(item.id)}
               </div>
 
-              <!-- Customer table (placeholder) - เตรียมไว้สำหรับอนาคต -->
               <div class="col-12 mt-3">
-                <!-- custom toolbar placeholder for customers -->
                 <div id="toolbar-customers-${item.id}" class="d-none"><!-- custom toolbar customers --></div>
                 <div class="table-responsive">
                   <table id="customersTable-${item.id}" class="table table-sm table-bordered" data-unique-id="id"></table>
@@ -207,7 +227,6 @@ export class CampaignCard {
               </div>
             </div>
 
-            <!-- SUMMARY MODAL (แยกออกไป) -->
             <div class="modal fade" id="promoModal-${item.id}" tabindex="-1" aria-labelledby="promoModalLabel-${item.id}" aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content minimal-modal">
@@ -238,10 +257,13 @@ export class CampaignCard {
         manageBtn.addEventListener('click', (ev) => {
           ev.stopPropagation();
           const pid = Number(manageBtn.dataset.promotionId || item.id);
+          // OpenConditionForm is exported/attached globally by ConditionIndex
           if (typeof window.OpenConditionForm === 'function') {
             window.OpenConditionForm(pid, item.name, card);
           } else if (typeof OpenConditionForm === 'function') {
             OpenConditionForm(pid, item.name, card);
+          } else {
+            console.warn('OpenConditionForm not available');
           }
         });
       }
@@ -251,48 +273,51 @@ export class CampaignCard {
         const pid = item.id;
         const $condTable = $(`#conditionsListTable-${pid}`);
 
-        // index formatter (1..n per page)
-        window.indexFormatter = function(value, row, index){
-          // bootstrap-table passes index on current page; show overall index by using pageNumber/pageSize
-          try {
-            const opts = $condTable.bootstrapTable('getOptions');
-            const page = opts.pageNumber || 1;
-            const size = opts.pageSize || 5;
-            return (page - 1) * size + index + 1;
-          } catch(e){ return index + 1; }
-        };
+        // define columns with per-table formatters (avoid global functions)
+        const columns = [
+          { field: 'id', visible: false },
+          { field: 'index', title: '#', formatter: function(value, row, index){
+              try {
+                const opts = $condTable.bootstrapTable('getOptions');
+                const page = opts.pageNumber || 1;
+                const size = opts.pageSize || 5;
+                return (page - 1) * size + index + 1;
+              } catch(e){ return index + 1; }
+            }, width: 56
+          },
+          { field: 'condition_name', title: 'ชื่อเงื่อนไข', sortable: true },
+          { field: 'compiled', title: 'Data', formatter: function(value, row, index){
+              try {
+                const parsed = row.condition_xml || row.condition_xml_parsed || row.compiled_dsl || null;
+                const txt = parsed ? JSON.stringify(parsed, null, 2) : '-';
+                // escape
+                const $d = $('<div>').text(txt);
+                return `<details class="condition-raw"><summary class="small">รายละเอียด JSON (คลิก)</summary><pre style="max-height:240px;overflow:auto;">${$d.html()}</pre></details>`;
+              } catch(e){ return '-'; }
+            }
+          },
+          { field: 'actions', title: 'จัดการ', align: 'center', width: 180, formatter: function(val, row, idx){
+              return `
+                <button class="btn btn-sm btn-outline-primary btn-edit-condition" data-id="${row.id}" data-promotion="${pid}">แก้ไข</button>
+                <button class="btn btn-sm btn-outline-danger btn-delete-condition ms-1" data-id="${row.id}" data-promotion="${pid}">ลบ</button>
+              `;
+            }
+          }
+        ];
 
-        // compiled data formatter (show small details + collapsible)
-        window.compiledFormatter = function(value, row, index) {
-          try {
-            const parsed = row.condition_xml || row.condition_xml_parsed || row.compiled_dsl || null;
-            const txt = parsed ? JSON.stringify(parsed, null, 2) : '-';
-            return `<details class="condition-raw"><summary class="small">รายละเอียด JSON (คลิก)</summary><pre style="max-height:240px;overflow:auto;">${$('<div>').text(txt).html()}</pre></details>`;
-          } catch(e){ return '-'; }
-        };
-
-        // actions formatter (edit / delete buttons)
-        window.actionFormatter = function(value, row, index){
-          return `
-            <button class="btn btn-sm btn-outline-primary btn-edit-condition" data-id="${row.id}" data-promotion="${pid}">แก้ไข</button>
-            <button class="btn btn-sm btn-outline-danger btn-delete-condition ms-1" data-id="${row.id}" data-promotion="${pid}">ลบ</button>
-          `;
-        };
-
-        // initialize bootstrap-table (server-side) for conditions
+        // bootstrap-table options: server-side ajax
         $condTable.bootstrapTable({
           toolbar: `#toolbar-conditions-${pid}`,
           pagination: true,
           sidePagination: 'server',
           search: true,
           showExport: true,
-          exportOptions: {}, // plugin-specific options if any
           exportTypes: ['csv', 'excel'],
           pageSize: 5, // default per requirement for condition
           pageList: [5,10,20,50],
           uniqueId: 'id',
+          columns: columns,
           ajax: function (params) {
-            // params.data contains offset, limit, search, sort, order
             const data = params.data || {};
             const limit = Number(data.limit || 5);
             const offset = Number(data.offset || 0);
@@ -301,14 +326,7 @@ export class CampaignCard {
             API.getCondition({ promotion_id: pid, page, per_page: limit, q })
               .then(res => {
                 if(res && res.success){
-                  // bootstrap-table expects { total, rows }
                   params.success({ total: res.total || 0, rows: res.data || [] });
-                  // update paginationInfo small element
-                  const pi = document.querySelector(`#paginationInfo-${pid}`);
-                  if(pi) pi.textContent = `Page ${page} / ${res.total_pages || 1}`;
-                  // update promo condition count modal if exists
-                  const badgeEl = document.querySelector(`#promo-condition-count-modal-${pid}`);
-                  if(badgeEl) badgeEl.textContent = String(res.total ?? 0);
                 } else {
                   params.error(res?.error || 'fetch failed');
                 }
@@ -317,13 +335,28 @@ export class CampaignCard {
           }
         });
 
-        // delegated handlers (works even after table refresh)
-        $(`#conditionsListTable-${pid}`).off('click', '.btn-edit-condition').on('click', '.btn-edit-condition', function(ev){
+        // when data loaded successfully: update summary UI (non-invasive)
+        $condTable.on('load-success.bs.table', function (e, data) {
+          try {
+            const total = (data && data.total) ? data.total : ($condTable.bootstrapTable('getOptions').totalRows || 0);
+            const opts = $condTable.bootstrapTable('getOptions');
+            const page = opts.pageNumber || 1;
+            const pageSize = opts.pageSize || 5;
+            const totalPages = Math.max(1, Math.ceil((data && data.total ? data.total : 0) / pageSize));
+            const pi = document.querySelector(`#paginationInfo-${pid}`);
+            if (pi) pi.textContent = `Page ${page} / ${totalPages}`;
+            // update modal summary badge if present
+            const badgeEl = document.querySelector(`#promo-condition-count-modal-${pid}`);
+            if (badgeEl) badgeEl.textContent = String(total ?? 0);
+          } catch(e){ /* ignore */ }
+        });
+
+        // delegated handlers (works after refresh because we delegate to table)
+        $condTable.off('click', '.btn-edit-condition').on('click', '.btn-edit-condition', function(ev){
           ev.stopPropagation();
           const id = $(this).data('id');
-          const $t = $(`#conditionsListTable-${pid}`);
           // get row by uniqueId
-          const row = $t.bootstrapTable('getRowByUniqueId', id) || ( ($t.bootstrapTable('getData') || []).find(r => String(r.id) === String(id)) );
+          const row = $condTable.bootstrapTable('getRowByUniqueId', id) || (($condTable.bootstrapTable('getData') || []).find(r => String(r.id) === String(id)));
           if(!row){
             // fallback: open modal and let populate fetch
             if (typeof window.OpenConditionForm === 'function') window.OpenConditionForm(pid, item.name, card, { id });
@@ -332,19 +365,17 @@ export class CampaignCard {
           if (typeof window.OpenConditionForm === 'function') {
             window.OpenConditionForm(pid, row.condition_name || '', card, row);
           } else {
-            // fallback: dispatch populate and show overlay
             if (typeof OpenConditionForm === 'function') OpenConditionForm(pid, row.condition_name || '', card, row);
           }
         });
 
-        $(`#conditionsListTable-${pid}`).off('click', '.btn-delete-condition').on('click', '.btn-delete-condition', function(ev){
+        $condTable.off('click', '.btn-delete-condition').on('click', '.btn-delete-condition', function(ev){
           ev.stopPropagation();
           const id = $(this).data('id');
           if(!confirm('ต้องการลบเงื่อนไขนี้ ใช่หรือไม่?')) return;
           $(this).prop('disabled', true);
           API.deleteCondition({ id }).then(res => {
             if(res && res.success){
-              // refresh table after delete
               $condTable.bootstrapTable('refresh');
               try { alert('ลบเงื่อนไขสำเร็จ'); } catch(e){}
             } else {
@@ -365,7 +396,6 @@ export class CampaignCard {
         const pid = item.id;
         const $custTable = $(`#customersTable-${pid}`);
 
-        // sample columns for customers; replace/extend when real API available
         const customerColumns = [
           { field: 'id', title: 'ID', visible: false },
           { field: 'code', title: 'Code' },
@@ -373,7 +403,6 @@ export class CampaignCard {
           { field: 'condition', title: 'เงื่อนไข' }
         ];
 
-        // init customers table with client-side empty data (pageSize 10 default)
         $custTable.bootstrapTable({
           toolbar: `#toolbar-customers-${pid}`,
           pagination: true,
@@ -384,11 +413,9 @@ export class CampaignCard {
           pageSize: 10, // default per requirement for customer table
           pageList: [10,25,50],
           columns: customerColumns,
-          data: [] // start empty; in future you can call $custTable.bootstrapTable('refreshOptions', { ajax: ... }) or load data via $custTable.bootstrapTable('load', data)
+          data: []
         });
 
-        // NOTE: when you have API for customers, change to server-side similar to conditions:
-        // $custTable.bootstrapTable({ sidePagination: 'server', ajax: function(params){ API.getCustomers(...).then(...params.success({...})) }});
       } catch(e){
         console.warn('init customers table failed', e);
       }

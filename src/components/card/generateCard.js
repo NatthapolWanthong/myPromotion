@@ -262,14 +262,7 @@ export class CampaignCard {
         manageBtn.addEventListener('click', (ev) => {
           ev.stopPropagation();
           const pid = Number(manageBtn.dataset.promotionId || item.id);
-          // OpenConditionForm is exported/attached globally by ConditionIndex
-          if (typeof window.OpenConditionForm === 'function') {
-            window.OpenConditionForm(pid, item.name, card);
-          } else if (typeof OpenConditionForm === 'function') {
-            OpenConditionForm(pid, item.name, card);
-          } else {
-            console.warn('OpenConditionForm not available');
-          }
+          window.OpenConditionForm(pid, item.name, card);
         });
       }
 
@@ -360,19 +353,19 @@ export class CampaignCard {
         $condTable.off('click', '.btn-edit-condition').on('click', '.btn-edit-condition', function(ev){
           ev.stopPropagation();
           const id = $(this).data('id');
-          // get row by uniqueId
+
           const row = $condTable.bootstrapTable('getRowByUniqueId', id) || (($condTable.bootstrapTable('getData') || []).find(r => String(r.id) === String(id)));
           if(!row){
-            // fallback: open modal and let populate fetch
-            if (typeof window.OpenConditionForm === 'function') window.OpenConditionForm(pid, item.name, card, { id });
-            return;
+            window.OpenConditionForm(pid, item.name, card, { id });
           }
-          if (typeof window.OpenConditionForm === 'function') {
-            window.OpenConditionForm(pid, row.condition_name || '', card, row);
-          } else {
-            if (typeof OpenConditionForm === 'function') OpenConditionForm(pid, row.condition_name || '', card, row);
-          }
+          window.OpenConditionForm(pid, row.condition_name || '', card, row);
         });
+
+        // manageBtn.addEventListener('click', (ev) => {
+        //   ev.stopPropagation();
+        //   const pid = Number(manageBtn.dataset.promotionId || item.id);
+        //   window.OpenConditionForm(pid, item.name, card);
+        // });
 
         $condTable.off('click', '.btn-delete-condition').on('click', '.btn-delete-condition', async function(ev){
           ev.stopPropagation();

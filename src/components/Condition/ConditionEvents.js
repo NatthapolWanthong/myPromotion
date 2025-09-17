@@ -31,7 +31,7 @@ function showOverlay(){
   console.log("show")
 }
 
-function hideOverlay(){
+export function hideOverlay(){
   overlay = overlay || $('#condition-overlay');
   if(!overlay) return;
   overlay.classList.add('d-none');

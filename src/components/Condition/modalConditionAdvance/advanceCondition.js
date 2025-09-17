@@ -2,6 +2,8 @@
 // ================ advanceCondition.js Part1 ================
 
 import ConditionService from "/myPromotion/src/components/Condition/ConditionService.js";
+import { hideOverlay } from '/myPromotion/src/components/Condition/ConditionEvents.js';
+
 
 /* -----------------------
    Helpers
@@ -580,6 +582,7 @@ async function onSaveAdvance() {
       alert("บันทึกสำเร็จ 🎉");
       switchToListView();
       await refreshList();
+      hideOverlay()
     } else {
       alert("บันทึกล้มเหลว: " + (res?.error || "unknown"));
     }

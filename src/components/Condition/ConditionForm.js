@@ -6,6 +6,7 @@ import { API } from '/myPromotion/src/assets/js/api.js';
 import { addConditionItem, addRewardItem, initTemplates, getCachedFormOptions } from './ConditionTemplates.js';
 import { ensureProductsLoaded } from '/myPromotion/src/components/modal/modalProductList/modalProductList.js';
 import { basicFormToAdvanceWorkspace } from '/myPromotion/src/components/Condition/modalConditionAdvance/advanceCondition.js';
+import { hideOverlay } from '/myPromotion/src/components/Condition/ConditionEvents.js';
 
 
 const BlockHelper = (typeof window !== 'undefined' && window.ConditionBlockHelper) ? window.ConditionBlockHelper : ( (typeof ConditionBlockHelper !== 'undefined') ? ConditionBlockHelper : null );
@@ -524,7 +525,7 @@ export function initFormSubmit({ getPromoId } = {}) {
         window.dispatchEvent(new CustomEvent('condition:changed', { detail: { promotion_id: promoId, total: res.total ?? null } }));
         window.dispatchEvent(new CustomEvent('condition:requery', {}));
         window.dispatchEvent(new CustomEvent('condition:saved', { detail: res }));
-        try { alert('บันทึกสำเร็จ'); } catch(e){}
+        try { alert('บันทึกสำเร็จ'); hideOverlay()} catch(e){}
       } else {
         throw new Error(res?.error || 'save failed');
       }

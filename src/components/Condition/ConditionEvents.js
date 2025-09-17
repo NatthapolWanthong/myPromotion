@@ -159,58 +159,6 @@ function renderListForCard(promotionId, scope, data, state){
     return;
   }
 
-  // bind buttons scoped to this table (to avoid duplicate binding across cards)
-  tbody.querySelectorAll('.btn-edit-condition').forEach(btn => {
-    if (btn._bound) return;
-    btn._bound = true;
-    btn.addEventListener('click', async (ev) => {
-      ev.stopPropagation();
-      const id = String(btn.dataset.id);
-      const promo = Number(btn.dataset.promotion || promotionId);
-      let row = (perCardState.get(promo) && perCardState.get(promo).currentConditions) ? perCardState.get(promo).currentConditions.find(x => String(x.id) === id) : null;
-      if (!row) {
-        try {
-          const res = await API.getCondition({ promotion_id: promo, page: 1, per_page: 200 });
-          if (res && res.success) row = (res.data || []).find(x => String(x.id) === id);
-        } catch (err) { console.error('getCondition (on edit) failed', err); }
-      }
-      if (!row) { alert('ไม่พบเงื่อนไข id นี้'); return; }
-      // open modal with row populated
-      if (typeof window.OpenConditionForm === 'function') {
-        window.OpenConditionForm(promo, row.condition_name || '', btn.closest('.cards') || null, row);
-      } else {
-        // fallback: dispatch populate event and show overlay
-        showOverlay();
-        showEditView(row);
-      }
-    });
-  });
-
-  tbody.querySelectorAll('.btn-delete-condition').forEach(btn => {
-    if (btn._boundDel) return;
-    btn._boundDel = true;
-    btn.addEventListener('click', async (ev) => {
-      ev.stopPropagation();
-      const id = Number(btn.dataset.id);
-      const promo = Number(btn.dataset.promotion || promotionId);
-      if(!confirm('ต้องการลบเงื่อนไขนี้ ใช่หรือไม่?')) return;
-      btn.disabled = true;
-      try{
-        const res = await API.deleteCondition({ id });
-        if(res && res.success){
-          // reload this card's list
-          await loadConditionsForCard(promo, { page: 1 });
-          try { alert('ลบเงื่อนไขสำเร็จ'); } catch(e){}
-        } else {
-          throw new Error(res?.error || 'delete failed');
-        }
-      }catch(err){
-        console.error('delete error', err);
-        alert('ลบล้มเหลว: ' + (err.message || err));
-      } finally { btn.disabled = false; }
-    });
-  });
-
   // update pagination info & badge (badge global fallback)
   if(paginationInfo) paginationInfo.textContent = `Page ${state.page} / ${state.total_pages}`;
   if(badge) badge.textContent = String(state.total ?? 0);
@@ -294,22 +242,6 @@ function bindHeaderButtons(){
   if(closeBtn && !closeBtn._boundClose){
     closeBtn._boundClose = true;
     closeBtn.addEventListener('click', ()=> hideOverlay());
-  }
-
-  const createBtn = el('btn-create-condition');
-  if(createBtn && !createBtn._boundCreate){
-    console.log("Run")
-    createBtn._boundCreate = true;
-    createBtn.dataset.mode = createBtn.dataset.mode || 'create';
-    createBtn.addEventListener('click', ()=> {
-      if(String(createBtn.dataset.mode) === 'back') {
-        showListView();
-      } else {
-        showEditView(null);
-        const basicTab = document.querySelector('#conditionTab .nav-link[data-target="#basic-content"]');
-        if(basicTab) basicTab.click();
-      }
-    })
   }
 
   const cancelBtn = el('btn-cancel-edit');

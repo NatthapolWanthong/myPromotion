@@ -374,22 +374,49 @@ export class CampaignCard {
           }
         });
 
-        $condTable.off('click', '.btn-delete-condition').on('click', '.btn-delete-condition', function(ev){
+        $condTable.off('click', '.btn-delete-condition').on('click', '.btn-delete-condition', async function(ev){
           ev.stopPropagation();
-          const id = $(this).data('id');
-          if(!confirm('ต้องการลบเงื่อนไขนี้ ใช่หรือไม่?')) return;
-          $(this).prop('disabled', true);
-          API.deleteCondition({ id }).then(res => {
-            if(res && res.success){
-              $condTable.bootstrapTable('refresh');
+          const $btn = $(this);
+          const id = Number($btn.data('id'));
+          console.log(id)
+          const promo = Number($btn.data('promotion') || pid);
+
+          if (!id) {
+            console.warn('delete: id not found on button');
+            return;
+          }
+          if (!confirm('ต้องการลบเงื่อนไขนี้ ใช่หรือไม่?')) return;
+
+          $btn.prop('disabled', true);
+          try {
+            const res = await API.deleteCondition( id );
+            if (res && res.success) {
+              try {
+                if (typeof window.loadConditionsForCard === 'function') {
+                  // ถ้า loadConditionsForCard ถูก expose บน window (ConditionEvents.js)
+                  await window.loadConditionsForCard(promo, { page: 1 }, $btn.closest('.cards')[0] || null);
+                } else if (typeof loadConditionsForCard === 'function') {
+                  // ถ้า loadConditionsForCard อยู่ใน scope (ไม่ค่อยเกิด แต่ตรวจไว้)
+                  await loadConditionsForCard(promo, { page: 1 }, $btn.closest('.cards'));
+                } else {
+                  // fallback: refresh bootstrap-table (ในกรณีนี้ table ยังเป็นเจ้าของข้อมูล)
+                  $condTable.bootstrapTable('refresh');
+                }
+              } catch(reloadErr){
+                console.warn('reload after delete failed, fallback to bootstrap refresh', reloadErr);
+                try { $condTable.bootstrapTable('refresh'); } catch(e){}
+              }
+
               try { alert('ลบเงื่อนไขสำเร็จ'); } catch(e){}
             } else {
               throw new Error(res?.error || 'delete failed');
             }
-          }).catch(err => {
+          } catch(err) {
             console.error('delete error', err);
             alert('ลบล้มเหลว: ' + (err.message || err));
-          }).finally(()=> { $(this).prop('disabled', false); });
+          } finally {
+            $btn.prop('disabled', false);
+          }
         });
 
       } catch(e){

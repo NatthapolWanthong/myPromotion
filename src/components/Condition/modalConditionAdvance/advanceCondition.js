@@ -539,13 +539,12 @@ async function onSaveAdvance() {
 
     // validate workspace business wise (do not allow save if invalid)
     if (!validateWorkspace(workspace)) {
-      return; // stop save
+      return;
     }
 
     const btn = document.getElementById("btn-adv-save");
     if (btn) { btn.disabled = true; btn.textContent = "Saving..."; }
 
-    // Serialization + compile
     let wsState = null;
     try { wsState = Blockly.serialization.workspaces.save(workspace); } catch (e) { console.warn("serialize failed", e); wsState = null; }
     const compiled = compileToDSL(workspace);
@@ -579,7 +578,6 @@ async function onSaveAdvance() {
 
     if (res && res.success) {
       alert("บันทึกสำเร็จ 🎉");
-      window.dispatchEvent(new CustomEvent("condition:changed", { detail: { promotion_id: Number(promoId), total: res.total ?? null } }));
       switchToListView();
       await refreshList();
     } else {
@@ -829,7 +827,6 @@ function bindHeaderButtons() {
 
   $("#btn-close-condition")?.addEventListener("click", () => {
     $("#condition-overlay")?.classList.add("d-none");
-    
   });
 
   $("#btn-save-condition")?.addEventListener("click", (e) => {
@@ -841,7 +838,7 @@ function bindHeaderButtons() {
       onSaveAdvance();
     } else {
       // dispatch custom event handled by ConditionForm (submit)
-      window.dispatchEvent(new CustomEvent("condition:basic:save", {}));
+      console.log("ปิด overlay")
     }
   });
 

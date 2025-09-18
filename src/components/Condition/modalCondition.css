@@ -85,7 +85,7 @@
 /* ---------------------------
    List view / Edit view containers
    --------------------------- */
-#condition-list-view,
+
 #condition-edit-view {
   display: flex;
   flex-direction: column;

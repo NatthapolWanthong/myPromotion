@@ -81,11 +81,11 @@ export class API {
   // ==================================================================================================================
 
   // ดึงข้อมูลโปรโมชั่น
-  static getCondition({ promotion_id = null, campaign_id = null, page = 1, per_page = 10 } = {}) {
+  static getCondition({ promotion_id = null, campaign_id = null, page = 1, per_page = 10 , q , sortBy, order} = {}) {
   return API.fetchData(
     "/myPromotion/src/connection/condition/getCondition.php",
     "POST",
-    { promotion_id, campaign_id, page, per_page }
+    { promotion_id, campaign_id, page, per_page, q, sortBy, order }
     );
   }
 

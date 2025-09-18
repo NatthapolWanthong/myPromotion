@@ -377,7 +377,7 @@ export class CampaignCard {
           toolbar: `#toolbar-conditions-${pid}`,
           pagination: true,
           sidePagination: 'server',
-          search: true,
+          search: true,            // <-- เปิดให้ bootstrap-table สร้าง search box และส่ง search param
           showColumns: true,
           data_local: "th-TH",
           showExport: true,
@@ -392,8 +392,8 @@ export class CampaignCard {
             const limit = Number(data.limit || 5);
             const offset = Number(data.offset || 0);
             const page = Math.floor(offset / limit) + 1;
-            const q = data.search || '';
-            API.getCondition({ promotion_id: pid, page, per_page: limit, q })
+            const q = data.search || ''; // <--- bootstrap-table จะใส่ search ลงที่ data.search
+            API.getCondition({ promotion_id: pid, page, per_page: limit, q, sortBy: data.sort, order: data.order })
               .then(res => {
                 if(res && res.success){
                   params.success({ total: res.total || 0, rows: res.data || [] });
@@ -404,6 +404,7 @@ export class CampaignCard {
               .catch(err => { params.error(err); });
           }
         });
+
 
         // ensure layout recalculation after render (helps when table created while element was collapsed)
         setTimeout(()=> {

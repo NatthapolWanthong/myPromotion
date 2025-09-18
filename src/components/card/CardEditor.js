@@ -279,7 +279,7 @@ container.querySelectorAll(".btn-delete").forEach((btn) => {
 // เพิ่ม Edit mode ลงใน Card ที่แก้ไข
 function trackCardChanges(container) {
   const CardEditor = container.querySelector(".CardEditor")
-
+  if (!CardEditor){return}
   CardEditor.querySelectorAll("input, textarea, select, div").forEach((item) => {
     item.addEventListener("input", () => {
       const card = item.closest(".cards , .campaignEditorContainer");

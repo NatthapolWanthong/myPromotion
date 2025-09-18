@@ -1,5 +1,6 @@
 // promotionTable.js (dropdown version)
 // Requirements: jQuery + bootstrap-table must be loaded first (global $)
+
 (function () {
   function escAttr(v = '') {
     return String(v).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -155,7 +156,7 @@
         pagination: true,
         pageSize: 5,
         pageList: [5, 10, 25, 'All'],
-        search: false, // external search by parent
+        search: true,
         sidePagination: 'client',
         classes: 'table table-hover',
         undefinedText: '-',

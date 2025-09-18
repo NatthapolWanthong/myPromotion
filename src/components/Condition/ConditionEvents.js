@@ -53,7 +53,7 @@ function showEditView(data = null){
   if(bas) bas.classList.add('active');
   document.querySelectorAll('.tab-pane').forEach(c => c.style.display = 'none');
   const basEl = document.querySelector('#basic-content');
-  if(basEl) basEl.style.display = 'flex';
+  if(basEl) basEl.style.display = 'block';
 
   // parse data.condition_xml if string
   let cond = data?.condition_xml ?? null;
@@ -266,17 +266,6 @@ export function initConditionListForCard(promotionId, cardElement){
   }
 
   const state = perCardState.get(pid);
-
-  // bind search (debounced)
-  if(els.elSearch && !els.elSearch._bound){
-    els.elSearch._bound = true;
-    els.elSearch.addEventListener('input', debounce(()=> {
-      state.q = els.elSearch.value.trim();
-      state.page = 1;
-      perCardState.set(pid, state);
-      loadConditionsForCard(pid, { page:1, q: state.q }, cardElement);
-    }, 350));
-  }
 
   // bind per-page select
   if(els.elPerPage && !els.elPerPage._bound){

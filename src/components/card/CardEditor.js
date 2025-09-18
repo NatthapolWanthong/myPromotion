@@ -14,29 +14,6 @@ export const CardEditController = {
   toggleActionButtons,
 };
 
-// const swalWithBootstrapButtons = Swal.mixin({
-//       customClass: {
-//         confirmButton: "btn btn-danger me-2",
-//         cancelButton: "btn btn-secondary"
-//       },
-//       buttonsStyling: false
-//     });
-
-// const Toast = Swal.mixin({
-//   toast: true,
-//   position: 'top-end', // เปลี่ยนตำแหน่งได้: 'top', 'top-start', 'bottom-end' ฯลฯ
-//   showConfirmButton: false,
-//   timer: 3000,
-//   timerProgressBar: true,
-//   customClass: {
-//     popup: 'colored-toast' // เพิ่มคลาสแต่งเองได้
-//   },
-//   didOpen: (toast) => {
-//     toast.addEventListener('mouseenter', Swal.stopTimer)
-//     toast.addEventListener('mouseleave', Swal.resumeTimer)
-//   }
-// })
-
 // ขยาด card ที่ถูก click
 function expandCardForEditing(clickedCard) {
   const allCards = document.querySelectorAll(".cards , .campaignEditorContainer");
@@ -301,7 +278,9 @@ container.querySelectorAll(".btn-delete").forEach((btn) => {
 
 // เพิ่ม Edit mode ลงใน Card ที่แก้ไข
 function trackCardChanges(container) {
-  container.querySelectorAll("input, textarea, select, div").forEach((item) => {
+  const CardEditor = container.querySelector(".CardEditor")
+
+  CardEditor.querySelectorAll("input, textarea, select, div").forEach((item) => {
     item.addEventListener("input", () => {
       const card = item.closest(".cards , .campaignEditorContainer");
       if (!card.classList.contains("edit-mode")) {

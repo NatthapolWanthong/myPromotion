@@ -197,129 +197,130 @@ export class CampaignCard {
       card.dataset.campaign_id = item.campaign_id
 
       card.innerHTML = `
-        <div class="row row-main m-0 align-item-center justify-content-between">
-          <div class="col col1">
-            <row>
-              <div data-field="form-name" class="title editable-text input-class">${item.name}</div>
-            </row>
-            <row class="code-row position-relative">
-              <div data-field="form-code" class="id editable-text input-class">${item.code}</div>
-              ${isPromotion ? `<div disabled readonly data-field="form-code" class="id campaign-id editable-text input-class">${this.campaign.code}</div>` : ``}
-            </row>
-          </div>
-          <div class="col col2">
-            <textarea data-field="form-description" disabled class="form-control mb-0" rows="3" placeholder="คำอธิบายเพิ่มเติม" style="resize: none; font-size: 14px;">${item.description ?? ""}</textarea>
-          </div>
-          <div class="col col3">
-            <div class="row-select d-flex">
-              <label class="col-3-text">ประเภท :</label>
-              <select disabled data-field="form-type" class="form-select input-setting input-small" id="form-type">${isPromotion ? `${promotionTypeSelect}` : `${campaignTypeSelect}`}</select>
+        <div class="CardEditor">
+          <div class="row row-main m-0 align-item-center justify-content-between">
+            <div class="col col1">
+              <row>
+                <div data-field="form-name" class="title editable-text input-class">${item.name}</div>
+              </row>
+              <row class="code-row position-relative">
+                <div data-field="form-code" class="id editable-text input-class">${item.code}</div>
+                ${isPromotion ? `<div disabled readonly data-field="form-code" class="id campaign-id editable-text input-class">${this.campaign.code}</div>` : ``}
+              </row>
             </div>
-            <div class="row-select d-flex">
-              <label class="col-3-text">${isPromotion ? `สิทธิ์ใช้งาน` : `เป้าหมาย`} :</label>
-              <select disabled data-field="form-target" class="form-select input-setting input-small" id="form-target">${isPromotion ? `${promotionTargetSelect}` : `${campaignTargetSelect}`}</select>
+            <div class="col col2">
+              <textarea data-field="form-description" disabled class="form-control mb-0" rows="3" placeholder="คำอธิบายเพิ่มเติม" style="resize: none; font-size: 14px;">${item.description ?? ""}</textarea>
+            </div>
+            <div class="col col3">
+              <div class="row-select d-flex">
+                <label class="col-3-text">ประเภท :</label>
+                <select disabled data-field="form-type" class="form-select input-setting input-small" id="form-type">${isPromotion ? `${promotionTypeSelect}` : `${campaignTypeSelect}`}</select>
+              </div>
+              <div class="row-select d-flex">
+                <label class="col-3-text">${isPromotion ? `สิทธิ์ใช้งาน` : `เป้าหมาย`} :</label>
+                <select disabled data-field="form-target" class="form-select input-setting input-small" id="form-target">${isPromotion ? `${promotionTargetSelect}` : `${campaignTargetSelect}`}</select>
+              </div>
+            </div>
+            <div class="col col4">
+              <div class="row-select d-flex">
+                <label class="col-4-text">เริ่ม :</label>
+                <input data-field="form-begin" disabled class="form-control input-setting input-small form-begin date-picker" type="text" value="${item.start_date}">
+              </div>
+              <div class="row-select d-flex">
+                <label class="col-4-text">สิ้นสุด :</label>
+                <input data-field="form-end" disabled class="form-control input-setting input-small form-end date-picker" type="text" value="${item.end_date}">
+              </div>
+            </div>
+            <div class="col col5">
+              <div class="icon-status">
+                <i class="bi bi-${status.icon} icon" style="color: ${mainStatus.main_Color};"></i>
+                <div class="status-text kanit-semibold" data-full="${status.name}" data-short="${status.short_name}">${status.short_name}</div>
+              </div>
             </div>
           </div>
-          <div class="col col4">
-            <div class="row-select d-flex">
-              <label class="col-4-text">เริ่ม :</label>
-              <input data-field="form-begin" disabled class="form-control input-setting input-small form-begin date-picker" type="text" value="${item.start_date}">
+
+          <div class="row row-expand m-0">
+            <div class="col col-expand col-expand-1">
+              <div class="location-form">
+                <label>พื้นที่เป้าหมาย :</label>
+                <input data-field="form-location" class="form-control input-setting form-location" type="text" value="${item.location}">
+              </div>
+              <div class="col create-information m-0">
+                <div class="create-by d-flex">
+                  <label>สร้างโดย :</label>
+                  <input disabled readonly class="form-control input-setting input-small" type="text" value="${item.created_by}">
+                </div>
+                <div class="create-date d-flex">
+                  <label>สร้างเมื่อ :</label>
+                  <input disabled readonly class="form-control input-setting input-small date-picker-disabled" type="datetime-local" value="${item.create_date}">
+                </div>
+              </div>
+              ${isPromotion ? '' : `<div class="col total m-0">จำนวนโปรโมชั่นทั้งหมด : ${item.promotion ?? "0"}</div>`}
             </div>
-            <div class="row-select d-flex">
-              <label class="col-4-text">สิ้นสุด :</label>
-              <input data-field="form-end" disabled class="form-control input-setting input-small form-end date-picker" type="text" value="${item.end_date}">
+
+            <div class="col col-expand col-expand-2 d-flex">
+              <div class="note-form d-flex">
+                <label>หมายเหตุ : </label>
+                <textarea data-field="form-note" class="form-control input-setting form-note" placeholder="หมายเหตุ" rows="3">${item.note ?? ""}</textarea>
+              </div>
             </div>
-          </div>
-          <div class="col col5">
-            <div class="icon-status">
-              <i class="bi bi-${status.icon} icon" style="color: ${mainStatus.main_Color};"></i>
-              <div class="status-text kanit-semibold" data-full="${status.name}" data-short="${status.short_name}">${status.short_name}</div>
+
+            <div class="col col-expand col-expand-3">
+              <div class="d-flex flex-row">
+                <div class="status-form d-flex" style="text-wrap:nowrap; justify-content: center; align-items: center;">
+                  <label>สถานะ : </label>
+                  <button type="button" class="btn SelectStatus-button" data-bs-toggle="modal" data-bs-target="#statusModal" style="border: 0px;">
+                    <i class="bi bi-${status.icon} SelectStatus-icon" style="color: ${mainStatus.main_Color};"></i>
+                    <label class="SelectStatus-label" style="color: ${mainStatus.main_Color};">${status.thai_name}</label>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="col col-expand-4">
+              <button class="btn btn-outline-primary btn-history">History</button>
+              <button class="btn btn-danger btn-delete">Delete</button>
+              <button class="btn btn-primary btn-edit ${isPromotion ? `d-none`:``}">Edit</button>
+              <button class="btn btn-secondary btn-cancel d-none">Cancel</button>
+              <button class="btn btn-success btn-save d-none">Save</button>
             </div>
           </div>
         </div>
-
-        <div class="row row-expand m-0">
-          <div class="col col-expand col-expand-1">
-            <div class="location-form">
-              <label>พื้นที่เป้าหมาย :</label>
-              <input data-field="form-location" class="form-control input-setting form-location" type="text" value="${item.location}">
-            </div>
-            <div class="col create-information m-0">
-              <div class="create-by d-flex">
-                <label>สร้างโดย :</label>
-                <input disabled readonly class="form-control input-setting input-small" type="text" value="${item.created_by}">
-              </div>
-              <div class="create-date d-flex">
-                <label>สร้างเมื่อ :</label>
-                <input disabled readonly class="form-control input-setting input-small date-picker-disabled" type="datetime-local" value="${item.create_date}">
-              </div>
-            </div>
-            ${isPromotion ? '' : `<div class="col total m-0">จำนวนโปรโมชั่นทั้งหมด : ${item.promotion ?? "0"}</div>`}
-          </div>
-
-          <div class="col col-expand col-expand-2 d-flex">
-            <div class="note-form d-flex">
-              <label>หมายเหตุ : </label>
-              <textarea data-field="form-note" class="form-control input-setting form-note" placeholder="หมายเหตุ" rows="3">${item.note ?? ""}</textarea>
-            </div>
-          </div>
-
-          <div class="col col-expand col-expand-3">
-            <div class="d-flex flex-row">
-              <div class="status-form d-flex" style="text-wrap:nowrap; justify-content: center; align-items: center;">
-                <label>สถานะ : </label>
-                <button type="button" class="btn SelectStatus-button" data-bs-toggle="modal" data-bs-target="#statusModal" style="border: 0px;">
-                  <i class="bi bi-${status.icon} SelectStatus-icon" style="color: ${mainStatus.main_Color};"></i>
-                  <label class="SelectStatus-label" style="color: ${mainStatus.main_Color};">${status.thai_name}</label>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="col col-expand-4">
-            <button class="btn btn-outline-primary btn-history">History</button>
-            <button class="btn btn-danger btn-delete">Delete</button>
-            <button class="btn btn-primary btn-edit ${isPromotion ? `d-none`:``}">Edit</button>
-            <button class="btn btn-secondary btn-cancel d-none">Cancel</button>
-            <button class="btn btn-success btn-save d-none">Save</button>
-          </div>
-        </div>
-
         ${isPromotion ? `
-            <div style="margin-left: 5px; margin-right: 12px;">
-              <!-- divider between tables -->
-              <hr class="promo-divider my-3" />
+          <div style="row-table margin-left: 5px; margin-right: 12px;">
+            <!-- divider between tables -->
+            <hr class="promo-divider my-3" />
 
-              <div class="col-12 mt-3">
-                ${makeConditionListHTML(item.id)}
-              </div>
-
-              <hr class="promo-divider my-3" />
-
-              <div class="col-12 mt-3">
-                ${makeCustomerListHTML(item.id)}
-              </div>
-
+            <div class="col-12 mt-3">
+              ${makeConditionListHTML(item.id)}
             </div>
 
-            <div class="modal fade" id="promoModal-${item.id}" tabindex="-1" aria-labelledby="promoModalLabel-${item.id}" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content minimal-modal">
-                  <div class="modal-header">
-                    <h6 class="modal-title" id="promoModalLabel-${item.id}">สรุปโปรโมชั่น: ${item.name}</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body" id="promo-modal-body-${item.id}">
-                    <p>จำนวนลูกค้า: <strong id="promo-count-modal-${item.id}">0</strong></p>
-                    <p>จำนวนเงื่อนไข: <strong id="promo-condition-count-modal-${item.id}">0</strong></p>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">ปิด</button>
-                  </div>
+            <hr class="promo-divider my-3" />
+
+            <div class="col-12 mt-3">
+              ${makeCustomerListHTML(item.id)}
+            </div>
+
+          </div>
+
+          <div class="modal fade" id="promoModal-${item.id}" tabindex="-1" aria-labelledby="promoModalLabel-${item.id}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content minimal-modal">
+                <div class="modal-header">
+                  <h6 class="modal-title" id="promoModalLabel-${item.id}">สรุปโปรโมชั่น: ${item.name}</h6>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="promo-modal-body-${item.id}">
+                  <p>จำนวนลูกค้า: <strong id="promo-count-modal-${item.id}">0</strong></p>
+                  <p>จำนวนเงื่อนไข: <strong id="promo-condition-count-modal-${item.id}">0</strong></p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">ปิด</button>
                 </div>
               </div>
             </div>
           </div>
+        </div>
         ` : ``}
       `;
 
@@ -555,9 +556,9 @@ export class CampaignCard {
         flatpickr(".date-picker-disabled", { ...defaultOptions, clickOpens: false, allowInput: false });
       } catch(e){}
 
-      CardEditController.registerCardEventListeners(this.container, this.originalValuesMap, this.options.status);
-      CardEditController.trackCardChanges(this.container);
     });
+    CardEditController.registerCardEventListeners(this.container, this.originalValuesMap, this.options.status);
+    CardEditController.trackCardChanges(this.container);
   }
 }
 

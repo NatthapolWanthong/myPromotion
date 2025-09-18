@@ -89,20 +89,21 @@ export async function loadConditionsForCard(promotionId, opts = {}, cardEl = nul
   const pid = Number(promotionId);
   if(!pid) return;
 
-  // initialize state
   const existing = perCardState.get(pid) || { page:1, per_page:10, total_pages:1, q: '' };
   const state = { ...existing, ...opts };
   perCardState.set(pid, state);
 
-  // resolve elements
   const els = resolveCardElements(pid, cardEl);
-  if(!els.tbody){
-    // nothing to render into
-    return;
-  }
 
-  // show loading row
-  els.tbody.innerHTML = `<tr><td colspan="4" class="text-center">กำลังโหลด...</td></tr>`;
+  // Scoped table element by ID to avoid first-match issues
+  const tableSelector = `#conditionsListTable-${pid}`;
+  const tableEl = cardEl ? cardEl.querySelector(tableSelector) : document.querySelector(tableSelector);
+  const $table = (window.jQuery && (tableEl ? window.jQuery(tableEl) : window.jQuery(tableSelector))) || null;
+
+  if(!tableEl && !$table){
+    console.warn('promotion table element not found for pid', pid);
+    // still try to render manually into scope if possible
+  }
 
   const params = {
     promotion_id: pid,
@@ -126,19 +127,76 @@ export async function loadConditionsForCard(promotionId, opts = {}, cardEl = nul
       out.name = out.condition_name ?? out.name;
       return out;
     });
+
+    // --- bootstrap-table aware update (preferred) ---
+    try {
+      if ($table && $table.length && $table.data && $table.data('bootstrap.table')) {
+        // Table initialized with bootstrap-table (likely server-side). Trigger its refresh so it uses its own ajax handler
+        const query = {
+          search: state.q || '',
+          limit: Number(state.per_page || 10),
+          offset: (Number(state.page || 1) - 1) * Number(state.per_page || 10)
+        };
+        try {
+          $table.bootstrapTable('refresh', { silent: true, query });
+          // leave state update to load-success handler (which generateCard.js already binds)
+        } catch (e) {
+          console.warn('bootstrap-table refresh failed, falling back to load', e);
+          try { $table.bootstrapTable('load', data); if (typeof res.total === 'number') $table.bootstrapTable('refreshOptions', { totalRows: res.total }); } catch (e2) { renderListForCard(pid, els.scope, data, state); }
+        }
+      } else if ($table && $table.length && $table.bootstrapTable) {
+        // bootstrap-table present but not server-side / or not initialized with ajax
+        try {
+          $table.bootstrapTable('load', data);
+          if (typeof res.total === 'number') {
+            try { $table.bootstrapTable('refreshOptions', { totalRows: res.total }); } catch(e){ /* ignore */ }
+          }
+        } catch (e) {
+          console.warn('bootstrap-table load failed, fallback to manual render', e);
+          renderListForCard(pid, els.scope, data, state);
+        }
+      } else {
+        // No plugin found or no tableEl - fallback to manual render into tbody
+        renderListForCard(pid, els.scope, data, state);
+      }
+    } catch(e) {
+      console.warn('update table failed, fallback to manual render', e);
+      renderListForCard(pid, els.scope, data, state);
+    }
+
     state.total_pages = res.total_pages || 1;
     state.total = res.total ?? data.length;
     state.currentConditions = data;
     perCardState.set(pid, state);
-    renderListForCard(pid, els.scope, data, state);
   } else {
-    // error
-    els.tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">โหลดข้อมูลล้มเหลว: ${eHtml(res?.error || 'unknown')}</td></tr>`;
+    // Error case: clear table UI
+    const emptyData = [];
+    try {
+      if ($table && $table.length && $table.data && $table.data('bootstrap.table')) {
+        try { $table.bootstrapTable('load', emptyData); } catch(e){ renderListForCard(pid, els.scope, emptyData, state); }
+      } else if ($table && $table.length && $table.bootstrapTable) {
+        try { $table.bootstrapTable('load', emptyData); } catch(e){ renderListForCard(pid, els.scope, emptyData, state); }
+      } else {
+        renderListForCard(pid, els.scope, emptyData, state);
+      }
+    } catch(e) {
+      console.warn('clear table failed', e);
+      try { renderListForCard(pid, els.scope, emptyData, state); } catch(e2){}
+    }
+    alert(`โหลดข้อมูลเงื่อนไขล้มเหลว: ${res?.error || 'unknown'}`);
   }
+
+  // อัปเดต pagination info & badge
+  const badge = els.scope.querySelector(`#condition-count-${pid}`) 
+             || els.scope.querySelector(`#condition-count`) 
+             || document.querySelector('#condition-count');
+  if(els.paginationInfo) els.paginationInfo.textContent = `Page ${state.page} / ${state.total_pages}`;
+  if(badge) badge.textContent = String(state.total ?? 0);
 }
 
 /* ---------------------------
-   renderListForCard: render rows into table within given scope (card or document)
+   renderListForCard: render rows into table within scope (card or document)
+   - Manual fallback renderer when bootstrap-table isn't available
    --------------------------- */
 function renderListForCard(promotionId, scope, data, state){
   const pid = String(promotionId);
@@ -159,11 +217,36 @@ function renderListForCard(promotionId, scope, data, state){
     return;
   }
 
+  // Build rows manually (keep same structure as bootstrap-table original)
+  const rowsHtml = data.map((r, idx) => {
+    const details = (() => {
+      try {
+        const parsed = r.condition_xml_parsed || r.compiled_dsl || r.condition_xml;
+        const txt = parsed ? JSON.stringify(parsed, null, 2) : '-';
+        const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        return `<details class="condition-raw"><summary class="small">รายละเอียด JSON (คลิก)</summary><pre style="max-height:240px;overflow:auto;">${esc(txt)}</pre></details>`;
+      } catch(e){ return '-'; }
+    })();
+
+    const actions = `
+      <button class="btn btn-sm btn-outline-primary btn-edit-condition" data-id="${r.id}" data-promotion="${pid}">แก้ไข</button>
+      <button class="btn btn-sm btn-outline-danger btn-delete-condition ms-1" data-id="${r.id}" data-promotion="${pid}">ลบ</button>
+    `;
+
+    return `<tr data-index="${idx}" data-uniqueid="${r.id}">
+      <td style="width:56px;">${idx + 1}</td>
+      <td>${(r.condition_name || r.name || '')}</td>
+      <td>${details}</td>
+      <td style="text-align:center;width:180px;">${actions}</td>
+    </tr>`;
+  }).join('\n');
+
+  tbody.innerHTML = rowsHtml;
+
   // update pagination info & badge (badge global fallback)
   if(paginationInfo) paginationInfo.textContent = `Page ${state.page} / ${state.total_pages}`;
   if(badge) badge.textContent = String(state.total ?? 0);
 }
-
 
 /* ---------------------------
    initConditionListForCard(promotionId, cardElement)

@@ -574,18 +574,36 @@ async function onSaveAdvance() {
       mode: "advance"
     };
 
+    
+
     const res = await ConditionService.insert(payload);
 
     if (btn) { btn.disabled = false; btn.textContent = "Save"; }
 
     if (res && res.success) {
       alert("บันทึกสำเร็จ 🎉");
+
+      // --- notify other modules (generateCard.js) to refresh the table for this promotion ---
+      try {
+        // try to get saved condition id from response (safe extraction)
+        const savedId = (res.data && res.data.id) || res.id || res.saved_id || null;
+        window.dispatchEvent(new CustomEvent('condition:saved', {
+          detail: { promotion_id: Number(promoId), condition_id: savedId }
+        }));
+      } catch (e) {
+        console.warn('dispatch condition:saved failed', e);
+      }
+
       switchToListView();
-      await refreshList();
+      try { await refreshList(); } catch (e) { /* ignore */ }
       hideOverlay()
+
+      const $table = `#conditionsListTable-${Number(promoId)}`
+      $table.bootstrapTable('refresh')
     } else {
       alert("บันทึกล้มเหลว: " + (res?.error || "unknown"));
     }
+
   } catch (err) {
     console.error(err);
     alert("เกิดข้อผิดพลาดขณะบันทึก: " + (err?.message || err));
@@ -776,14 +794,53 @@ async function refreshList() {
       btn.disabled = true;
       try{
         const res = await ConditionService.delete(id);
-        if(res && res.success){
-          window.dispatchEvent(new CustomEvent('condition:changed', { detail: { promotion_id: promoId, total: res.total ?? null } }));
-          if(res.total === 0 && pageState.page > 1) pageState.page = Math.max(1, pageState.page - 1);
-          await refreshList();
-          try { alert('ลบเงื่อนไขสำเร็จ'); }catch(e){}
+        if (res && res.success) {
+          alert("บันทึกสำเร็จ 🎉");
+
+          // --- ทำให้ refresh เหมือนกรณีลบ: พยายามเรียก loadConditionsForCard (ถ้ามี) แล้ว fallback เป็น bootstrap-table refresh ---
+          try {
+            // promotion id ที่เราบันทึก
+            const promo = Number(promoId);
+
+            // try to extract saved condition id (optional)
+            const savedId = (res.data && res.data.id) || res.id || res.saved_id || null;
+
+            // if there's a global helper to reload conditions for a card, prefer that (same as delete flow)
+            if (typeof window.loadConditionsForCard === 'function') {
+              // third arg: optional card element — we don't have card reference here, pass null
+              try { window.loadConditionsForCard(promo, { page: 1 }, null); } catch (e) { console.warn('loadConditionsForCard failed', e); }
+            } else if (typeof loadConditionsForCard === 'function') {
+              try { loadConditionsForCard(promo, { page: 1 }, null); } catch (e) { console.warn('loadConditionsForCard (local) failed', e); }
+            } else {
+              // fallback: refresh bootstrap-table directly for that promo (if exists)
+              try {
+                const $t = window.jQuery && window.jQuery(`#conditionsListTable-${promo}`);
+                if ($t && $t.data && $t.data('bootstrap.table')) {
+                  $t.bootstrapTable('refresh');
+                } else {
+                  // If table not init yet, dispatch event so generateCard.js can handle retry/refesh
+                  window.dispatchEvent(new CustomEvent('condition:saved', { detail: { promotion_id: promo, condition_id: savedId } }));
+                }
+              } catch (e) {
+                console.warn('direct table refresh failed', e);
+                // ensure downstream modules know: dispatch event as last resort
+                try {
+                  window.dispatchEvent(new CustomEvent('condition:saved', { detail: { promotion_id: promo, condition_id: savedId } }));
+                } catch (ee) { console.warn('dispatch fallback failed', ee); }
+              }
+            }
+          } catch (errRefresh) {
+            console.warn('post-save refresh error', errRefresh);
+          }
+
+          // then continue UI workflow
+          switchToListView();
+          try { await refreshList(); } catch(e){ /* ignore */ }
+          hideOverlay();
         } else {
-          throw new Error(res?.error || 'delete failed');
+          alert("บันทึกล้มเหลว: " + (res?.error || "unknown"));
         }
+
       }catch(err){
         console.error('delete error', err);
         alert('ลบล้มเหลว: ' + (err.message || err));
@@ -799,7 +856,7 @@ async function refreshList() {
    ----------------------- */
 function switchToListView() {
   $("#condition-list-view")?.classList.remove("d-none");
-  $("#condition-edit-view")?.classList.add("d-none");
+  $("#condition-edit-view")?.classList.remove("d-none");
 }
 
 function switchToEditView(mode = "advance") {
@@ -833,6 +890,7 @@ function bindHeaderButtons() {
   });
 
   $("#btn-save-condition")?.addEventListener("click", (e) => {
+    console.log("Save advanced")
     // Prevent default form submission so we only run our JS save logic once
     e.preventDefault();
 

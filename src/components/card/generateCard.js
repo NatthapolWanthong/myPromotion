@@ -29,7 +29,44 @@ import { API } from '/myPromotion/src/assets/js/api.js'; // ถูกเรี�
       }
     }, 40);
   });
-})();
+})(); 
+
+// ---------- Listen for condition saved event and refresh the specific promo table ----------
+window.addEventListener('condition:saved', (ev) => {
+  try {
+    const pid = Number(ev?.detail?.promotion_id || 0);
+    if (!pid) return;
+
+    const selector = `#conditionsListTable-${pid}`;
+    console.log(selector)
+    const tryRefresh = () => {
+      try {
+        const $t = window.jQuery ? window.jQuery(selector) : null;
+        if ($t && $t.data && $t.data('bootstrap.table')) {
+          // refresh the server-side table; silent:true avoids flicker in UI
+          $t.bootstrapTable('refresh', { silent: true });
+          return true;
+        }
+        return false;
+      } catch (e) {
+        console.warn('refresh table error', e);
+        return false;
+      }
+    };
+
+    // try immediately; if table not ready, retry a few times (table may be initialized later)
+    if (!tryRefresh()) {
+      let attempts = 0;
+      const iv = setInterval(() => {
+        attempts++;
+        if (tryRefresh() || attempts >= 8) clearInterval(iv);
+      }, 250);
+    }
+  } catch (e) {
+    console.warn('condition:saved handler failed', e);
+  }
+});
+
 
 /* -------------------------
    makeConditionListHTML - toolbar ABOVE table (bootstrap-table will render search/pagination)
@@ -305,6 +342,7 @@ export class CampaignCard {
 
         // bootstrap-table options: server-side ajax
         $condTable.bootstrapTable({
+          id: `ConditionTable-${pid}`,
           toolbar: `#toolbar-conditions-${pid}`,
           pagination: true,
           sidePagination: 'server',
@@ -315,6 +353,7 @@ export class CampaignCard {
           pageList: [5,10,20,50],
           uniqueId: 'id',
           columns: columns,
+          showRefresh: true,
           ajax: function (params) {
             const data = params.data || {};
             const limit = Number(data.limit || 5);
@@ -438,6 +477,7 @@ export class CampaignCard {
           pageSize: 10, // default per requirement for customer table
           pageList: [10,25,50],
           columns: customerColumns,
+          showRefresh: true,
           data: []
         });
 
@@ -474,3 +514,12 @@ export class PromotionCard extends CampaignCard {
     this._renderBase(data, true);
   }
 }
+
+
+// export function refreshConditionTable(pid) {
+//   const $table = $(`#ConditionTable-${pid}`)
+
+//   $button.click(function () {
+//     $table.bootstrapTable('refresh')
+//   })
+// }

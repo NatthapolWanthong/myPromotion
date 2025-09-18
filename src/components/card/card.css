@@ -56,16 +56,7 @@
   background-color: #7b4b2a;
 }
 
-.cards.form-control {
-  width: 120px;
-  height: 25px;
-  font-size: 12px;
-  text-align: center;
-  line-height: 1.5;
-  padding: 2px 4px;
-  background-position: right 7px center;
-  background-size: 10px 10px;
-}
+
 
 /* =====================
    INPUT STYLE SETTINGS
@@ -119,7 +110,7 @@
 }
 
 .cards.expanded.cardPromotion {
-  height: 1500px;
+  height: auto;
 }
 
 /* สีตอนขยาย */
@@ -209,9 +200,8 @@
 }
 
 .code-row {
-  display: relative;
+  position: relative;
   color: red;
-  position: static;
   bottom: 0;
 }
 
@@ -395,7 +385,7 @@ textarea, input, select {
 .minimal-modal { background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(2,6,23,0.06); border: 1px solid rgba(15,23,42,0.04); }
 .promotion-table-wrap { width: 100%; overflow-x: auto; padding: 6px 0; }
 .promotion-table-component .table-inner-wrap { min-width: 1400px; } /* ปรับตามจำนวนคอลัมน์จริง */
-.table.table-hover { border-collapse: separate; border-spacing: 0 8px; }
+.table.table-hover { border-collapse: collapse; border-spacing: 0; }
 .table.table-hover thead th { position: sticky; top: 0; background: #fff; z-index: 3; border-bottom: 1px solid rgba(0,0,0,0.06); font-weight:600; }
 .table.table-hover tbody tr { background: #fff; border-radius: 8px; box-shadow: 0 1px 0 rgba(15,23,42,0.02); }
 .promo-toolbar { padding: 6px 0; }
@@ -443,7 +433,7 @@ textarea, input, select {
 /* 6) table containers should not force scroll/height in the card */
 .promotion-conditions .table-responsive,
 .promotion-detail-grid .table-responsive {
-  overflow: visible;
+  overflow: auto;
   max-height: none;
 }
 
@@ -464,4 +454,124 @@ textarea, input, select {
   .promotion-conditions .promo-toolbar .promo-condition-search {
     width: 100% !important;
   }
+}
+
+
+
+
+/* ===== Table visual styling for promo conditions & customers (paste near table styles) ===== */
+
+/* global table base */
+.promo-conditions-table,
+.table.table-bordered {
+  border-radius: 15px;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* header */
+.promo-conditions-table thead th {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafb 100%);
+  color: #1f2937;
+  font-weight: 700;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(15,23,42,0.06);
+  padding: 10px 12px;
+  vertical-align: middle;
+  text-align: left;
+}
+
+/* small compact rows */
+.promo-conditions-table tbody tr {
+  background: #ffffff;
+  transition: transform .12s ease, box-shadow .12s ease;
+  border-bottom: 1px solid rgba(15,23,42,0.03);
+}
+.promo-conditions-table tbody tr:hover {
+  transform: translateY(-0.5px);
+  box-shadow: 0 8px 20px rgba(2,6,23,0.06);
+}
+
+/* cells */
+.promo-conditions-table td {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #374151;
+  vertical-align: top;
+}
+
+/* # column - centered */
+.promo-conditions-table td:nth-child(2),
+.promo-conditions-table th:nth-child(2) {
+  text-align: center;
+  width: 56px;
+}
+
+/* actions column */
+.promo-conditions-table td:last-child,
+.promo-conditions-table th:last-child {
+  text-align: center;
+  width: 180px;
+}
+
+/* Data column: show pre inside scrollable area, monospace for JSON */
+.promo-conditions-table td:nth-child(4) pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.35;
+  max-height: 220px;
+  overflow: auto;
+  background: #fbfdff;
+  border-radius: 6px;
+  padding: 8px;
+  border: 1px solid rgba(2,6,23,0.04);
+}
+
+/* small details summary visual */
+.condition-raw summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #0f172a;
+}
+.condition-raw pre { margin: 6px 0 0 0; }
+
+/* action buttons style */
+.btn-edit-condition,
+.btn-delete-condition {
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.btn-edit-condition { border-color: #0d6efd; color: #0d6efd; }
+.btn-delete-condition { border-color: #dc3545; color: #dc3545; }
+
+.btn-edit-condition:hover { background: rgba(13,110,253,0.06); }
+.btn-delete-condition:hover { background: rgba(220,53,69,0.06); }
+
+/* toolbar tweaks */
+.promo-toolbar {
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+}
+.promo-toolbar .btn-manage-conditions { min-width: 140px; }
+
+/* responsive: compress columns on small screens */
+@media (max-width: 900px) {
+  .promo-conditions-table td:nth-child(4) pre { max-height: 120px; font-size: 11px; }
+  .promo-conditions-table thead th { font-size: 12px; }
+}
+
+/* subtle badge */
+.promo-conditions .badge {
+  font-size: 12px;
+  padding: 0.35em 0.55em;
+}
+
+/* ensure table fills width and avoids layout shift */
+.promotion-conditions table,
+.promotion-detail-grid table {
+  width: 100% !important;
+  table-layout: auto;
 }

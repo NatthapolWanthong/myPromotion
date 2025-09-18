@@ -224,7 +224,7 @@ function renderListForCard(promotionId, scope, data, state){
         const parsed = r.condition_xml_parsed || r.compiled_dsl || r.condition_xml;
         const txt = parsed ? JSON.stringify(parsed, null, 2) : '-';
         const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        return `<details class="condition-raw"><summary class="small">รายละเอียด JSON (คลิก)</summary><pre style="max-height:240px;overflow:auto;">${esc(txt)}</pre></details>`;
+        return `<details class="condition-raw"><summary class="small">รายละเอียด JSON</summary><pre style="max-height:240px;overflow:auto;">${esc(txt)}</pre></details>`;
       } catch(e){ return '-'; }
     })();
 

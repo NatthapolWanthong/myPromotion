@@ -64,6 +64,8 @@
     <script type="module" src="/myPromotion/src/components/status-count/status-count.js"></script>
     <script type="module" src="/myPromotion/src/components/searchBar/searchBar.js"></script>
     <script type="module" src="/myPromotion/src/assets/js/main.js"></script>
+    <script defer type="module" src="index.js"></script>
+    <script defer type="module" src="/myPromotion/src/components/modal/CreateCampaign/modalCreateCampaign.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
     <script src="/myPromotion/src/assets/js/form-validation.js"></script>

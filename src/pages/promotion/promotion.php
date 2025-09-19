@@ -125,6 +125,7 @@
     <script type="module" src="../../components/campaignEditor/campaignEditor.js"></script>
     <script type="module" src="../../components/searchBar/searchBar.js"></script>   
     <script type="module" src="../../assets/js/main.js"></script>
+    <script type="module" src="/myPromotion/src/components/modal/CreatePromotion/modalCreatePromotion.js"></script>
     <script src="/myPromotion/src/assets/js/form-validation.js"></script>
     <script type="module" src="/myPromotion/src/components/PromotionTable/promotionTable.js"></script>
 </body>

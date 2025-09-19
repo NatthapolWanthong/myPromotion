@@ -179,7 +179,7 @@ Blockly.Blocks['Value_Unit'] = {
     // numeric field + unit dropdown as a single row
     this.appendDummyInput()
       .appendField(new Blockly.FieldNumber(0), 'Value')
-      .appendField(new Blockly.FieldDropdown([['บาท','1'], ['%','2'], ['ชิ้น','3'], ['โหล','4'], ['สลึง','5'], ['เมตร','6']]), 'Unit');
+      .appendField(new Blockly.FieldDropdown([['บาท','1'], ['%','2'], ['ชิ้น','3'], ['ลัง','4'], ['โหล','5'], ['สลึง','6'], ['เมตร','7']]), 'Unit');
     // Allow both Number (so it can connect to logic_compare) and ValueUnit (to keep unit info)
     this.setOutput(true, ['Number', 'ValueUnit']);
     this.setColour(225);

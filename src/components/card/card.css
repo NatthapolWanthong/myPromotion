@@ -503,8 +503,8 @@ textarea, input, select {
 /* # column - centered */
 .promo-conditions-table td:nth-child(2),
 .promo-conditions-table th:nth-child(2) {
-  text-align: center;
-  width: 56px;
+  text-align: start;
+  width: 300px;
 }
 
 /* actions column */

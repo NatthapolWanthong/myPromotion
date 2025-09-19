@@ -89,8 +89,8 @@ function makeConditionListHTML(promotionId){
           <thead>
             <tr>
               <th data-field="id" data-visible="false" data-switchable="false">ID</th>
-              <th data-field="index" data-width="56" data-sortable="true">#</th>
-              <th data-field="condition_name" data-sortable="true">ชื่อเงื่อนไข</th>
+              <th data-field="index" data-width="56">#</th>
+              <th data-field="condition_name">ชื่อเงื่อนไข</th>
               <th data-field="compiled">รายละเอียด</th>
               <th data-field="actions" data-align="center" data-width="180">จัดการ</th>
             </tr>
@@ -197,7 +197,7 @@ export class CampaignCard {
       card.dataset.campaign_id = item.campaign_id
 
       card.innerHTML = `
-        <div class="CardEditor">
+        <div class="check-edit-mode">
           <div class="row row-main m-0 align-item-center justify-content-between">
             <div class="col col1">
               <row>
@@ -353,7 +353,7 @@ export class CampaignCard {
               } catch(e){ return index + 1; }
             }, width: 56
           },
-          { field: 'condition_name', title: 'ชื่อเงื่อนไข', sortable: true },
+          { field: 'condition_name', title: 'ชื่อเงื่อนไข'},
           { field: 'compiled', title: 'รายละเอียด', formatter: function(value, row, index){
               try {
                 const parsed = row.condition_xml || row.condition_xml_parsed || row.compiled_dsl || null;

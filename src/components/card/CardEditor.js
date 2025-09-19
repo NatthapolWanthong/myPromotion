@@ -278,16 +278,19 @@ container.querySelectorAll(".btn-delete").forEach((btn) => {
 
 // เพิ่ม Edit mode ลงใน Card ที่แก้ไข
 function trackCardChanges(container) {
-  const CardEditor = container.querySelector(".CardEditor")
-  if (!CardEditor){return}
-  CardEditor.querySelectorAll("input, textarea, select, div").forEach((item) => {
-    item.addEventListener("input", () => {
-      const card = item.closest(".cards , .campaignEditorContainer");
-      if (!card.classList.contains("edit-mode")) {
-        toggleActionButtons(card, true);
-        card.classList.add("edit-mode");
-      }
-    });
+  // const CardEditor = container.querySelector(".CardEditor")
+  // const campaignEditorContainer = document.querySelector(".campaignEditorContainer")
+  // if (!CardEditor || !campaignEditorContainer){return}
+  container.querySelectorAll("input, textarea, select, div").forEach((item) => {
+    if (item.closest(".check-edit-mode")){
+      item.addEventListener("input", () => {
+        const card = item.closest(".cards , .campaignEditorContainer");
+        if (!card.classList.contains("edit-mode")) {
+          toggleActionButtons(card, true);
+          card.classList.add("edit-mode");
+        }
+      });
+    }
   });
 }
 

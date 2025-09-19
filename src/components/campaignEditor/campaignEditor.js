@@ -51,10 +51,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       targetInput.innerHTML = `
         ${targetSelect}
       `
+      console.log(campaign.start_date)
+      console.log(campaign.end_date)      
 
       document.querySelector('[data-field="form-target"]').value = campaign.target;
       document.querySelector('[data-field="form-begin"]').value = campaign.start_date.replace(' ', 'T');
       document.querySelector('[data-field="form-end"]').value = campaign.end_date.replace(' ', 'T');
+      const beginInput = document.querySelector('[data-field="form-begin"]')
+      if (beginInput && beginInput._flatpickr) {
+        beginInput._flatpickr.setDate(campaign.start_date, true); 
+      }
+      const endInput = document.querySelector('[data-field="form-end"]')
+      if (endInput && endInput._flatpickr) {
+        endInput._flatpickr.setDate(campaign.end_date, true); 
+      }
+
+
       document.querySelector('.icon-status').innerHTML = `
       <i class="bi bi-${CampaignStatus.icon} icon" style="color: ${MainStatus.main_Color};"></i>
       <div class="status-text kanit-semibold" data-full="${CampaignStatus.name}" data-short="${CampaignStatus.short_name}">${CampaignStatus.short_name}</div>

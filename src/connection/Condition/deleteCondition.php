@@ -9,7 +9,6 @@ if (!isset($connection) && isset($conn)) $connection = $conn;
 if (!isset($connection) && isset($mysqli)) $connection = $mysqli;
 
 $raw = file_get_contents("php://input");
-@file_put_contents(__DIR__ . "/deleteConditionLog.txt", date('c') . " RAW_INPUT:\n" . $raw . "\n", FILE_APPEND);
 
 $input = json_decode($raw, true);
 if (!$input) $input = $_POST ?: [];

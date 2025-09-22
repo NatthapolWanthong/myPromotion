@@ -4,7 +4,6 @@ include "dbconnect.php";
 
 // รับค่าจาก JS
 $data = json_decode(file_get_contents("php://input"), true);
-file_put_contents("log.txt", json_encode($data, JSON_PRETTY_PRINT) . PHP_EOL, FILE_APPEND);
 
 $id = $data['id'] ?? null;
 

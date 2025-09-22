@@ -20,7 +20,6 @@ if (method_exists($connection, 'set_charset')) {
 
 // log input (for debugging)
 $raw = file_get_contents("php://input");
-@file_put_contents(__DIR__ . "/insertConditionLog.txt", date('c') . " RAW_INPUT:\n" . $raw . "\n", FILE_APPEND);
 
 // parse input (JSON preferred)
 $input = json_decode($raw, true);

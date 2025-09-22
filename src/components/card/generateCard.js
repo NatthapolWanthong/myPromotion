@@ -4,7 +4,8 @@ import { FormHelper } from "/myPromotion/src/assets/js/formHelper.js";
 import { CardEditController } from "./CardEditor.js";
 import { MainStatusData } from "/myPromotion/src/config.js";
 import { UpdateStatusCount } from "/myPromotion/src/components/status-count/status-count.js";
-import { API } from '/myPromotion/src/assets/js/api.js';
+import { API } from '/myPromotion/src/assets/js/api.js'; // ถูกเรียกใช้ในการดึง/ลบ condition
+// jQuery & bootstrap-table expected to be available globally (page already loads them)
 
 /* -------------------------
    Helper: clean leftover modal artifacts
@@ -423,6 +424,8 @@ export class CampaignCard {
             if (pi) pi.textContent = `Page ${page} / ${totalPages}`;
             const badgeEl = document.querySelector(`#promo-condition-count-modal-${pid}`);
             if (badgeEl) badgeEl.textContent = String(total ?? 0);
+            const cardBadge = document.querySelector(`#condition-count-${pid}`);
+            if(cardBadge) cardBadge.textContent = String(total ?? 0);
           } catch(e){ /* ignore */ }
         });
 
@@ -478,6 +481,8 @@ export class CampaignCard {
       } catch(e){
         console.warn('init bootstrap-table for conditions failed', e);
       }
+
+      // ========== Initialize bootstrap-table for customers (uses same styling class) ==========
       try {
         const pid = item.id;
         const $custTable = $(`#customersTable-${pid}`);
@@ -501,9 +506,10 @@ export class CampaignCard {
           pageList: [10,25,50],
           columns: customerColumns,
           showRefresh: true,
-          data: []
+          data: [] // load data later (or via ajax if needed)
         });
 
+        // resetView to recalc widths
         setTimeout(()=> {
           try {
             if ($custTable && $custTable.length && $custTable.data('bootstrap.table')) {
@@ -512,6 +518,7 @@ export class CampaignCard {
           } catch(e){ console.warn('resetView cust table failed', e); }
         }, 120);
 
+        // if you later load customer data via ajax, update the badge / paginationInfo similarly:
         $custTable.on('load-success.bs.table', function (e, data) {
           try {
             const total = (data && data.total) ? data.total : ($custTable.bootstrapTable('getOptions').totalRows || ($custTable.bootstrapTable('getData') || []).length);
@@ -530,6 +537,7 @@ export class CampaignCard {
         console.warn('init customers table failed', e);
       }
 
+      // initialize flatpickr for date fields inside card (if any)
       try {
         const defaultOptions = {
           enableTime: true,

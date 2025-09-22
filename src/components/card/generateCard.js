@@ -478,9 +478,7 @@ export class CampaignCard {
           }
         });
 
-      } catch(e){
-        console.warn('init bootstrap-table for conditions failed', e);
-      }
+      } catch(e){}
 
       // ========== Initialize bootstrap-table for customers (uses same styling class) ==========
       try {
@@ -533,9 +531,7 @@ export class CampaignCard {
           } catch(e){ /* ignore */ }
         });
 
-      } catch(e){
-        console.warn('init customers table failed', e);
-      }
+      } catch(e){}
 
       // initialize flatpickr for date fields inside card (if any)
       try {

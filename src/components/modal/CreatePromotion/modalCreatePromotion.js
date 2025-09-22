@@ -19,8 +19,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   
   if (options && campaign_id) {
-    console.log(options)
-    console.log(campaign_id)
     putOption()
     bindEvents()
   }
@@ -62,11 +60,9 @@ function bindEvents() {
   // --- toggle event ---
   toggle.addEventListener("change", () => {
     if (toggle.checked) {
-      // ปิด input + generate code
       codeInput.disabled = true;
       codeInput.value = generateAutoCode();
     } else {
-      // เปิด input ให้ user กรอกเอง
       codeInput.disabled = false;
       codeInput.value = "";
     }

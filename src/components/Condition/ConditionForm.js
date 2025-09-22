@@ -437,7 +437,6 @@ export function initFormSubmit({ getPromoId } = {}) {
 
       let normalized = null;
       try {
-        console.log('Before generate compiled_dsl. DOM condition items:', document.querySelectorAll('.condition-item').length);
         normalized = mapBasicFormToCompiledDSL(form);
       } catch(e) {
         console.warn('mapBasicFormToCompiledDSL failed', e);

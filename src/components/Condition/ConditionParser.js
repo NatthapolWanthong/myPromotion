@@ -11,7 +11,6 @@ const DEBUG = true;
 export function mapOpToComparator(op){
   if(!op) return '';
   try { op = String(op).toUpperCase(); } catch(e){ return ''; }
-  if (DEBUG) console.log('[CP] mapOpToComparator input:', op);
   switch(op){
     case 'EQ': case 'EQUAL': case 'EQUALS': case '==': case '=': return '=';
     case 'NEQ': case 'NOT_EQ': case 'NOT_EQUAL': case '!=': return '≠';
@@ -122,14 +121,8 @@ function extractProductNamesFromNode(node){
    ----------------------- */
 export function extractRewardFromBlock(rewBlock){
   if(!rewBlock || typeof rewBlock !== 'object') {
-    if (DEBUG) console.log('[CP] extractRewardFromBlock invalid', rewBlock);
     return null;
   }
-  if (DEBUG) {
-    try { console.log('[CP] extractRewardFromBlock start, raw:', JSON.parse(JSON.stringify(rewBlock))); }
-    catch(e){ console.log('[CP] extractRewardFromBlock start (no-serialize):', rewBlock); }
-  }
-
 
   let left = rewBlock.left ?? rewBlock.reward ?? rewBlock;
   let right = rewBlock.right ?? rewBlock.amount ?? null;
@@ -197,7 +190,6 @@ export function extractRewardFromBlock(rewBlock){
     rewardUnit: rewardUnit === null ? '' : String(rewardUnit || '')
   };
 
-  if (DEBUG) console.log('[CP] extractRewardFromBlock result:', res);
   return res;
 }
 
@@ -205,7 +197,6 @@ export function extractRewardFromBlock(rewBlock){
    Collect reward chain
    ----------------------- */
 export function collectRewardsChain(startBlock){
-  if (DEBUG) console.log('[CP] collectRewardsChain start block:', startBlock && (startBlock.type || '(object)'));
   const rewards = [];
   let cur = startBlock;
   let safety = 0;
@@ -225,7 +216,6 @@ export function collectRewardsChain(startBlock){
 
     safety++;
   }
-  if (DEBUG) console.log('[CP] collectRewardsChain finished, total=', rewards.length);
   return rewards;
 }
 
@@ -234,7 +224,6 @@ export function collectRewardsChain(startBlock){
    returns items with productIds (array) AND productId (single), productNames and rewards[].rewardProductIds
    ----------------------- */
 export function parseBlocklyJsonToConditionItems(blocklyJson){
-  if (DEBUG) console.log('[CP] parseBlocklyJsonToConditionItems input summary');
   try{
     if(!blocklyJson) return [];
     let blocksArr = [];
@@ -244,7 +233,6 @@ export function parseBlocklyJsonToConditionItems(blocklyJson){
     else if (blocklyJson.blocks && Array.isArray(blocklyJson.blocks.blocks)) blocksArr = blocklyJson.blocks.blocks;
     else if (blocklyJson.workspace && Array.isArray(blocklyJson.workspace.blocks)) blocksArr = blocklyJson.workspace.blocks;
     else if (blocklyJson.rules && Array.isArray(blocklyJson.rules)){
-      if (DEBUG) console.log('[CP] parseBlocklyJsonToConditionItems using rules[] branch');
       return blocklyJson.rules.map(r => {
         const fields = r.fields || {};
         const pids = Array.isArray(fields.PRODUCT_ID) ? fields.PRODUCT_ID.map(String) : (fields.PRODUCT_ID ? toArrayOfStrings(fields.PRODUCT_ID) : []);
@@ -358,10 +346,8 @@ export function parseBlocklyJsonToConditionItems(blocklyJson){
       });
     }
 
-    if (DEBUG) console.log('[CP] parseBlocklyJsonToConditionItems result items count=', items.length);
     return items;
   }catch(e){
-    if (DEBUG) console.warn('[CP] parseBlocklyJsonToConditionItems error', e);
     return [];
   }
 }
@@ -371,7 +357,6 @@ export function parseBlocklyJsonToConditionItems(blocklyJson){
    returns defaults with productIds & productId and rewardProductIds & rewardProductId
    ----------------------- */
 export function parseCompiledDslToFormDefaults(compiledDsl) {
-  if (DEBUG) console.log('[CP] parseCompiledDslToFormDefaults input summary:', compiledDsl && { rules: compiledDsl.rules ? compiledDsl.rules.length : undefined, workspace: !!compiledDsl.workspace });
   const out = [];
   if(!compiledDsl) return out;
 
@@ -408,12 +393,10 @@ export function parseCompiledDslToFormDefaults(compiledDsl) {
   const rules = Array.isArray(compiledDsl.rules) ? compiledDsl.rules : (compiledDsl.workspace && compiledDsl.workspace.blocks && compiledDsl.workspace.blocks.blocks ? compiledDsl.workspace.blocks.blocks : []);
 
   if(Array.isArray(rules) && rules.length === 0) {
-    if (DEBUG) console.log('[CP] parseCompiledDslToFormDefaults: rules empty -> []');
     return out;
   }
 
   if(Array.isArray(compiledDsl.rules)){
-    if (DEBUG) console.log('[CP] parseCompiledDslToFormDefaults: rules len=', compiledDsl.rules.length);
     for(const rule of compiledDsl.rules){
       try{
         if(!rule) continue;
@@ -501,7 +484,6 @@ export function parseCompiledDslToFormDefaults(compiledDsl) {
 
             let rewardsArr = [];
             if(br.then && Array.isArray(br.then.rewards) && br.then.rewards.length){
-              if (DEBUG) console.log('[CP] br.then.rewards len=', br.then.rewards.length);
               rewardsArr = br.then.rewards.map(rr => {
                 const left = rr.left || rr;
                 const right = rr.right || rr;
@@ -525,8 +507,6 @@ export function parseCompiledDslToFormDefaults(compiledDsl) {
             } else if(br.rewards && Array.isArray(br.rewards) && br.rewards.length){
               rewardsArr = br.rewards.map(rr => normalizeReward(rr.left || rr, rr.right || null)).filter(Boolean);
             }
-
-            if (DEBUG) console.log('[CP] pushing rule ->', { action, objectKind, productIds, productNames, comparator, value }, 'rewards=', rewardsArr.length);
             out.push({
               action: action || cond.action || cond.type || '',
               object: objectKind || cond.object || '',
@@ -568,13 +548,11 @@ export function parseCompiledDslToFormDefaults(compiledDsl) {
         continue;
       }
     }
-    if (DEBUG) console.log('[CP] parseCompiledDslToFormDefaults result count=', out.length);
     return out;
   }
 
   try{
     const blocksArr = compiledDsl.workspace && compiledDsl.workspace.blocks && compiledDsl.workspace.blocks.blocks ? compiledDsl.workspace.blocks.blocks : [];
-    if (DEBUG) console.log('[CP] fallback to workspace.blocks count=', blocksArr.length);
     return parseBlocklyJsonToConditionItems({ blocks: blocksArr });
   }catch(e){
     if (DEBUG) console.warn('[CP] fallback error', e);

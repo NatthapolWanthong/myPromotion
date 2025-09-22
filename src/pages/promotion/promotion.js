@@ -7,8 +7,6 @@ window.addEventListener('DOMContentLoaded', () => {
     if (overlay) {
       overlay.classList.remove('d-none');
     }
-
-    // ลบ showOverlay ออกจาก URL โดยไม่รีโหลดหน้า
     urlParams.delete('showOverlay');
     const newUrl = window.location.pathname + '?' + urlParams.toString();
     history.replaceState(null, '', newUrl);

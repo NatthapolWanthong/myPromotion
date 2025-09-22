@@ -28,7 +28,6 @@ function showOverlay(){
   if(!document.body.classList.contains('overlay-open')) document.body.classList.add('overlay-open');
   if(overlay) trap(overlay);
   document.addEventListener('keydown', escHandler);
-  console.log("show")
 }
 
 export function hideOverlay(){
@@ -39,7 +38,6 @@ export function hideOverlay(){
   try{ document.body.classList.remove('overlay-open'); }catch(e){}
   document.removeEventListener('keydown', escHandler);
   setTimeout(cleanBootstrapBackdrops, 80);
-  console.log("hide")
 }
 
 function escHandler(e){ if(e.key === 'Escape' || e.key === 'Esc'){ const ev = editView || $('#condition-edit-view'); if(ev && !ev.classList.contains('d-none')) { showOverlay(); showEditView(null); } else hideOverlay(); } }
@@ -376,7 +374,6 @@ export async function OpenConditionForm(promotionId, promotionName = '', trigger
 
 
     const t = $('#overlay-title'); 
-    console.log(conditionOverlay.classList.contains("mode-create"))
     if(conditionOverlay.classList.contains("mode-create")){
       t.textContent = 'สร้างเงื่อนไข';
     }else {

@@ -35,7 +35,6 @@
     <div id="alert-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1055;"></div>
     <div class="content">
         <div class="main-content">
-            <!-- card-count and add button -->
             <div class="top-content">
                 <?php include_once('components/status-count/status-count.html'); ?>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#my-form">เพิ่มกิจกรรม</button>
@@ -68,6 +67,3 @@
 </body>
 
 </html>
-<!-- <script type="text/javascript">
-
-</script> -->

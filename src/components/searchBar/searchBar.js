@@ -76,7 +76,6 @@ function fetchData(path) {
   API.fetchData(path, "POST", queryState).then((res) => {
   if (!res || !Array.isArray(res.data)) throw new Error("รูปแบบข้อมูลผิด");
   cardGenerator.render(res.data,res.total,res.statusCounts);
-  console.log(res)
   renderPagination(res.total, queryState.pageSize);
 }).catch(err => alert("โหลดข้อมูลล้มเหลว: " + err));
 
@@ -353,7 +352,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         item.checked = false;
       })
     });
-    console.log("🧼 ล้าง filter แล้ว");
   }); 
 
 
@@ -361,7 +359,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 document.querySelectorAll('input[data-target]').forEach(input => {
   input.addEventListener("input", () => {
-    console.log("searching...", input);
     const targetId = input.dataset.target;
     filterFunction(input, targetId);
   });

@@ -1,5 +1,4 @@
-// promotionTable.js (dropdown version)
-// Requirements: jQuery + bootstrap-table must be loaded first (global $)
+// promotionTable.js
 
 (function () {
   function escAttr(v = '') {
@@ -14,14 +13,13 @@
       this._cols = [];
       this._initialized = false;
       this._conditionOptions = [
-        // default options (value stored in DB, label shown to user)
         { value: '', label: '-' },
         { value: '5', label: 'จำนวนขั้นต่ำ 5 ชิ้น' },
         { value: '10', label: 'จำนวนขั้นต่ำ 10 ชิ้น' },
         { value: '500', label: 'สะสมแต้ม ≥ 500' },
         { value: '2000', label: 'ซื้อขั้นต่ำ 2,000 บาท' },
       ];
-      this._onConditionUpdatedHandler = this._onConditionUpdated.bind(this); // for external events
+      this._onConditionUpdatedHandler = this._onConditionUpdated.bind(this);
     }
 
     connectedCallback() {
@@ -35,8 +33,6 @@
         </div>
       `;
       this._table = this.querySelector(`#${this._id}`);
-
-      // delegated change handler: when .condition-select changes -> update row & dispatch
       this.addEventListener('change', (ev) => {
         const sel = ev.target.closest && ev.target.closest('.condition-select');
         if (!sel) return;
@@ -44,8 +40,6 @@
         const newVal = sel.value;
         this._handleConditionChange(rowId, newVal);
       });
-
-      // listen for external updates if needed
       window.addEventListener('condition-updated', this._onConditionUpdatedHandler);
 
       setTimeout(() => this._initIfReady(), 0);
@@ -54,18 +48,13 @@
     disconnectedCallback() {
       window.removeEventListener('condition-updated', this._onConditionUpdatedHandler);
     }
-
-    // API to set dropdown options for condition column
     setConditionOptions(options = []) {
       if (!Array.isArray(options)) return;
-      // expect options like [{value:'2000', label:'ซื้อขั้นต่ำ 2,000 บาท'}, ...]
       this._conditionOptions = options.slice();
-      // If already initialized, refresh table config (recreate columns to include new option labels)
       if (this._initialized) {
         $(this._table).bootstrapTable('destroy');
         this._initialized = false;
         this._initIfReady();
-        // reload data
         $(this._table).bootstrapTable('load', this._data);
       }
     }
@@ -79,30 +68,22 @@
     }
 
     _handleConditionChange(rowId, newVal) {
-      // update internal data
       const idx = this._data.findIndex(r => String(r.id) === String(rowId));
       if (idx === -1) return;
       this._data[idx].condition = newVal;
-      // optionally add human label field
       const opt = this._conditionOptions.find(o => String(o.value) === String(newVal));
       if (opt) this._data[idx].condition_text = opt.label;
       else this._data[idx].condition_text = String(newVal);
-
-      // update bootstrap-table row using uniqueId
       if (this._initialized && $.fn.bootstrapTable) {
         $(this._table).bootstrapTable('updateByUniqueId', { id: this._data[idx].id, row: this._data[idx] });
       }
-
-      // dispatch global event so other parts can react
       window.dispatchEvent(new CustomEvent('condition-updated', {
         detail: { rowId: this._data[idx].id, condition: newVal, text: this._data[idx].condition_text }
       }));
-      // also dispatch local component event
       this.dispatchEvent(new CustomEvent('promo-data-changed', { detail: { count: this._data.length, data: this._data } }));
     }
 
     _onConditionUpdated(ev) {
-      // if some other place dispatches condition-updated, sync this table too
       const d = ev.detail || {};
       const rowId = d.rowId;
       const cond = d.condition;
@@ -123,8 +104,6 @@
         setTimeout(() => this._initIfReady(), 120);
         return;
       }
-
-      // setup default columns if none provided (condition column uses select formatter)
       if (!this._cols || !this._cols.length) {
         this._cols = [
           { field: 'state', checkbox: true },
@@ -141,7 +120,6 @@
           }
         ];
       } else {
-        // ensure condition column has select formatter
         this._cols = this._cols.map(col => {
           if (col.field === 'condition' && !col.formatter) {
             col.formatter = (value, row) => this._renderConditionSelectHtml(value, row);
@@ -166,7 +144,6 @@
       this._initialized = true;
     }
 
-    // API methods
     setColumns(cols = []) {
       this._cols = Array.isArray(cols) ? cols : [];
       if (this._initialized) {

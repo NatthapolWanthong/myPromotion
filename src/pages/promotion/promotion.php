@@ -64,17 +64,7 @@
     <script src="../../assets/vendor/jquery/dist/jquery.slim.min.js"></script>
     <script src="../../assets/vendor/bootstrap/js/bootstrap.js"></script>
 
-
-    <!-- Load Blockly core -->
-    <!-- <script src="/myPromotion/src/assets/vendor/blockly/blockly_compressed.js"></script>
-    <script src="/myPromotion/src/assets/vendor/blockly/blocks_compressed.js"></script>
-    <script src="/myPromotion/src/assets/vendor/blockly/javascript_compressed.js"></script>
-    <script src="/myPromotion/src/assets/vendor/blockly/msg/en.js"></script>
-    <script src="/myPromotion/src/assets/vendor/blockly/blockly.min.js"></script> -->
-    <!-- <script src="https://unpkg.com/blockly/msg/th.js"></script> -->
-
-
-<!-- Load Blockly -->
+    <!-- Load Blockly -->
     <script src="/myPromotion/src/assets/vendor/blockly/blockly_compressed.js"></script>
     <script src="/myPromotion/src/assets/vendor/blockly/blocks_compressed.js"></script>
     <script src="/myPromotion/src/assets/vendor/blockly/javascript_compressed.js"></script>
@@ -93,8 +83,7 @@
     <script src="promotion.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/modalConditionAdvance/advanceCondition.js"></script>
 
-    <!-- Scripts -->
-    
+    <!-- Scripts -->   
     <script type="module" src="/myPromotion/src/components/Condition/ConditionInit.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionEvents.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionTemplates.js"></script>
@@ -102,12 +91,7 @@
     <script type="module" src="/myPromotion/src/components/Condition/ConditionForm.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionHelpers.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionParser.js"></script>
-    
-
     <script type="module" src="/myPromotion/src/components/Condition/ConditionService.js"></script>
-
-    <!-- <script type="module" src="/myPromotion/src/components/Condition/modalCondition.js"></script> -->
-
     <script type="module" src="/myPromotion/src/components/modal/modalProductList/modalProductList.js"></script>
     <script type="module" src="/myPromotion/src/components/status-count/status-count.js"></script>
     <script type="module" src="../../components/campaignEditor/campaignEditor.js"></script>

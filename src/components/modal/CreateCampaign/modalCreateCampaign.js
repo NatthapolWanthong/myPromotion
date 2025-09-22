@@ -14,7 +14,6 @@ let options = null;
 document.addEventListener("DOMContentLoaded", async () => {
   options = await getOptions();
   if (options) {
-    console.log(options)
     putOption()
     bindEvents()
   }
@@ -50,8 +49,6 @@ function putOption() {
 }
 
 function bindEvents() {
-  console.log("Campaign bind")
-
   const codeInput = document.getElementById("form-code");
   const toggle = document.getElementById("auto-code-toggle");
 

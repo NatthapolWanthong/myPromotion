@@ -342,7 +342,6 @@ function compileToDSL(workspace) {
 
 function previewDSL(ws) {
   const d = compileToDSL(ws);
-  console.log("Compiled DSL:", d);
   alert("ดู compiled JSON ใน console");
 }
 
@@ -834,14 +833,11 @@ function bindHeaderButtons() {
   });
 
   $("#btn-save-condition")?.addEventListener("click", (e) => {
-    console.log("Save advanced")
     e.preventDefault();
 
     const advanceVisible = $(`#advance-content`) && $(`#advance-content`).style.display !== "none";
     if (advanceVisible) {
       onSaveAdvance();
-    } else {
-      console.log("ปิด overlay")
     }
   });
 

@@ -56,8 +56,6 @@ function putOption() {
 }
 
 function bindEvents() {
-  console.log("Promotion bind")
-
   const codeInput = document.getElementById("form-code");
   const toggle = document.getElementById("auto-code-toggle");
 

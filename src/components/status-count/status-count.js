@@ -8,25 +8,16 @@ export function UpdateStatusCount(total, counts, StatusOptions) {
   }
 
   const isPromotion = isPromotionPage()
-  // ถ้าไม่ได้ส่งเข้ามา ให้ใช้ savedStatus เดิม
   const statusArray = Array.isArray(StatusOptions) ? StatusOptions : savedStatus
 
-  // เก็บไว้ใช้รอบถัดไป
   savedStatus = statusArray
 
-  console.log(savedStatus)
-
   const statusSummary = StatusCounts(statusArray, total, counts)
-
-  // อัปเดตจำนวนกิจกรรมทั้งหมด
   document.querySelector(".all-count label").textContent = `${isPromotion ? `โปรโมชั่นทั้งหมด`:`กิจกรรมทั้งหมด`}  ${total} รายการ`;
-
-  // อัปเดตสถานะต่าง ๆ
   document.querySelector(".status-count .act label").textContent = `กำลังเปิดใช้งานอยู่ ${statusSummary.act} รายการ`;
   document.querySelector(".status-count .pnd label").textContent = `กำลังรอดำเนินการอยู่ ${statusSummary.pnd} รายการ`;
   document.querySelector(".status-count .cls label").textContent = `กำลังปิดใช้งานอยู่ ${statusSummary.cls} รายการ`;
   document.querySelector(".status-count .exp label").textContent = `หมดอายุแล้ว ${statusSummary.exp} รายการ`;
-  console.log("นับสถานะแล้ว")
 }
 
 function StatusCounts(Status, total, counts){

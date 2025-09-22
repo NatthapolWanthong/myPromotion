@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   try {
     const campaign = await API.getCampaignById(campaignId);
-    console.log("Campaign Data:", campaign);
     const typeOptions = options.type;
     const targetOptions = options.target;
     
@@ -30,7 +29,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const CampaignStatus = StatusData[campaign.status - 1];
       const MainStatus = MainStatusData(CampaignStatus.id_main);
 
-      console.log(CampaignStatus)
       container.dataset.id_main = CampaignStatus.id_main;
       container.dataset.status = CampaignStatus.id;
 
@@ -50,9 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       `
       targetInput.innerHTML = `
         ${targetSelect}
-      `
-      console.log(campaign.start_date)
-      console.log(campaign.end_date)      
+      `    
 
       document.querySelector('[data-field="form-target"]').value = campaign.target;
       document.querySelector('[data-field="form-begin"]').value = campaign.start_date.replace(' ', 'T');

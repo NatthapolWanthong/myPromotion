@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: "Kanit";
-  src: url("../src/assets/fonts/NotoSansThai.ttf") format("truetype");
+  src: url("../fonts/NotoSansThai.ttf") format("truetype");
   font-weight: bold;
   font-style: normal;
 }

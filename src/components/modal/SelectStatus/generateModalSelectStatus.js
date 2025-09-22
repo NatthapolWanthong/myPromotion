@@ -3,7 +3,7 @@ import { updateCardAppearance } from "/myPromotion/src/assets/js/cardUtils.js";
 import { getOptions } from "/myPromotion/src/assets/js/store/optionsStore.js";
 
 let statusOption = "";
-let currentStatusCard = null; // เก็บการ์ดที่เปิด modal
+let currentStatusCard = null;
 
 
 document.getElementById("statusModal").addEventListener("show.bs.modal", (event) => {
@@ -29,7 +29,6 @@ export class generateModalSelectStatus {
       3: "btn-outline-danger",
     };
 
-    // ล้างปุ่มเก่า
     Object.values(containerMap).forEach((el) => {
       if (el) el.innerHTML = "";
     });
@@ -47,23 +46,18 @@ export class generateModalSelectStatus {
         <label class="SelectStatus-label">${item.thai_name}</label>
       `;
 
-      // เปลี่ยน status แบบ highlight ตอนเลือก
       button.addEventListener("click", () => {
-        // ล้างปุ่มอื่น
         const modal = button.closest(".modal-select-status-option");
         modal.querySelectorAll(".SelectStatus-button").forEach((btn) => btn.classList.remove("active-status"));
 
         button.classList.add("active-status");
       });
-
-      // ใส่เข้า container
       const container = containerMap[item.id_main];
       if (container) container.appendChild(button);
     });
   }
 }
 
-// 🟢 เมื่อกดปุ่ม Confirm Select Status
 document.getElementById("btn-select-status").addEventListener("click", async () => {
   const options = await getOptions();
   if (!currentStatusCard) return;
@@ -82,9 +76,8 @@ document.getElementById("btn-select-status").addEventListener("click", async () 
 
   const icon = currentStatusCard.querySelector(".SelectStatus-icon");
   const label = currentStatusCard.querySelector(".SelectStatus-label");
-  const mainStatus = statusOption[newStatusId - 1]; // ใช้จาก constructor
+  const mainStatus = statusOption[newStatusId - 1];
 
-  // Update icon + label
   if (icon && label) {
     icon.className = `bi bi-${statusData.icon} SelectStatus-icon`;
     icon.style.color = mainStatus.main_Color;
@@ -92,7 +85,6 @@ document.getElementById("btn-select-status").addEventListener("click", async () 
     label.style.color = mainStatus.main_Color;
   }
 
-  // Update แถบ icon บนสุด (Editor Container เท่านั้น)
   const topIcon = currentStatusCard.querySelector(".icon-status .icon");
   const topText = currentStatusCard.querySelector(".icon-status .status-text");
   if (topIcon && topText) {
@@ -103,10 +95,8 @@ document.getElementById("btn-select-status").addEventListener("click", async () 
     topText.setAttribute("data-short", statusData.short_name);
   }
 
-  // Edit mode & ปุ่ม Save/Cancel
   currentStatusCard.classList.add("edit-mode");
   CardEditController.toggleActionButtons(currentStatusCard, true);
 
-  // Reset ref
   currentStatusCard = null;
 });

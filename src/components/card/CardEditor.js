@@ -79,7 +79,6 @@ function registerCardEventListeners(container, originalMap, statusList) {
   // ปุ่ม History
   container.querySelectorAll(".btn-history").forEach((btn) => {
     btn.addEventListener("click", () => {
-      console.log("History button got passed")
     });
   });
 
@@ -114,7 +113,6 @@ container.querySelectorAll(".btn-delete").forEach((btn) => {
           
           UpdateStatusCount(response.total, response.statusCounts)
           const promotionCount = document.querySelector(".promotion-total")
-          console.log(promotionCount.textContent)
           if (promotionCount) {
 
             promotionCount.textContent = `จำนวนโปรโมชั่นทั้งหมด : ${response.total}`;
@@ -160,7 +158,6 @@ container.querySelectorAll(".btn-delete").forEach((btn) => {
   // ปุ่ม Edit
   container.querySelectorAll(".btn-edit").forEach((btn) => {
     btn.addEventListener("click", () => {
-      console.log("Edit button had Clicked");
       const card = btn.closest(".cards , .campaignEditorContainer");
       const id = card.dataset.id;
       goToPromotionPage(id);
@@ -172,7 +169,6 @@ container.querySelectorAll(".btn-delete").forEach((btn) => {
     btn.addEventListener("click", () => {
       const card = btn.closest(".cards , .campaignEditorContainer");
       const originalCampaignDataMap = card.originalCampaignDataMapRef;
-      console.log(originalCampaignDataMap);
       const id = Number(card.dataset.id);
       const original = originalCampaignDataMap?.get(id);
       if (original) {
@@ -228,7 +224,6 @@ container.querySelectorAll(".btn-delete").forEach((btn) => {
         note: card.querySelectorAll("textarea")[1].value,
         campaign_id: card.dataset.campaign_id,
       };
-      console.log(payload)
       
       let result;
       if (card.classList.contains("cardPromotion")) {

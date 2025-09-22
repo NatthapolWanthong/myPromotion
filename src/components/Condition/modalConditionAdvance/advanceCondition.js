@@ -74,7 +74,7 @@ const toolbox = {
         { "kind": "block", "type": "controls_if" },
         { "kind": "block", "type": "logic_compare" },
         { "kind": "block", "type": "logic_operation" },
-        { "kind": "block", "type": "logic_negate" } // เพิ่ม "not" เข้ามาด้วยก็จะดี
+        { "kind": "block", "type": "logic_negate" }
       ]
     },
     {
@@ -134,7 +134,6 @@ Blockly.defineBlocksWithJsonArray([
   { "type": "object_promotion", "message0": "โปรโมชั่น", "output": "Object", "colour": 230 },
   { "type": "object_event", "message0": "กิจกรรม", "output": "Object", "colour": 230 },
 
-  // reward_discount: target dropdown + optional product input when target === PRODUCT
   {
     "type": "reward_discount",
     "message0": "ส่วนลด: %1",
@@ -147,7 +146,6 @@ Blockly.defineBlocksWithJsonArray([
     "inputsInline": true
   },
 
-  // reward_gift: target dropdown + optional item input when target === PRODUCT
   {
     "type": "reward_gift",
     "message0": "ของแถม: %1",
@@ -162,10 +160,8 @@ Blockly.defineBlocksWithJsonArray([
 
   { "type": "reward_point", "message0": "คะแนน %1", "args0": [{ "type": "input_value", "name": "POINTS", "check": "Number" }], "output": "RewardType", "colour": 290 },
 
-  // Math / value
   { "type": "math_number", "message0": "%1", "args0":[{ "type":"field_number","name":"NUM","value":0 }], "output":"Number", "colour":230 },
 
-  // Text
   { "type": "text", "message0": "%1", "args0":[{ "type":"field_input","name":"TEXT","text":"" }], "output":"String", "colour":160 },
   { "type": "text_join", "message0": "%1", "args0":[{ "type":"input_value","name":"ADD0" }], "output":"String", "colour":160 }
 ]);
@@ -176,11 +172,9 @@ Blockly.defineBlocksWithJsonArray([
    ----------------------- */
 Blockly.Blocks['Value_Unit'] = {
   init: function() {
-    // numeric field + unit dropdown as a single row
     this.appendDummyInput()
       .appendField(new Blockly.FieldNumber(0), 'Value')
       .appendField(new Blockly.FieldDropdown([['บาท','1'], ['%','2'], ['ชิ้น','3'], ['ลัง','4'], ['โหล','5'], ['สลึง','6'], ['เมตร','7']]), 'Unit');
-    // Allow both Number (so it can connect to logic_compare) and ValueUnit (to keep unit info)
     this.setOutput(true, ['Number', 'ValueUnit']);
     this.setColour(225);
     this.setTooltip('');
@@ -231,7 +225,6 @@ function blockToNode(block) {
   const inB = (name) => block.getInputTargetBlock(name);
 
   switch (t) {
-    // Actions
     case "action_buy":        return { type: "ACTION", action: "BUY", object: blockToNode(inB("OBJECT")) };
     case "action_cheer":      return { type: "ACTION", action: "CHEER", object: blockToNode(inB("OBJECT")) };
     case "action_display":    return { type: "ACTION", action: "DISPLAY", object: blockToNode(inB("OBJECT")) };
@@ -254,7 +247,6 @@ function blockToNode(block) {
 
     // Reward structures
     case "reward_block": {
-      // New shape: inline left and right inputs. Left/right may be RewardType, Number, ValueUnit, Object, text, etc.
       const left = blockToNode(inB("LEFT"));
       const right = blockToNode(inB("RIGHT"));
       return {
@@ -369,7 +361,6 @@ function validateWorkspace(ws) {
       return false;
     }
 
-    // Ensure comparators compare numeric values (or reward nodes that expose __asNumber)
     const compares = all.filter(b => b.type === "logic_compare");
     for (const cmp of compares) {
       const a = cmp.getInputTargetBlock('A');
@@ -415,9 +406,7 @@ function initBlockly() {
 
   ensureFloatingButtons();
 
-  // Try to extend logic_compare (if available) so it accepts Number / ValueUnit / RewardType
   extendLogicCompareWhenReady(() => {
-    // update existing logic_compare blocks in this workspace to accept new checks
     try {
       const blocks = workspace.getAllBlocks(false);
       for (const b of blocks) {
@@ -436,19 +425,16 @@ function initBlockly() {
   return workspace;
 }
 
-// เมื่อ ConditionEvents ส่ง event condition:populate มา (ตอนกด Edit) ให้ Advance module โหลด workspace ทันที
 window.addEventListener('condition:populate', (ev) => {
   try {
     const det = ev.detail || {};
     const mode = det.mode || (det.row && det.row.mode) || (det.condition_xml && det.condition_xml.mode) || null;
     if (String(mode) !== 'advance') return;
 
-    // ensure view switched (shared UI may already do this but call to be safe)
     try { switchToEditView('advance'); } catch(e){}
 
-    // ensure Blockly exists and init workspace
     try {
-      initBlockly(); // safe idempotent - ถ้ามีแล้วจะรีเทิร์น workspace
+      initBlockly();
     } catch(e){ console.warn('initBlockly failed', e); }
 
     // parse cond/workspace if provided
@@ -458,35 +444,29 @@ window.addEventListener('condition:populate', (ev) => {
       try { cond = JSON.parse(cond); } catch(e){ /* leave as-is */ }
     }
 
-    // small delay to ensure initBlockly completed and workspace variable available
     setTimeout(()=>{
       try {
         if (!workspace) {
-          // try init again
           try { initBlockly(); } catch(e){}
         }
         if (cond && cond.workspace && workspace) {
           try {
             workspace.clear();
             Blockly.serialization.workspaces.load(cond.workspace, workspace);
-            // force resize/draw
             try { if (Blockly.svgResize) Blockly.svgResize(workspace); } catch(e){}
           } catch (e) {
             console.warn('load workspace failed', e);
           }
         } else if (row && typeof row.condition_xml === 'string' && workspace) {
-          // legacy XML case
           try {
             const dom = Blockly.Xml.textToDom(row.condition_xml);
             workspace.clear();
             Blockly.Xml.domToWorkspace(dom, workspace);
             try { if (Blockly.svgResize) Blockly.svgResize(workspace); } catch(e){}
           } catch(e) {
-            // not XML or failed - ignore
             console.warn('legacy XML load failed', e);
           }
         }
-        // set form name if present
         if (document.getElementById('condition-form-name') && row.condition_name) {
           document.getElementById('condition-form-name').value = row.condition_name;
         }
@@ -528,8 +508,6 @@ async function onSaveAdvance() {
   try {
     const promoId = getPromotionId();
     if (!promoId) { alert("ไม่พบ promotion id"); return; }
-
-    // name from form (shared)
     let name = (document.getElementById("condition-form-name")?.value || "").trim();
     if (!name) {
       name = window.prompt("ระบุชื่อเงื่อนไข (Condition name):", "");
@@ -538,8 +516,6 @@ async function onSaveAdvance() {
       if (!name) { alert("ต้องระบุชื่อเงื่อนไข"); return; }
       if (document.getElementById("condition-form-name")) document.getElementById("condition-form-name").value = name;
     }
-
-    // validate workspace business wise (do not allow save if invalid)
     if (!validateWorkspace(workspace)) {
       return;
     }
@@ -557,13 +533,11 @@ async function onSaveAdvance() {
       compiled_dsl: compiled,
       saved_at: (new Date()).toISOString()
     };
-
-    // <-- changed: include id (savedConditionId) so server can update instead of creating new -->
     const savedIdRaw = document.getElementById('savedConditionId')?.value;
     const savedId = (savedIdRaw !== undefined && savedIdRaw !== null && String(savedIdRaw).trim() !== '') ? Number(savedIdRaw) : undefined;
 
     const payload = {
-      id: savedId, // undefined if not present; ConditionService.insert should handle insert/update by id
+      id: savedId,
       promotion_id: Number(promoId),
       condition_name: name,
       condition_xml: conditionXml,
@@ -582,10 +556,7 @@ async function onSaveAdvance() {
 
     if (res && res.success) {
       alert("บันทึกสำเร็จ 🎉");
-
-      // --- notify other modules (generateCard.js) to refresh the table for this promotion ---
       try {
-        // try to get saved condition id from response (safe extraction)
         const savedId = (res.data && res.data.id) || res.id || res.saved_id || null;
         window.dispatchEvent(new CustomEvent('condition:saved', {
           detail: { promotion_id: Number(promoId), condition_id: savedId }
@@ -640,8 +611,6 @@ async function onLoadAdvance() {
     if (typeof condXml === "string") {
       try { condXml = JSON.parse(condXml); } catch(e) { /* leave as string */ }
     }
-
-    // set savedConditionId so saving will update this record (not create new)
     try { if (document.getElementById('savedConditionId')) document.getElementById('savedConditionId').value = row.id || ''; } catch(e){}
 
     switchToEditView("advance");
@@ -693,8 +662,6 @@ async function refreshList() {
     db: (c.mode || "-"),
     raw: c
   }));
-
-  // server-side already filtered by q if provided; we still apply client filter as fallback
   if (searchText) rows = rows.filter(r => String(r.name).toLowerCase().includes(searchText));
   const total = rows.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -726,8 +693,6 @@ async function refreshList() {
       const got = await ConditionService.getById(id, promoId);
       if (!got?.success) return alert(got?.error || "โหลดไม่สำเร็จ");
       const row = got.data;
-
-      // fallback: ถ้า row.mode ไม่มี ให้พยายาม parse จาก condition_xml
       try {
         if (!row.mode && row.condition_xml) {
           let c = row.condition_xml;
@@ -743,17 +708,12 @@ async function refreshList() {
       }
 
       const useAdvance = String(row.mode) === "advance";
-
-      // ensure savedConditionId is set so subsequent save will UPDATE not INSERT
       try { if (document.getElementById('savedConditionId')) document.getElementById('savedConditionId').value = row.id || ''; } catch(e){}
-
-      // delegate populate to modules via event so both basic/advance flows are consistent
       try {
         const parsedCond = (row.condition_xml && typeof row.condition_xml === 'string') ? (() => { try { return JSON.parse(row.condition_xml); } catch(e) { return row.condition_xml; } })() : row.condition_xml;
         window.dispatchEvent(new CustomEvent('condition:populate', { detail: { row, condition_xml: parsedCond ?? null, mode: useAdvance ? 'advance' : 'basic' } }));
       } catch (err) {
         console.warn('dispatch condition:populate failed, falling back to local load', err);
-        // fallback to previous behaviour
         switchToEditView(useAdvance ? "advance" : "basic");
 
         if (useAdvance) {
@@ -773,13 +733,10 @@ async function refreshList() {
               console.warn('XML->workspace load failed', e);
             }
           } else {
-            // ไม่มี workspace ให้แจ้งผู้ใช้ (หรือปล่อยว่างไว้)
-            // alert("เงื่อนไขนี้ไม่มี workspace ที่โหลดได้");
           }
           if ($("#condition-form-name") && row.condition_name) $("#condition-form-name").value = row.condition_name;
         } else {
           if ($("#condition-form-name") && row.condition_name) $("#condition-form-name").value = row.condition_name;
-          // ให้ Basic module handle การ populate form
           window.dispatchEvent(new CustomEvent("condition:basic:load", { detail: { compiled_dsl: row.condition_xml?.compiled_dsl ?? null, raw: row } }));
         }
       }
@@ -796,34 +753,23 @@ async function refreshList() {
         const res = await ConditionService.delete(id);
         if (res && res.success) {
           alert("บันทึกสำเร็จ 🎉");
-
-          // --- ทำให้ refresh เหมือนกรณีลบ: พยายามเรียก loadConditionsForCard (ถ้ามี) แล้ว fallback เป็น bootstrap-table refresh ---
           try {
-            // promotion id ที่เราบันทึก
             const promo = Number(promoId);
-
-            // try to extract saved condition id (optional)
             const savedId = (res.data && res.data.id) || res.id || res.saved_id || null;
-
-            // if there's a global helper to reload conditions for a card, prefer that (same as delete flow)
             if (typeof window.loadConditionsForCard === 'function') {
-              // third arg: optional card element — we don't have card reference here, pass null
               try { window.loadConditionsForCard(promo, { page: 1 }, null); } catch (e) { console.warn('loadConditionsForCard failed', e); }
             } else if (typeof loadConditionsForCard === 'function') {
               try { loadConditionsForCard(promo, { page: 1 }, null); } catch (e) { console.warn('loadConditionsForCard (local) failed', e); }
             } else {
-              // fallback: refresh bootstrap-table directly for that promo (if exists)
               try {
                 const $t = window.jQuery && window.jQuery(`#conditionsListTable-${promo}`);
                 if ($t && $t.data && $t.data('bootstrap.table')) {
                   $t.bootstrapTable('refresh');
                 } else {
-                  // If table not init yet, dispatch event so generateCard.js can handle retry/refesh
                   window.dispatchEvent(new CustomEvent('condition:saved', { detail: { promotion_id: promo, condition_id: savedId } }));
                 }
               } catch (e) {
                 console.warn('direct table refresh failed', e);
-                // ensure downstream modules know: dispatch event as last resort
                 try {
                   window.dispatchEvent(new CustomEvent('condition:saved', { detail: { promotion_id: promo, condition_id: savedId } }));
                 } catch (ee) { console.warn('dispatch fallback failed', ee); }
@@ -832,8 +778,6 @@ async function refreshList() {
           } catch (errRefresh) {
             console.warn('post-save refresh error', errRefresh);
           }
-
-          // then continue UI workflow
           switchToListView();
           try { await refreshList(); } catch(e){ /* ignore */ }
           hideOverlay();
@@ -880,7 +824,7 @@ function switchToEditView(mode = "advance") {
 
 function bindHeaderButtons() {
   $("#btn-create-condition")?.addEventListener("click", () => {
-    switchToEditView("basic");   // เปิด BASIC เป็น default
+    switchToEditView("basic"); 
     try { workspace && workspace.clear(); } catch {}
     if ($("#condition-form-name")) $("#condition-form-name").value = "";
   });
@@ -891,14 +835,12 @@ function bindHeaderButtons() {
 
   $("#btn-save-condition")?.addEventListener("click", (e) => {
     console.log("Save advanced")
-    // Prevent default form submission so we only run our JS save logic once
     e.preventDefault();
 
     const advanceVisible = $(`#advance-content`) && $(`#advance-content`).style.display !== "none";
     if (advanceVisible) {
       onSaveAdvance();
     } else {
-      // dispatch custom event handled by ConditionForm (submit)
       console.log("ปิด overlay")
     }
   });
@@ -927,7 +869,6 @@ function bindHeaderButtons() {
 /* -----------------------
    Basic form -> compiled DSL mapper (kept as before but improved product id handling)
    ----------------------- */
-// replace basicFormToAdvanceWorkspace with this implementation
 export function basicFormToAdvanceWorkspace() {
   const container = document.getElementById("conditionsContainer");
   if (!container) return { mode: "basic", workspace: { blocks: { languageVersion: 0, blocks: [] } }, compiled_dsl: { meta: {}, rules: [] }, saved_at: (new Date()).toISOString() };
@@ -953,18 +894,13 @@ export function basicFormToAdvanceWorkspace() {
     const comparator = it.querySelector(".comparatorSelect")?.value || '';
     const value = it.querySelector(".valueInput")?.value || '';
     const unit = it.querySelector(".unitSelect")?.value || '';
-
-    // product id for condition (may be CSV)
     const productIdRaw = it.querySelector(".selectedProductId_condition")?.value || '';
     const productIds = String(productIdRaw || '').split(',').map(s=>s.trim()).filter(Boolean);
     const productIdFirst = productIds[0] || '';
 
-    // build action/object blocks
     const objectBlockFields = { LABEL: "สินค้า" };
     if (productIds.length > 0) {
-      // include array of ids for more fidelity
       objectBlockFields.PRODUCT_IDS = productIds.map(String);
-      // also keep PRODUCT_SELECT for backward compatibility (first item)
       objectBlockFields.PRODUCT_SELECT = productIdFirst || objectKind || "";
     } else {
       objectBlockFields.PRODUCT_SELECT = objectKind || "";
@@ -984,11 +920,10 @@ export function basicFormToAdvanceWorkspace() {
       inputs: { A: { block: actionBlock }, B: { block: valueBlock } }
     });
 
-    // process rewards (can be multiple)
     const rewardItems = Array.from(it.querySelectorAll(".reward-item"));
     let rewardChainTop = null;
     let prevRewardBlock = null;
-    const compiledRewardsArray = []; // for compiled_dsl.then.rewards
+    const compiledRewardsArray = [];
 
     for (const r of rewardItems) {
       const rAction = r.querySelector(".condition-form-reward-action")?.value || '';
@@ -999,29 +934,21 @@ export function basicFormToAdvanceWorkspace() {
       const rProductIds = String(rProductIdRaw || '').split(',').map(s=>s.trim()).filter(Boolean);
       const rProductIdFirst = rProductIds[0] || '';
 
-      // left block (reward metadata)
       const leftBlock = makeBlock("reward_" + (rAction || "discount"), {
         fields: { TARGET: rObject || '' }
       });
 
-      // if reward object indicates product, attach object_product with PRODUCT_IDS when available
       if (rObject && String(rObject).toLowerCase() === 'product' && rProductIds.length) {
         leftBlock.inputs = leftBlock.inputs || {};
         leftBlock.inputs[ (rAction && rAction.toLowerCase().includes('gift')) ? "ITEM_INPUT" : "PRODUCT_INPUT" ] = {
           block: makeBlock("object_product", { fields: { LABEL: "สินค้า", PRODUCT_IDS: rProductIds.map(String), PRODUCT_SELECT: rProductIdFirst } })
         };
       }
-
-      // right side: Value_Unit
       const rightBlock = makeBlock("Value_Unit", { fields: { Value: Number(rValue || 0) || 0, Unit: rUnit || '' } });
-
       const rewardBlock = makeBlock("reward_block", { inputs: { LEFT: { block: leftBlock }, RIGHT: { block: rightBlock } } });
-
       if (!rewardChainTop) rewardChainTop = rewardBlock;
       if (prevRewardBlock) prevRewardBlock.next = { block: rewardBlock };
       prevRewardBlock = rewardBlock;
-
-      // compiled representation for this reward
       const compiledLeft = { type: "REWARD", subtype: String(rAction || ''), target: String(rObject || '') };
       if (rProductIds.length) compiledLeft.product_ids = rProductIds.map(String);
       if (rProductIdFirst) compiledLeft.product = String(rProductIdFirst);
@@ -1037,7 +964,6 @@ export function basicFormToAdvanceWorkspace() {
     }
     topBlocks.push(controlsIf);
 
-    // build compiled rule branch
     const branchCond = {
       type: "COMPARE",
       op: comparator || '',
@@ -1047,12 +973,10 @@ export function basicFormToAdvanceWorkspace() {
 
     let thenNode = null;
     if (compiledRewardsArray.length) {
-      // normalize into then.rewards array
       thenNode = { type: "REWARD_BLOCK", rewards: compiledRewardsArray.map(rr => ({ left: rr.left, right: rr.right })) };
     } else {
       thenNode = null;
     }
-
     compiledRules.push({ type: "IF", branches: [ { cond: branchCond, then: thenNode } ] });
   }
 
@@ -1066,19 +990,13 @@ export function basicFormToAdvanceWorkspace() {
     saved_at: (new Date()).toISOString()
   };
 }
-
-// Handler to save basic form as Advance-structured condition (calls ConditionService.insert)
 export async function onBasicSaveAsAdvance() {
-  // Keep for backward compatibility but prefer form submit (ConditionForm will handle validation and save)
-  // If called directly, we emulate form submit to ensure validation happens.
   const f = document.getElementById('condition-form');
   if (f) {
     if (typeof f.requestSubmit === 'function') f.requestSubmit();
     else f.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     return;
   }
-
-  // else fallback to old behavior (not recommended)
   alert('Cannot save: form not found');
 }
 
@@ -1099,8 +1017,6 @@ export function initAdvanceCondition() {
   refreshList();
   bindHeaderButtons();
 }
-
-// auto-init when DOM ready if modal exists
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("condition-overlay")) {
     try { initAdvanceCondition(); } catch (e) { console.warn("initAdvanceCondition failed:", e); }
@@ -1124,14 +1040,12 @@ Blockly.Extensions.registerMutator(
       this.updateShape_(target);
     },
     updateShape_: function(target) {
-      // Ensure inputs are inline
       try { this.setInputsInline(true); } catch (e) { /* ignore */ }
 
       if (this.getInput('PRODUCT_INPUT')) {
         this.removeInput('PRODUCT_INPUT');
       }
       if (target === 'PRODUCT') {
-        // append inline product input (label + value)
         this.appendValueInput('PRODUCT_INPUT')
           .setCheck('Object')
           .appendField('เป็นสินค้า');
@@ -1195,7 +1109,6 @@ Blockly.Extensions.registerMutator(
   }
 );
 
-// --- เพิ่ม getter: ดึงค่าเชิงตัวเลขจาก reward (ใช้ถ้าต้องการแยก semantic) ---
 Blockly.Blocks['reward_value_of'] = {
   init: function() {
     this.appendValueInput('REWARD').setCheck('RewardType').appendField('ค่าของ');
@@ -1208,7 +1121,6 @@ Blockly.Blocks['reward_value_of'] = {
    Utility: wait for block to exist, then callback
    ----------------------- */
 function extendLogicCompareWhenReady(cb) {
-  // poll until Blockly.Blocks['logic_compare'] is defined
   let attempts = 0;
   const maxAttempts = 60;
   const iv = setInterval(() => {
@@ -1221,7 +1133,7 @@ function extendLogicCompareWhenReady(cb) {
       } else if (attempts >= maxAttempts) {
         clearInterval(iv);
         console.warn('extendLogicCompareWhenReady: logic_compare not found after timeout');
-        if (typeof cb === 'function') cb(); // still call cb to continue
+        if (typeof cb === 'function') cb();
       }
     } catch (e) {
       clearInterval(iv);
@@ -1246,7 +1158,6 @@ function patchLogicCompare() {
     if (typeof origInit === 'function') {
       try { origInit.call(this); } catch (e) { console.warn('origInit call failed', e); }
     }
-    // extend allowed checks
     try {
       const allowed = ['Number','ValueUnit','RewardType'];
       const inA = this.getInput('A');
@@ -1258,7 +1169,6 @@ function patchLogicCompare() {
 }
 
 
-// This prevents direct bypass of validation by calling onBasicSaveAsAdvance.
 window.addEventListener("condition:basic:save", (ev) => {
   const f = document.getElementById('condition-form');
   if (f) {

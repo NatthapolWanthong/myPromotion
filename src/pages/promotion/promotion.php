@@ -17,28 +17,16 @@
     <link rel="stylesheet" href="../../components/modal/modalProductList/modalProductList.css">
     <link rel="stylesheet" href="../../components/Condition/modalCondition.css">
     <link rel="stylesheet" href="../../components/modal/SelectStatus/modalSelectStatus.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.2/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="../../assets/vendor/bootstrap-table/bootstrap-table.min.css">
     <link rel="stylesheet" href="../../components/Condition/modalConditionAdvance/advanceCondition.css">
-
-    
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"> <!-- icon -->
+    <link rel="stylesheet" href="../../assets/vendor/bootstrap/icons-main/font/bootstrap-icons.min.css"> <!-- icon -->
 
     <!-- Select2 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"/>
+    <link rel="stylesheet" href="../../assets/vendor/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="../../assets/vendor/select2/theme/select2-bootstrap-5-theme.min.css"/>
 
     <!-- Flatpickr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-
-    <!-- Bootstrap-table (v1) + dependencies -->
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.0/dist/bootstrap-table.min.css"/>
-    <script src="https://unpkg.com/bootstrap-table@1.21.0/dist/bootstrap-table.min.js"></script>
-    <!-- optional extensions you may want -->
-    <script src="https://unpkg.com/bootstrap-table@1.21.0/dist/extensions/export/bootstrap-table-export.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.2.0/js/tableexport.min.js"></script>
-
+    <link rel="stylesheet" href="../../assets/vendor/flatpickr/flatpickr.min.css">
 </head>
 
 <body>
@@ -73,7 +61,7 @@
 
 
     <!-- Lib -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
+    <script src="../../assets/vendor/jquery/dist/jquery.slim.min.js"></script>
     <script src="../../assets/vendor/bootstrap/js/bootstrap.js"></script>
 
 
@@ -94,14 +82,14 @@
     <script src="/myPromotion/src/assets/vendor/blockly/php_compressed.js"></script>
 
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.2/dist/bootstrap-table.min.js"></script>
+    <script src="../../assets/vendor/bootstrap-table/bootstrap-table.min.js"></script>
     <script src="/myPromotion/src/assets/vendor/bootstrap/js/bootstrap.bundle.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.29.0/tableExport.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.24.2/dist/extensions/export/bootstrap-table-export.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.24.2/dist/locale/bootstrap-table-th-TH.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+    <script src="../../assets/vendor/tableExport.min.js"></script>
+    <script src="../../assets/vendor/bootstrap-table/extensions/export/bootstrap-table-export.min.js"></script>
+    <script src="../../assets/vendor/bootstrap-table/locale/bootstrap-table-th-TH.min.js"></script>
+    <script src="../../assets/vendor/select2/js/select2.min.js"></script>
+    <script src="../../assets/vendor/flatpickr/flatpickr"></script>
+    <script src="../../assets/vendor/flatpickr/th.js"></script>
     <script src="promotion.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/modalConditionAdvance/advanceCondition.js"></script>
 

@@ -95,20 +95,17 @@ function extractProductNamesFromNode(node){
   if(!node) return [];
   const out = [];
   const f = node.fields || {};
-  // try fields first
   if(Array.isArray(f.PRODUCT_NAMES) && f.PRODUCT_NAMES.length) return f.PRODUCT_NAMES.map(asString);
   if(f.PRODUCT_NAME) return toArrayOfStrings(f.PRODUCT_NAME);
   if(f.LABEL) return toArrayOfStrings(f.LABEL);
   if(f.NAME) return toArrayOfStrings(f.NAME);
   if(f.PRODUCT_LABEL) return toArrayOfStrings(f.PRODUCT_LABEL);
 
-  // node-level keys
   if(Array.isArray(node.product_names) && node.product_names.length) return node.product_names.map(asString);
   if(node.product_name) return toArrayOfStrings(node.product_name);
   if(node.label) return toArrayOfStrings(node.label);
   if(node.name) return toArrayOfStrings(node.name);
 
-  // nested input
   if(node.inputs){
     const pi = node.inputs.PRODUCT_INPUT || node.inputs.ITEM_INPUT || node.inputs.PRODUCT || node.inputs.ITEM;
     if(pi && pi.block){
@@ -133,11 +130,11 @@ export function extractRewardFromBlock(rewBlock){
     catch(e){ console.log('[CP] extractRewardFromBlock start (no-serialize):', rewBlock); }
   }
 
-  // Support wrapper shapes: { left, right } or simple node
+
   let left = rewBlock.left ?? rewBlock.reward ?? rewBlock;
   let right = rewBlock.right ?? rewBlock.amount ?? null;
 
-  // Blockly-style inputs: inputs.LEFT.block and inputs.RIGHT.block, PRODUCT_INPUT nested
+
   if(left && left.inputs && left.inputs.LEFT && left.inputs.LEFT.block) left = left.inputs.LEFT.block;
   if(rewBlock.inputs && rewBlock.inputs.RIGHT && rewBlock.inputs.RIGHT.block) right = rewBlock.inputs.RIGHT.block;
 
@@ -148,7 +145,6 @@ export function extractRewardFromBlock(rewBlock){
   let rewardProductIds = extractProductIdsFromNode(left);
   let rewardProductNames = extractProductNamesFromNode(left);
 
-  // fallback: sometimes product info was stored under right node (rare)
   if(!rewardProductIds.length && right) {
     const fromRight = extractProductIdsFromNode(right);
     if(fromRight.length) rewardProductIds = fromRight.slice();
@@ -156,13 +152,11 @@ export function extractRewardFromBlock(rewBlock){
     if(rn.length && !rewardProductNames.length) rewardProductNames = rn.slice();
   }
 
-  // also try rewBlock.fields.product related keys
   if(!rewardProductIds.length && rewBlock.fields){
     if(rewBlock.fields.PRODUCT_IDS) rewardProductIds = toArrayOfStrings(rewBlock.fields.PRODUCT_IDS);
     else if(rewBlock.fields.PRODUCT_ID) rewardProductIds = toArrayOfStrings(rewBlock.fields.PRODUCT_ID);
   }
 
-  // product category all (if present)
   const rewardProductCategoryAll = Array.isArray(leftFields.PRODUCT_CATEGORY_ALL) ? leftFields.PRODUCT_CATEGORY_ALL.map(String) :
                                    Array.isArray(leftFields.PRODUCT_CATEGORIES) ? leftFields.PRODUCT_CATEGORIES.map(String) : [];
 
@@ -222,8 +216,6 @@ export function collectRewardsChain(startBlock){
     } catch(e) {
       if (DEBUG) console.warn('[CP] collectRewardsChain extract failed', e);
     }
-
-    // advance patterns
     if(cur.next && cur.next.block) cur = cur.next.block;
     else if(cur.next && typeof cur.next === 'object' && cur.next.block) cur = cur.next.block;
     else if(cur.next && cur.next.connection && cur.next.connection.block) cur = cur.next.connection.block;
@@ -429,8 +421,6 @@ export function parseCompiledDslToFormDefaults(compiledDsl) {
           for(const br of rule.branches){
             const cond = br.cond || {};
             let comparator = '', value = '', unit = '', productIds = [], productNames = [], productCategoryAll = [], action = '', objectKind = '';
-
-            // extract action/object from cond.A if present
             try {
               if(cond.A) {
                 action = asString(cond.A.action ?? cond.A.fields?.ACTION ?? cond.A.actionType ?? cond.A.action ?? '');
@@ -500,7 +490,6 @@ export function parseCompiledDslToFormDefaults(compiledDsl) {
               }
             }
 
-            // fallback check extracting from cond object if still empty
             if(!productIds.length && cond.A) {
               const fallback = extractProductIdsFromNode(cond.A);
               if(fallback.length) productIds = fallback;
@@ -510,7 +499,6 @@ export function parseCompiledDslToFormDefaults(compiledDsl) {
               if(fallbackN.length) productNames = fallbackN;
             }
 
-            // collect rewards
             let rewardsArr = [];
             if(br.then && Array.isArray(br.then.rewards) && br.then.rewards.length){
               if (DEBUG) console.log('[CP] br.then.rewards len=', br.then.rewards.length);
@@ -584,7 +572,6 @@ export function parseCompiledDslToFormDefaults(compiledDsl) {
     return out;
   }
 
-  // fallback parse workspace.blocks
   try{
     const blocksArr = compiledDsl.workspace && compiledDsl.workspace.blocks && compiledDsl.workspace.blocks.blocks ? compiledDsl.workspace.blocks.blocks : [];
     if (DEBUG) console.log('[CP] fallback to workspace.blocks count=', blocksArr.length);

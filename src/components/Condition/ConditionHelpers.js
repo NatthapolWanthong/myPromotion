@@ -80,7 +80,6 @@ export function release(container){
   }catch(e){ console.warn('release trap', e); }
 }
 
-/* small helper to remove stray bootstrap backdrops if present */
 export function cleanBootstrapBackdrops(){
   try{
     document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());

@@ -15,22 +15,18 @@
     <link rel="stylesheet" href="/myPromotion/src/components/modal/SelectStatus/modalSelectStatus.css">
     <link rel="stylesheet" href="/myPromotion/src/components/pagination/pagination.css">
     <link rel="stylesheet" href="/myPromotion/src/assets/css/main.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"> <!-- icon -->
+    <link rel="stylesheet" href="./assets/vendor/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="./assets/vendor/bootstrap/icons-main/font/bootstrap-icons.min.css"> <!-- icon -->
 
     <!-- Modal -->
     <?php include('components/modal/CreateCampaign/modalCreateCampaign.html'); ?>
     <?php include('components/modal/SelectStatus/modalSelectStatus.html'); ?>
 
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    <!-- Select2 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"/>
     
-    <script type="module">
-        import Swal from 'https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm';
-        window.Swal = Swal; // ทำให้ SweetAlert ใช้ได้ใน window ทั่วไป
-    </script>
+    <!-- Select2 -->
+    <link rel="stylesheet" href="./assets/vendor/select2/css/select2.min.css"/>
+    <link rel="stylesheet" href="./assets/vendor/select2/theme/select2-bootstrap-5-theme.min.css"/>
 </head>
 
 <body>
@@ -58,7 +54,7 @@
     <script src="/myPromotion/src/assets/vendor/bootstrap/js/bootstrap.bundle.js"></script>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="./assets/vendor/select2/js/select2.js"></script>
 
 
     <script type="module" src="/myPromotion/src/components/status-count/status-count.js"></script>
@@ -66,11 +62,9 @@
     <script type="module" src="/myPromotion/src/assets/js/main.js"></script>
     <script defer type="module" src="index.js"></script>
     <script defer type="module" src="/myPromotion/src/components/modal/CreateCampaign/modalCreateCampaign.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
-    <script src="/myPromotion/src/assets/js/form-validation.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-    
+    <script src="./assets/vendor/flatpickr/flatpickr"></script>
+    <script src="./assets/vendor/flatpickr/th.js"></script>
+    <script src="/myPromotion/src/assets/js/form-validation.js"></script>    
 </body>
 
 </html>

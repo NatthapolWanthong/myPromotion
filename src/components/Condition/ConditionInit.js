@@ -4,9 +4,8 @@ import { initFormSubmit, initFormHandlers } from './ConditionForm.js';
 import { initConditionModule } from './ConditionEvents.js';
 import { initTemplates } from './ConditionTemplates.js';
 
-/**
- * init: safe idempotent initialization
- */
+
+
 export function init(){
   try{
     initTemplates();
@@ -17,14 +16,11 @@ export function init(){
   }catch(e){ console.warn('initConditionModule failed', e); }
 
   try{
-    // Bind form submit (use getPromoId callback to avoid global dependencies)
     initFormSubmit({ getPromoId: () => (window.promoId || Number(new URLSearchParams(window.location.search).get('id'))) });
-    // bind populate/create handlers
     initFormHandlers();
   }catch(e){ console.warn('initFormSubmit failed', e); }
 }
 
-// auto-init on DOM ready (safe)
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {

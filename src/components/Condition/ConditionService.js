@@ -18,11 +18,10 @@ function normalizePayload(input = {}) {
     note = ""
   } = input;
 
-  // If condition_xml is object -> stringify for DB; otherwise keep string
+
   const xmlData = (typeof condition_xml === "object") ? JSON.stringify(condition_xml) : (condition_xml || "");
 
   let condition_code_local = String(condition_code || '');
-  // try to populate code from xmlData if missing
   if(!condition_code_local || condition_code_local === '') {
     try {
       let parsed = null;

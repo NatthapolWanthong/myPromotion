@@ -42,30 +42,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     const modalSelectStatus = new generateModalSelectStatus(options.status);
-    // const updateCardAppearance = new updateCardAppearance(options.status);
-    // let modalCreate;
-    // if (isPromotionPage()) {
-    //   const urlParams = new URLSearchParams(window.location.search);
-    //   const campaignId = urlParams.get('id');
-    //   if (document.getElementById("btn-create-promotion")) {
-    //     import { modalPromotion } from "/myPromotion/src/components/modal/CreatePromotion/modalCreatePromotion.js";
-    //     modalCreate = new modalPromotion(options.promotionType, options.promotionTarget, campaignId);
-    //     if (modalCreate) {
-    //       modalCreate.putOption();
-    //       modalCreate.bindEvents();
-    //     }
-    //   }
-    // } else if (!isPromotionPage()) {
-    //   if (document.getElementById("btn-create-campaign")) {
-    //     import { modalCampaign } from "/myPromotion/src/components/modal/CreateCampaign/modalCreateCampaign.js";
-    //     modalCreate = new modalCampaign(options.type, options.target);
-    //     if (modalCreate) {
-    //       modalCreate.putOption();
-    //       modalCreate.bindEvents();
-    //     }
-    //   }
-    // }
-
     modalSelectStatus.generateButton(options.status);
 
     setOptions(options);

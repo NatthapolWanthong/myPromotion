@@ -26,9 +26,6 @@ function expandCardForEditing(clickedCard) {
       card.classList.add("expanded");
       inputs.forEach((i) => (i.disabled = false)); // เปิดให้แก้ไข
       if (statusText) statusText.textContent = statusText.getAttribute("data-full");
-      // dateTimeInputs.forEach((input)=> {
-      //   input.type = "datetime-local";
-      // })
     } else if(!card.classList.contains("campaignEditorContainer")) {
       card.classList.remove("expanded");
       inputs.forEach((i) => (i.disabled = true)); // ปิดให้แก้ไข
@@ -39,7 +36,6 @@ function expandCardForEditing(clickedCard) {
 
 // ปุ่ม Edit , Delete , History , Cancel , Save
 function registerCardEventListeners(container, originalMap, statusList) {
-  // เปลี่ยน Dev เป็น Input
   container.querySelectorAll(".editable-text").forEach((el) => {
     el.addEventListener("click", () => {
       if (el.querySelector("input")) return;
@@ -278,9 +274,6 @@ container.querySelectorAll(".btn-delete").forEach((btn) => {
 
 // เพิ่ม Edit mode ลงใน Card ที่แก้ไข
 function trackCardChanges(container) {
-  // const CardEditor = container.querySelector(".CardEditor")
-  // const campaignEditorContainer = document.querySelector(".campaignEditorContainer")
-  // if (!CardEditor || !campaignEditorContainer){return}
   container.querySelectorAll("input, textarea, select, div").forEach((item) => {
     if (item.closest(".check-edit-mode")){
       item.addEventListener("input", () => {

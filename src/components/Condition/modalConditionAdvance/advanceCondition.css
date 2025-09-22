@@ -1,4 +1,3 @@
-/* overlay ให้เต็มจอ */
 #condition-overlay {
   display: flex;
   flex-direction: column;
@@ -8,46 +7,41 @@
   height: 100vh;
   background-color: #fff;
   z-index: 1050;
-  overflow: hidden; /* overlay เองห้าม scroll — inner จะ scroll */
+  overflow: hidden;
 }
 
-/* header + tabs: header ไม่ยืด */
 #condition-overlay > div:first-child {
   flex: 0 0 auto;
 }
 
-/* container ของ tab content ให้เต็มที่เหลือ
-   IMPORTANT: min-height:0 เพื่อให้ child overflow ทำงานใน flex context */
 #condition-overlay .tab-content-container {
   flex: 1 1 auto;
-  min-height: 0;               /* สำคัญมาก */
+  min-height: 0;        
   display: flex;
   flex-direction: column;
-  overflow-y: auto;            /* ให้พื้นที่นี้เลื่อน */
+  overflow-y: auto; 
   -webkit-overflow-scrolling: touch;
   padding: 0.5rem 1rem;
 }
 
-/* Advance content ให้เต็ม (และอนุญาตให้ลูกย่อได้) */
 #advance-content {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  min-height: 0;               /* สำคัญ */
+  min-height: 0;        
 }
 
-/* Blockly div ให้เต็มพื้นที่ Advance
-   ให้เป็น flex-child ที่ยืดเต็ม และอนุญาตให้ย่อได้ (min-height:0) */
+
 #blocklyDiv {
   flex: 1 1 auto;
-  min-height: 0;               /* สำคัญ */
+  min-height: 0;
   width: 100%;
   height: 100%;
-  position: relative;          /* ให้ blockly สามารถวางลูกเป็น absolute ได้ถ้าจำเป็น */
+  position: relative; 
   border: 1px solid #ccc;
 }
 
-/* z-index ของ controls ให้กดได้ */
+
 .blockly-controls,
 .blocklyDropdownDiv,
 .blocklyWidgetDiv,

@@ -63,6 +63,5 @@ if (typeof window !== 'undefined') {
   try {
     window.OpenConditionForm = OpenConditionForm;
     window.initConditionModule = initConditionModule;
-    // keep backward compat for OpenConditionOverlay (original name) if needed
   } catch(e) { console.warn('Expose condition API failed', e); }
 }

@@ -54,14 +54,11 @@ function showEditView(data = null){
   document.querySelectorAll('.tab-pane').forEach(c => c.style.display = 'none');
   const basEl = document.querySelector('#basic-content');
   if(basEl) basEl.style.display = 'block';
-
-  // parse data.condition_xml if string
   let cond = data?.condition_xml ?? null;
   if (typeof cond === 'string' && cond.trim()) {
     try { cond = JSON.parse(cond); } catch(e){ /* ignore */ }
   }
 
-  // dispatch populate event for form to handle
   window.dispatchEvent(new CustomEvent('condition:populate', { detail: { row: data || {}, condition_xml: cond || null, mode: (data && data.mode) || null } }));
 }
 
@@ -70,7 +67,6 @@ function showEditView(data = null){
    --------------------------- */
 function resolveCardElements(promotionId, cardEl = null){
   const pid = String(promotionId);
-  // if cardEl passed, search within, otherwise global document
   const scope = cardEl || document;
   const tbody = scope.querySelector(`#conditionsListTable-${pid} tbody`);
   const elSearch = scope.querySelector(`#conditionSearch-${pid}`);
@@ -95,14 +91,12 @@ export async function loadConditionsForCard(promotionId, opts = {}, cardEl = nul
 
   const els = resolveCardElements(pid, cardEl);
 
-  // Scoped table element by ID to avoid first-match issues
   const tableSelector = `#conditionsListTable-${pid}`;
   const tableEl = cardEl ? cardEl.querySelector(tableSelector) : document.querySelector(tableSelector);
   const $table = (window.jQuery && (tableEl ? window.jQuery(tableEl) : window.jQuery(tableSelector))) || null;
 
   if(!tableEl && !$table){
     console.warn('promotion table element not found for pid', pid);
-    // still try to render manually into scope if possible
   }
 
   const params = {
@@ -131,7 +125,6 @@ export async function loadConditionsForCard(promotionId, opts = {}, cardEl = nul
     // --- bootstrap-table aware update (preferred) ---
     try {
       if ($table && $table.length && $table.data && $table.data('bootstrap.table')) {
-        // Table initialized with bootstrap-table (likely server-side). Trigger its refresh so it uses its own ajax handler
         const query = {
           search: state.q || '',
           limit: Number(state.per_page || 10),
@@ -139,13 +132,11 @@ export async function loadConditionsForCard(promotionId, opts = {}, cardEl = nul
         };
         try {
           $table.bootstrapTable('refresh', { silent: true, query });
-          // leave state update to load-success handler (which generateCard.js already binds)
         } catch (e) {
           console.warn('bootstrap-table refresh failed, falling back to load', e);
           try { $table.bootstrapTable('load', data); if (typeof res.total === 'number') $table.bootstrapTable('refreshOptions', { totalRows: res.total }); } catch (e2) { renderListForCard(pid, els.scope, data, state); }
         }
       } else if ($table && $table.length && $table.bootstrapTable) {
-        // bootstrap-table present but not server-side / or not initialized with ajax
         try {
           $table.bootstrapTable('load', data);
           if (typeof res.total === 'number') {
@@ -156,7 +147,6 @@ export async function loadConditionsForCard(promotionId, opts = {}, cardEl = nul
           renderListForCard(pid, els.scope, data, state);
         }
       } else {
-        // No plugin found or no tableEl - fallback to manual render into tbody
         renderListForCard(pid, els.scope, data, state);
       }
     } catch(e) {
@@ -169,7 +159,6 @@ export async function loadConditionsForCard(promotionId, opts = {}, cardEl = nul
     state.currentConditions = data;
     perCardState.set(pid, state);
   } else {
-    // Error case: clear table UI
     const emptyData = [];
     try {
       if ($table && $table.length && $table.data && $table.data('bootstrap.table')) {
@@ -186,7 +175,6 @@ export async function loadConditionsForCard(promotionId, opts = {}, cardEl = nul
     alert(`โหลดข้อมูลเงื่อนไขล้มเหลว: ${res?.error || 'unknown'}`);
   }
 
-  // อัปเดต pagination info & badge
   const badge = els.scope.querySelector(`#condition-count-${pid}`) 
              || els.scope.querySelector(`#condition-count`) 
              || document.querySelector('#condition-count');
@@ -202,7 +190,6 @@ function renderListForCard(promotionId, scope, data, state){
   const pid = String(promotionId);
   const tbody = scope.querySelector(`#conditionsListTable-${pid} tbody`);
   const paginationInfo = scope.querySelector(`#paginationInfo-${pid}`);
-  // prefer per-card badge id "condition-count-<pid>", fallback to scoped/global ones
   const badge = scope.querySelector(`#condition-count-${pid}`) 
              || scope.querySelector(`#condition-count`) 
              || document.querySelector('#condition-count');
@@ -217,16 +204,50 @@ function renderListForCard(promotionId, scope, data, state){
     return;
   }
 
-  // Build rows manually (keep same structure as bootstrap-table original)
   const rowsHtml = data.map((r, idx) => {
     const details = (() => {
-      try {
-        const parsed = r.condition_xml_parsed || r.compiled_dsl || r.condition_xml;
-        const txt = parsed ? JSON.stringify(parsed, null, 2) : '-';
-        const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        return `<details class="condition-raw"><summary class="small">รายละเอียด JSON</summary><pre style="max-height:240px;overflow:auto;">${esc(txt)}</pre></details>`;
-      } catch(e){ return '-'; }
-    })();
+    try {
+      const parsed = r.condition_xml_parsed || r.compiled_dsl || r.condition_xml;
+      function jsonToPhp(value, indent = '') {
+        const nl = '\n';
+        const ind = indent;
+        const next = indent + '  ';
+
+        if (value === null) return 'NULL';
+        if (typeof value === 'boolean') return value ? 'true' : 'false';
+        if (typeof value === 'number') return String(value);
+        if (typeof value === 'string') {
+          const esc = value
+            .replace(/\\/g, '\\\\')
+            .replace(/'/g, "\\'")
+            .replace(/\r/g, '\\r')
+            .replace(/\n/g, '\\n')
+            .replace(/\t/g, '\\t');
+          return `'${esc}'`;
+        }
+        if (Array.isArray(value)) {
+          if (value.length === 0) return 'array ()';
+          const items = value.map((v, i) => `${next}${i} => ${jsonToPhp(v, next)}`);
+          return `array (${nl}${items.join(',' + nl)}${nl}${ind})`;
+        }
+        if (typeof value === 'object') {
+          const keys = Object.keys(value);
+          if (keys.length === 0) return 'array ()';
+          const items = keys.map(k => {
+            const safeKey = /^[0-9]+$/.test(k) ? k : `'${k.replace(/'/g, "\\'")}'`;
+            return `${next}${safeKey} => ${jsonToPhp(value[k], next)}`;
+          });
+          return `array (${nl}${items.join(',' + nl)}${nl}${ind})`;
+        }
+        return "'(unknown)'";
+      }
+
+      const txt = parsed ? jsonToPhp(parsed, '') : '-';
+      const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return `<details class="condition-raw"><summary class="small">รายละเอียด PHP</summary><pre style="max-height:240px;overflow:auto;">${esc(txt)}</pre></details>`;
+    } catch(e){ return '-'; }
+  })();
+
 
     const actions = `
       <button class="btn btn-sm btn-outline-primary btn-edit-condition" data-id="${r.id}" data-promotion="${pid}">แก้ไข</button>
@@ -242,8 +263,6 @@ function renderListForCard(promotionId, scope, data, state){
   }).join('\n');
 
   tbody.innerHTML = rowsHtml;
-
-  // update pagination info & badge (badge global fallback)
   if(paginationInfo) paginationInfo.textContent = `Page ${state.page} / ${state.total_pages}`;
   if(badge) badge.textContent = String(state.total ?? 0);
 }
@@ -256,18 +275,15 @@ function renderListForCard(promotionId, scope, data, state){
 export function initConditionListForCard(promotionId, cardElement){
   const pid = Number(promotionId);
   if(!pid || !cardElement) return;
-  // ensure DOM exists (table etc)
   const els = resolveCardElements(pid, cardElement);
   if(!els.tbody) return;
 
-  // init default state if missing
   if(!perCardState.has(pid)){
     perCardState.set(pid, { page:1, per_page: Number(els.elPerPage?.value || 10), total_pages:1, q:'', currentConditions: [] });
   }
 
   const state = perCardState.get(pid);
 
-  // bind per-page select
   if(els.elPerPage && !els.elPerPage._bound){
     els.elPerPage._bound = true;
     els.elPerPage.addEventListener('change', () => {
@@ -278,7 +294,6 @@ export function initConditionListForCard(promotionId, cardElement){
     });
   }
 
-  // bind prev/next
   if(els.btnPrev && !els.btnPrev._bound){
     els.btnPrev._bound = true;
     els.btnPrev.addEventListener('click', ()=> {
@@ -292,7 +307,6 @@ export function initConditionListForCard(promotionId, cardElement){
     });
   }
 
-  // initial load
   loadConditionsForCard(pid, { page: state.page, per_page: state.per_page, q: state.q }, cardElement);
 }
 
@@ -330,7 +344,6 @@ function bindHeaderButtons(){
    --------------------------- */
 export async function OpenConditionForm(promotionId, promotionName = '', triggerEl = null, row = null){
   try{
-    // set promoId globally for form operations
     const pid = Number(promotionId || (triggerEl && triggerEl.dataset?.promotionId) || window.promoId || new URLSearchParams(window.location.search).get('id'));
     if(!pid) {
       console.warn('OpenConditionForm: promotion id not found'); 
@@ -341,12 +354,10 @@ export async function OpenConditionForm(promotionId, promotionName = '', trigger
     overlay = overlay || $('#condition-overlay');
     if(overlay) overlay.dataset.promotionId = String(pid);
 
-    // init templates & form handlers (safe)
     try { initTemplates(); } catch(e){}
     try { initFormHandlers(); } catch(e){}
 
     showOverlay();
-    // ensure edit view visible & dispatch populate/create
     if(row){
       // edit mode
       showEditView(row);
@@ -355,9 +366,7 @@ export async function OpenConditionForm(promotionId, promotionName = '', trigger
     } else {
       // create mode
       try { 
-        // reset form fields and fire condition:create
         window.dispatchEvent(new CustomEvent('condition:create', {}));
-        // open basic tab
         const basicTab = document.querySelector('#conditionTab .nav-link[data-target="#basic-content"]');
         if(basicTab) basicTab.click();
         conditionOverlay.classList.remove("mode-edit")
@@ -391,11 +400,9 @@ export function initConditionModule(){
 
   // global events
   window.addEventListener('condition:requery', (ev) => {
-    // optionally accept promotion_id in event.detail
     const pid = ev?.detail?.promotion_id;
     if(pid) refreshConditionsListUI(pid);
     else {
-      // refresh all known cards
       perCardState.forEach((_, key) => refreshConditionsListUI(key));
     }
   });
@@ -414,7 +421,6 @@ export function initConditionModule(){
     if(det && det.promotion_id) refreshConditionsListUI(Number(det.promotion_id));
   });
 
-  // legacy button selector: if any .btn-open-condition exist (older places), bind to open modal form
   document.querySelectorAll('.btn-open-condition').forEach(b => {
     if(b._boundOpen) return;
     b._boundOpen = true;
@@ -438,7 +444,6 @@ export default {
   OpenConditionForm
 };
 
-// also expose to window for backward compat
 if (typeof window !== 'undefined') {
   try {
     window.OpenConditionForm = OpenConditionForm;

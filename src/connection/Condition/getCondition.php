@@ -103,7 +103,6 @@ if ($stmt === false) {
 }
 
 // bind params + limit/offset
-// build param list again
 $bindParams = $params;
 $bindTypes = $types;
 $bindParams[] = $per_page;

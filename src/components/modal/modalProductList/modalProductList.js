@@ -1,23 +1,20 @@
-// modalProductList.js (replace)
-// - expose helpers for other modules to reuse loaded products map
+// modalProductList.js
 import { API } from "/myPromotion/src/assets/js/api.js";
 
-let products = []; // ทั้งหมดจาก API
-let categories = []; // categories จาก API
-let productsById = new Map(); // map id -> product
-let productsByCategory = new Map(); // categoryId -> [product]
-let filteredProductIds = new Set(); // ids ที่เป็นผลของการค้นหาแสดงอยู่
+let products = [];
+let categories = [];
+let productsById = new Map();
+let productsByCategory = new Map();
+let filteredProductIds = new Set();
 
-let selectedProducts = new Set(); // selected product ids (current modal session)
-let selectedCategories = new Set(); // category ids ที่ถูกเลือกทั้งหมวด (current modal session)
+let selectedProducts = new Set();
+let selectedCategories = new Set(); 
 
-let activeTarget = { nameSelector: null, idSelector: null }; // current caller targets
-let lastActiveIdSelector = null; // track last opened idSelector
-const perTargetSelections = new Map(); // map idSelector -> { products: [...], categories: [...] }
+let activeTarget = { nameSelector: null, idSelector: null };
+let lastActiveIdSelector = null;
+const perTargetSelections = new Map();
 
 const modalEl = document.getElementById("modalProductList");
-
-// safe DOM selector
 const $ = sel => document.querySelector(sel);
 
 // utilities
@@ -94,8 +91,6 @@ async function loadProducts() {
       if (!productsByCategory.has(cid)) productsByCategory.set(cid, []);
       productsByCategory.get(cid).push(p);
     });
-
-    // normalize categories
     categories = (categories || []).map(c => ({ ...(c || {}), id: c.id ?? c.category_id ?? c.cat_id }));
   } catch (err) {
     console.warn("loadProducts error", err);
@@ -449,7 +444,6 @@ function bindFooterButtons() {
   const btnVisible = document.getElementById('btn-select-visible');
   const btnClear = document.getElementById('btn-clear-selection');
   const btnConfirm = document.getElementById('btn-confirm-selection');
-
   if (btnVisible) {
     btnVisible.addEventListener('click', () => {
       filteredProductIds.forEach(pid => selectedProducts.add(String(pid)));
@@ -468,7 +462,6 @@ function bindFooterButtons() {
 
   if (btnConfirm) {
     btnConfirm.addEventListener('click', () => {
-      // save selection to cache for this target so highlight persists when reopening
       if (activeTarget.idSelector) saveSelectionForTarget(activeTarget.idSelector);
       confirmSelectionAndClose();
     });
@@ -501,7 +494,6 @@ function buildSummaries(productsSelected, categoriesAll) {
     const catName = catObj ? (catObj.name_th ?? catObj.name_en ?? catObj.name) : `หมวด ${cid}`;
     const names = plist.map(p => (p.name_th ?? p.name_en ?? p.name)).filter(Boolean);
     partsText.push(`${catName}(${names.join(',')})`);
-
     const prodHtml = plist.map(p => `<span class="prod-label" style="color:red">${escapeHtml(p.name_th ?? p.name_en ?? p.name)}</span>`).join(',');
     partsHtml.push(`<span class="cat-label" style="color:blue">${escapeHtml(catName)}</span>( ${prodHtml} )`);
   });
@@ -514,10 +506,7 @@ function buildSummaries(productsSelected, categoriesAll) {
 function confirmSelectionAndClose() {
   const productsSelected = Array.from(selectedProducts).map(id => productsById.get(String(id))).filter(Boolean);
   const categoriesAll = Array.from(selectedCategories);
-
   const { textSummary, htmlSummary } = buildSummaries(productsSelected, categoriesAll);
-
-  // append hidden inputs to target container (or fallback)
   if (activeTarget.idSelector) {
     const targetEl = document.querySelector(activeTarget.idSelector);
     let containerForHidden = null;
@@ -533,7 +522,6 @@ function confirmSelectionAndClose() {
     }
 
     Array.from(containerForHidden.querySelectorAll('.modal-product-hidden')).forEach(el => el.remove());
-
     Array.from(selectedProducts).forEach(pid => {
       const h = document.createElement('input');
       h.type = 'hidden';
@@ -552,8 +540,6 @@ function confirmSelectionAndClose() {
       containerForHidden.appendChild(h);
     });
   }
-
-  // write summary only if explicit targetNameSelector provided
   const targetNameEl = activeTarget.nameSelector ? document.querySelector(activeTarget.nameSelector) : null;
   if (targetNameEl) {
     if (isInputElement(targetNameEl)) {
@@ -571,7 +557,6 @@ function confirmSelectionAndClose() {
       targetNameEl.dataset.htmlSummary = htmlSummary;
     }
   } else {
-    // No explicit name target — do not fallback to any global element (avoids incorrectly overwriting other UI)
     console.warn('modalProductList: no active name selector provided; skipping writing the textual summary into DOM.');
   }
 
@@ -588,13 +573,11 @@ function confirmSelectionAndClose() {
 
   try { const m = bootstrap.Modal.getInstance(modalEl); m && m.hide(); } catch (e) {}
 
-  // also save current selection into cache for this target
   if (activeTarget.idSelector) saveSelectionForTarget(activeTarget.idSelector);
 
   updateUISelections();
 }
 
-// pre-check existing hidden inputs when opening modal (if any)
 function precheckExistingSelection() {
   if (!activeTarget.idSelector) return;
   const container = document.querySelector(activeTarget.idSelector);
@@ -607,7 +590,7 @@ function precheckExistingSelection() {
   updateUISelections();
 }
 
-// listen to any button with .btn-open-product-modal
+
 document.addEventListener("click", (ev) => {
   const btn = ev.target.closest && ev.target.closest(".btn-open-product-modal");
   if (!btn) return;
@@ -621,18 +604,14 @@ document.addEventListener("click", (ev) => {
     if (v.startsWith('#') || v.startsWith('.')) return v;
     return `#${v}`;
   };
-
   const newNameSel = normalize(rawName);
   const newIdSel = normalize(rawId);
-
-  // save current selection for last active target (if any)
   if (lastActiveIdSelector) {
     saveSelectionForTarget(lastActiveIdSelector);
   }
 
   activeTarget.nameSelector = newNameSel;
   activeTarget.idSelector = newIdSel;
-
   lastActiveIdSelector = newIdSel;
 
   if (!modalEl) {
@@ -642,7 +621,6 @@ document.addEventListener("click", (ev) => {
   (async () => {
     if (!products.length) await loadProducts();
 
-    // try load from cache first; if not present, clear and precheck DOM hidden inputs
     const loaded = loadSelectionForTarget(activeTarget.idSelector);
     if (!loaded) {
       selectedProducts.clear();
@@ -682,7 +660,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Exports — helpers for other modules
 export async function ensureProductsLoaded() {
-  // if already loaded, just return existing map
   if (products.length && productsById.size) return { products, productsById, categories };
   await loadProducts();
   return { products, productsById, categories };

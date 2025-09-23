@@ -35,13 +35,10 @@ $condition_code = isset($input['condition_code']) ? $input['condition_code'] : '
 $code_lang = isset($input['code_lang']) ? $input['code_lang'] : 'php';
 $version = isset($input['version']) ? (string)$input['version'] : '1';
 $created_by = isset($input['created_by']) ? $input['created_by'] : 'system';
-
-// Normalize condition_xml: if it's array/object, json_encode it; if string, try to validate JSON
 $condition_xml_bind = '';
 if (is_array($condition_xml_input) || is_object($condition_xml_input)) {
     $condition_xml_bind = json_encode($condition_xml_input, JSON_UNESCAPED_UNICODE);
 } else {
-    // it's a string - try to decode then re-encode to normalize, otherwise store raw string
     $tmp = null;
     if (is_string($condition_xml_input) && trim($condition_xml_input) !== '') {
         $tmp = json_decode($condition_xml_input, true);
@@ -49,14 +46,11 @@ if (is_array($condition_xml_input) || is_object($condition_xml_input)) {
     if ($tmp !== null) {
         $condition_xml_bind = json_encode($tmp, JSON_UNESCAPED_UNICODE);
     } else {
-        // store as-is (string). still use json_encode for empty or non-json by wrapping
-        // but to keep compatibility, store raw string
         $condition_xml_bind = (string)$condition_xml_input;
     }
 }
 
 // connection should be mysqli
-// If id present => update
 if ($id > 0) {
     if (!$condition_name) {
         echo json_encode(['success' => false, 'error' => 'condition_name is required for update']);
@@ -71,8 +65,6 @@ if ($id > 0) {
         echo json_encode(['success'=>false,'error'=>'prepare failed (update): '.$connection->error]);
         exit;
     }
-
-    // bind types: 5 strings then 3 ints (campaign_id, promotion_id, id)
     $stmt->bind_param("sssssiii", $condition_name, $condition_xml_bind, $condition_code, $code_lang, $version, $campaign_id, $promotion_id, $id);
 
     try {
@@ -99,12 +91,10 @@ if ($id > 0) {
     $q->close();
 
     if ($row) {
-        // try to decode json for condition_xml
         $decoded = json_decode($row['condition_xml'], true);
         if ($decoded !== null) {
             $row['condition_xml'] = $decoded;
         } else {
-            // leave as raw string and also provide raw copy
             $row['raw_condition_xml'] = $row['condition_xml'];
         }
     }
@@ -134,7 +124,6 @@ if ($stmt === false) {
     exit;
 }
 
-// bind params: campaign_id (i), promotion_id (i), condition_name (s), condition_xml (s), condition_code (s), code_lang (s), version (s), created_by (s)
 $stmt->bind_param("iissssss", $campaign_id, $promotion_id, $condition_name, $condition_xml_bind, $condition_code, $code_lang, $version, $created_by);
 
 try {

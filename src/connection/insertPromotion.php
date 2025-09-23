@@ -33,7 +33,6 @@ if (empty($end)) { echo json_encode(["success"=>false,"message"=>'"วันท�
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 try {
-    // เริ่ม transaction เพื่อความสเถียร (insert + update count จะอาโตมิค)
     mysqli_begin_transaction($connection);
 
     // ===== insert / update =====
@@ -43,8 +42,6 @@ try {
           edit_date=NOW(), promotion=?, code=?, location=?, note=?, description=?, campaign_id=?
           WHERE id=?";
         $stmt = mysqli_prepare($connection,$sql);
-        // ตรวจสอบ order ของพารามิเตอร์ ให้ตรงกับ ? ใน SQL
-        // types: s,i,i,s,s,i,i,s,s,s,s,i,i  (ปรับตามโครงสร้างข้อมูลจริงของคุณ)
         mysqli_stmt_bind_param($stmt,"siissiissssii",
             $name, $type, $target, $begin, $end, $status,
             $promotion, $code, $location, $note, $description, $campaign_id, $id);
@@ -54,7 +51,6 @@ try {
            promotion, code, location, note, description, campaign_id)
           VALUES (?,?,?,?,?,?,?,NOW(),?,?,?,?,?,?)";
         $stmt = mysqli_prepare($connection,$sql);
-        // types: s,i,i,s,s,i,s,i,s,s,s,s,i (ปรับตามโครงสร้างข้อมูลจริงของคุณ)
         mysqli_stmt_bind_param($stmt,"siissisissssi",
             $name, $type, $target, $begin, $end, $status,
             $created_by, $promotion, $code, $location, $note, $description, $campaign_id);
@@ -68,8 +64,6 @@ try {
 
     // get inserted id (if insert)
     $newId = !empty($id) ? $id : mysqli_insert_id($connection);
-
-    // ===== Recalculate total promotions for this campaign (now including newly inserted row) =====
     $countSql = "SELECT COUNT(*) as total FROM promotion WHERE campaign_id = ?";
     $countStmt = mysqli_prepare($connection,$countSql);
     mysqli_stmt_bind_param($countStmt,"i",$campaign_id);
@@ -97,11 +91,7 @@ try {
         $statusCounts[$row['status']] = (int)$row['cnt'];
     }
     mysqli_stmt_close($statusStmt);
-
-    // commit transaction
     mysqli_commit($connection);
-
-    // close main stmt
     mysqli_stmt_close($stmt);
 
     echo json_encode([
@@ -111,7 +101,6 @@ try {
         "statusCounts" => $statusCounts
     ]);
 } catch (Exception $e) {
-    // rollback on error
     if ($connection) mysqli_rollback($connection);
     $err = $e->getMessage();
     echo json_encode([

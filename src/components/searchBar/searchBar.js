@@ -1,4 +1,4 @@
-// ✅ searchBar.js - ควบคุมการทำงานรวมของ filter + sort + search + pagination แบบ Server-side
+// SearchBar.js
 import { API } from '/myPromotion/src/assets/js/api.js';
 import { getOptions } from '/myPromotion/src/assets/js/store/optionsStore.js';
 import { CampaignCard , PromotionCard } from "/myPromotion/src/components/card/generateCard.js";
@@ -30,7 +30,7 @@ let queryState = {
   target: [],
   status: [],
   sortBy: "edit_date",
-  sortOrder: "desc", // desc หรือ asc
+  sortOrder: "desc",
   page: 1,
   pageSize: 10,
   campaign_id: campaignId ? campaignId : null
@@ -112,8 +112,6 @@ function updateQueryStateFromUI() {
   const activeOrder = document.querySelector('.order-option.active-dot');
   if (activeSort) queryState.sortBy = activeSort.dataset.field;
   if (activeOrder) queryState.sortOrder = activeOrder.dataset.order;
-
-  // page ถูกเซตตอนกด pagination อยู่แล้ว
 }
 
 // เช็คว่าใช่หน้า promotion ไหม
@@ -251,7 +249,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.querySelectorAll(".sort-option").forEach(o => o.classList.remove("active-dot"));
       opt.classList.add("active-dot");
       queryState.sortBy = opt.dataset.field;
-      
       const dropdownGroups = document.querySelectorAll("[data-dropdown]");
 
       dropdownGroups.forEach((group) => {
@@ -291,7 +288,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // <======================================== OnClick ========================================>
-// เลือกทั้งหมด
 document.querySelectorAll('.select-all-checkbox').forEach(selectAllCheckbox => {
   selectAllCheckbox.addEventListener('change', (e) => {
     const ul = e.target.closest('ul');
@@ -304,7 +300,6 @@ document.querySelectorAll('.select-all-checkbox').forEach(selectAllCheckbox => {
   });
 });
 
-// ปรับปุ่ม 'เลือกทั้งหมด' ให้ปิดเมื่อมีการเปลี่ยนแปลงใน checkbox อื่นๆ
 document.addEventListener('change', function (e) {
   if (e.target.classList.contains('checkOption')) {
     const ul = e.target.closest('ul');
@@ -347,7 +342,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   clearButton.addEventListener("click", () => {
     filterCheckboxes.forEach(cb => {
       const checkboxes = cb.querySelectorAll('input');
-      // รีเซ็ต checkbox ทั้งหมดในแต่ละกลุ่ม
       checkboxes.forEach(item => {
         item.checked = false;
       })

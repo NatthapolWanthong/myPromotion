@@ -4,8 +4,7 @@ import { FormHelper } from "/myPromotion/src/assets/js/formHelper.js";
 import { CardEditController } from "./CardEditor.js";
 import { MainStatusData } from "/myPromotion/src/config.js";
 import { UpdateStatusCount } from "/myPromotion/src/components/status-count/status-count.js";
-import { API } from '/myPromotion/src/assets/js/api.js'; // ถูกเรียกใช้ในการดึง/ลบ condition
-// jQuery & bootstrap-table expected to be available globally (page already loads them)
+import { API } from '/myPromotion/src/assets/js/api.js';
 
 /* -------------------------
    Helper: clean leftover modal artifacts
@@ -25,7 +24,6 @@ import { API } from '/myPromotion/src/assets/js/api.js'; // ถูกเรี�
   });
 })();
 
-// ---------- Listen for condition saved event and refresh the specific promo table ----------
 window.addEventListener('condition:saved', (ev) => {
   try {
     const pid = Number(ev?.detail?.promotion_id || 0);
@@ -327,7 +325,6 @@ export class CampaignCard {
       card.originalCampaignDataMapRef = this.originalValuesMap;
       this.container.appendChild(card);
 
-      // wire manage conditions button for this card -> open modal create/edit
       const manageBtn = card.querySelector('.btn-manage-conditions');
       if(manageBtn){
         manageBtn.addEventListener('click', (ev) => {
@@ -504,10 +501,9 @@ export class CampaignCard {
           pageList: [10,25,50],
           columns: customerColumns,
           showRefresh: true,
-          data: [] // load data later (or via ajax if needed)
+          data: [] 
         });
 
-        // resetView to recalc widths
         setTimeout(()=> {
           try {
             if ($custTable && $custTable.length && $custTable.data('bootstrap.table')) {
@@ -516,7 +512,6 @@ export class CampaignCard {
           } catch(e){ console.warn('resetView cust table failed', e); }
         }, 120);
 
-        // if you later load customer data via ajax, update the badge / paginationInfo similarly:
         $custTable.on('load-success.bs.table', function (e, data) {
           try {
             const total = (data && data.total) ? data.total : ($custTable.bootstrapTable('getOptions').totalRows || ($custTable.bootstrapTable('getData') || []).length);
@@ -533,7 +528,6 @@ export class CampaignCard {
 
       } catch(e){}
 
-      // initialize flatpickr for date fields inside card (if any)
       try {
         const defaultOptions = {
           enableTime: true,

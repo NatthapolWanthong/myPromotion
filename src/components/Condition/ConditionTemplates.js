@@ -171,7 +171,7 @@ export function addConditionItem(defaultData = null){
         comparatorSel.innerHTML = `<option value="=">=</option><option value=">">&gt;</option><option value="≥">≥</option><option value="<">&lt;</option><option value="≤">≤</option>`;
       }
       if(unitSel && unitSel.innerHTML.trim() === ''){
-        unitSel.innerHTML = `<option value="1">บาท</option><option value="2">%</option><option value="3">ชิ้น</option><option value="4">ลัง</option><option value="5">โหล</option><option value="6">สลึง</option><option value="7">เมตร</option><option value="8">ตัว</option><option value="9">คัน</option>`;
+        unitSel.innerHTML = `<option value="1">บาท</option><option value="2">%</option><option value="3">ชิ้น</option><option value="4">ลัง</option><option value="5">โหล</option><option value="6">สลึง</option><option value="7">เมตร</option><option value="8">ตัว</option><option value="9">คัน</option><option value="10">ใบ</option><option value="11">ห่อ</option>`;
       }
       const dd = wrapper.__defaultData;
       if(dd){
@@ -292,7 +292,7 @@ export function addRewardItem(rewardsContainer, defaultData = null){
         }
       }
       if(rewUnit && rewUnit.innerHTML.trim() === ''){
-        rewUnit.innerHTML = `<option value="1">บาท</option><option value="2">%</option><option value="3">ชิ้น</option><option value="4">ลัง</option><option value="5">โหล</option><option value="6">สลึง</option><option value="7">เมตร</option><option value="8">ตัว</option><option value="9">คัน</option>`;
+        rewUnit.innerHTML = `<option value="1">บาท</option><option value="2">%</option><option value="3">ชิ้น</option><option value="4">ลัง</option><option value="5">โหล</option><option value="6">สลึง</option><option value="7">เมตร</option><option value="8">ตัว</option><option value="9">คัน</option><option value="10">ใบ</option><option value="11">ห่อ</option>`;
         if(defaultData && defaultData.rewardUnit) {
           try { rewUnit.value = defaultData.rewardUnit; } catch(e){}
         }

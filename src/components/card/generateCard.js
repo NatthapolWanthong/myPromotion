@@ -89,7 +89,7 @@ function makeConditionListHTML(promotionId){
               <th data-field="id" data-visible="false" data-switchable="false">ID</th>
               <th data-field="index" data-width="56">#</th>
               <th data-field="condition_name">ชื่อเงื่อนไข</th>
-              <th data-field="compiled">รายละเอียด</th>
+              <th data-field="compiled" data-visible="false">รายละเอียด</th>
               <th data-field="actions" data-align="center" data-width="180">จัดการ</th>
             </tr>
           </thead>
@@ -114,7 +114,7 @@ function makeCustomerListHTML(promotionId){
     <div class="promotion-customers" id="promotion-customers-${pid}">
       <div id="toolbar-customers-${pid}" class="promo-toolbar d-flex justify-content-between align-items-center mb-2">
         <div class="d-flex align-items-center gap-2">
-          <button type="button" class="btn btn-outline-secondary btn-sm btn-manage-customers" data-promotion-id="${pid}">จัดการลูกค้า</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm btn-ModalCustomerEditor" data-promotion-id="${pid}" data-toggle="modal" data-target="#my-form2">เพิ่มกลุ่มลูกค้า</button>
         </div>
         <div class="d-flex align-items-center gap-2">
           <!-- bootstrap-table will insert search/export here -->
@@ -129,11 +129,17 @@ function makeCustomerListHTML(promotionId){
         >
           <thead>
             <tr>
-              <th data-field="id" data-visible="false">ID</th>
-              <th data-field="code" data-sortable="true">Code</th>
-              <th data-field="customer_name" data-sortable="true">ชื่อลูกค้า</th>
-              <th data-field="condition">เงื่อนไข</th>
-            </tr>
+              <th data-field="id" data-visible="false" data-switchable="false">id</th>
+              <th data-field="index" data-sortable="true">#</th>
+              <th data-field="type_area" data-sortable="true">กลุ่มเขต</th>
+              <th data-field="area_name" data-sortable="true">เขต</th>
+              <th data-field="segment" data-sortable="true">กลุ่มลูกค้า</th>
+              <th data-field="name" data-sortable="true">ชื่อกลุ่มลูกค้า</th>
+              <th data-field="customer_code" data-sortable="true">รหัสลูกค้า</th>
+              <th data-field="condition" data-sortable="true">เงื่อนไข</th>
+              <th data-field="start_date" data-sortable="true">เริ่ม</th>
+              <th data-field="end_date" data-sortable="true">สิ้นสุด</th>
+            </tr> 
           </thead>
         </table>
       </div>
@@ -276,7 +282,7 @@ export class CampaignCard {
             </div>
 
             <div class="col col-expand-4">
-              <button class="btn btn-outline-primary btn-history">History</button>
+              <button class="btn btn-outline-primary btn-history d-none">History</button>
               <button class="btn btn-danger btn-delete">Delete</button>
               <button class="btn btn-primary btn-edit ${isPromotion ? `d-none`:``}">Edit</button>
               <button class="btn btn-secondary btn-cancel d-none">Cancel</button>
@@ -483,10 +489,7 @@ export class CampaignCard {
         const $custTable = $(`#customersTable-${pid}`);
 
         const customerColumns = [
-          { field: 'id', title: 'ID', visible: false },
-          { field: 'code', title: 'Code' },
-          { field: 'customer_name', title: 'ชื่อลูกค้า' },
-          { field: 'condition', title: 'เงื่อนไข' }
+          
         ];
 
         $custTable.bootstrapTable({

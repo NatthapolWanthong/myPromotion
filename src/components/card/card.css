@@ -483,9 +483,9 @@ textarea, input, select {
 
 /* small compact rows */
 .promo-conditions-table tbody tr {
-  background: #ffffff;
+  background: #000000;
   transition: transform .12s ease, box-shadow .12s ease;
-  border-bottom: 1px solid rgba(15,23,42,0.03);
+  border-width: 2px;
 }
 .promo-conditions-table tbody tr:hover {
   transform: translateY(-0.5px);
@@ -498,6 +498,7 @@ textarea, input, select {
   font-size: 13px;
   color: #374151;
   vertical-align: top;
+  border-width: 2px;
 }
 
 /* # column - centered */

@@ -1,0 +1,19 @@
+/* Customer_Add.css - simple modal styles */
+#customer-add-modal { display:none; position:fixed; inset:0; z-index:1400; align-items:center; justify-content:center; }
+.ca-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.45); }
+.ca-dialog { position:relative; z-index:1401; width:1400px; max-width:96%; height:80vh; max-height:90vh; background:#fff; border-radius:8px; padding:14px; box-shadow:0 8px 30px rgba(0,0,0,0.15); }
+.ca-header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:8px; margin-bottom:8px; }
+.ca-title { font-weight:600; }
+.ca-close { background:transparent; border:0; font-size:20px; cursor:pointer; }
+.ca-body input.form-control { width:100%; padding:8px; box-sizing:border-box; margin-bottom:8px; border:1px solid #ddd; border-radius:4px; }
+.ca-footer { text-align:right; margin-top:8px; }
+
+/* เพิ่มความกว้างของ toolbar และ table */
+#ca-toolbar .filter-group { min-width: 180px; max-width: 260px; }
+#ca-toolbar .filter-select { width: 100%; }
+#ca-table { width:100%; height:42vh; } /* ปรับ table ให้สูงขึ้น */
+
+@media (max-width: 768px) {
+  #ca-toolbar { flex-wrap: wrap; }
+  #ca-toolbar .filter-group { width: 48%; margin-bottom: .5rem; }
+}

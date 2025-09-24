@@ -27,6 +27,11 @@
 
     <!-- Flatpickr -->
     <link rel="stylesheet" href="../../assets/vendor/flatpickr/flatpickr.min.css">
+
+    <!-- Customer -->
+     <link rel="stylesheet" href="/myPromotion/src/components/Customer/Customer_Editor/Customer_editor.css">
+    <link rel="stylesheet" href="/myPromotion/src/components/Customer/Customer_Add/Customer_Add.css">
+    
 </head>
 
 <body>
@@ -37,6 +42,8 @@
 <?php include('../../components/modal/modalProductList/modalProductList.html'); ?>
 <?php include('../../components/Condition/modalCondition.html'); ?>
 <?php include('../../components/Condition/modalConditionAdvance/advanceCondition.html'); ?>
+<?php include('../../components/Customer/Customer_Editor/Customer_editor.html'); ?>
+<?php include('../../components/Customer/Customer_Add/Customer_Add.html'); ?>
 
 
 <!-- Header -->
@@ -62,6 +69,7 @@
 
     <!-- Lib -->
     <script src="../../assets/vendor/jquery/dist/jquery.slim.min.js"></script>
+    <script src="../../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/vendor/bootstrap/js/bootstrap.js"></script>
 
     <!-- Load Blockly -->
@@ -77,6 +85,7 @@
     <script src="../../assets/vendor/tableExport.min.js"></script>
     <script src="../../assets/vendor/bootstrap-table/extensions/export/bootstrap-table-export.min.js"></script>
     <script src="../../assets/vendor/bootstrap-table/locale/bootstrap-table-th-TH.min.js"></script>
+
     <script src="../../assets/vendor/select2/js/select2.min.js"></script>
     <script src="../../assets/vendor/flatpickr/flatpickr"></script>
     <script src="../../assets/vendor/flatpickr/th.js"></script>
@@ -100,5 +109,11 @@
     <script type="module" src="/myPromotion/src/components/modal/CreatePromotion/modalCreatePromotion.js"></script>
     <script src="/myPromotion/src/assets/js/form-validation.js"></script>
     <script type="module" src="/myPromotion/src/components/PromotionTable/promotionTable.js"></script>
+    <script type="module" src="/myPromotion/src/components/Customer/Customer_Add/Customer_Add.js"></script>
+    <script type="module" src="/myPromotion/src/components/Customer/Customer_Editor/Customer_Editor.js"></script>
+    <script type="module" src="/myPromotion/src/components/Customer/Customer.js"></script>
 </body>
 </html>
+
+
+

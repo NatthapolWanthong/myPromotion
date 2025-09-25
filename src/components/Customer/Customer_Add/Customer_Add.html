@@ -1,33 +1,32 @@
 <!-- Customer_Add.html -->
 <div id="customer-add-modal" aria-hidden="true">
   <div class="ca-backdrop" data-role="backdrop"></div>
+
   <div class="ca-dialog" role="dialog" aria-modal="true">
     <div class="ca-header">
       <div class="ca-title">เพิ่มลูกค้า</div>
-      <button class="ca-close" data-role="close">&times;</button>
+      <button type="button" class="btn-close" aria-label="Close" data-role="close"></button>
     </div>
+
     <div class="ca-body">
       <input type="hidden" id="ca-promotion-id" />
 
-      <!-- ================== Bootstrap table ================== -->
-       <!-- custom toolbar -->
-      <div id="ca-toolbar" class="mt-3 d-flex gap-2 align-items-center">
-        <!-- Filter -->
-      </div>
+      <!-- toolbar will be populated by JS -->
+      <div id="ca-toolbar" class="mt-3 d-flex gap-2 align-items-center"></div>
 
-      <!-- table -->
       <div class="table-responsive mt-2">
-        <table 
-        class="table table-bordered table-s customer-add-table" 
-        id="ca-table"
-        data-toggle="table"
-        data-toolbar="#ca-toolbar"
-        data-pagination="true"
-        data-search="true"
-        data-showRefresh="true"
-        showColumns="true">
+        <table
+          id="ca-table"
+          class="table table-bordered table-sm customer-add-table"
+          data-toolbar="#ca-toolbar"
+          data-pagination="true"
+          data-search="true"
+          data-show-refresh="true"
+          data-show-columns="true"
+          data-side-pagination="server">
           <thead>
             <tr>
+              <th data-field="state" data-checkbox="true"></th>
               <th data-field="id" data-visible="false" data-switchable="false">id</th>
               <th data-field="code" data-sortable="true">รหัสลูกค้า</th>
               <th data-field="name" data-sortable="true">ชื่อลูกค้า</th>
@@ -41,11 +40,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td colspan="10" class="small text-muted">ยังไม่มีข้อมูล</td></tr>
+            <tr><td colspan="11" class="small text-muted">ยังไม่มีข้อมูล</td></tr>
           </tbody>
         </table>
       </div>
     </div>
+
     <div class="ca-footer">
       <button id="ca-save" class="btn btn-primary">บันทึก</button>
       <button id="ca-cancel" class="btn btn-secondary" data-role="cancel">ยกเลิก</button>

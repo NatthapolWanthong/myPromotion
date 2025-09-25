@@ -1,37 +1,40 @@
 <!-- Customer_Editor.html -->
 <div id="customer-editor-modal" aria-hidden="true">
   <div class="ce-backdrop" data-role="backdrop"></div>
+
   <div class="ce-dialog" role="dialog">
     <div class="ce-header">
       <div class="ce-title">ลูกค้า</div>
       <button type="button" class="btn-close" aria-label="Close" data-role="close"></button>
     </div>
-    
+
     <div class="ce-body">
-      <div class="mb-2">Promotion ID: <span id="ce-pid"></span> <span id="ce-pname" style="font-weight:600;"></span></div>
       <div class="mb-2">
-        
+        Promotion ID: <span id="ce-pid"></span>
+        <span id="ce-pname" style="font-weight:600;"></span>
       </div>
 
-      <!-- ================== Bootstrap table ================== -->
-       <!-- custom toolbar -->
-      <div id="ce-toolbar" class="mt-3 d-flex">
-        <div class="">
+      <div id="ce-toolbar" class="mt-3 d-flex gap-2 align-items-center position-relative">
+        <div>
           <label class="col-6-text">ชื่อกลุ่มลูกค้า :</label>
           <input data-field="Customer-Editor-Name" type="text" class="form-control input-setting input-small AddModal Customer-Editor-Name" placeholder="ชื่อกลุ่มลูกค้า">
         </div>
-        <div class="">
+
+        <div>
           <label class="col-4-text">เริ่ม :</label>
           <input data-field="Customer-Editor-date-start" class="form-control input-setting input-small AddModal Customer-Editor-date-start date-picker" type="text">
         </div>
-        <div class="">
+
+        <div>
           <label class="col-4-text">สิ้นสุด :</label>
           <input data-field="Customer-Editor-date-end" class="form-control input-setting input-small AddModal Customer-Editor-date-end date-picker" type="text">
         </div>
-        <div class="">
+
+        <div>
           <label class="col-3-text">เงื่อนไข :</label>
           <select data-field="Customer-Editor-Condition" class="form-select input-setting input-small AddModal"></select>
         </div>
+
         <div class="position-absolute end-0">
           <button class="btn btn-secondary text-end" id="ce-add">
             <i class="bi bi-plus"></i> เพิ่มลูกค้า
@@ -39,19 +42,11 @@
         </div>
       </div>
 
-      <!-- table -->
-      <div class="table-responsive md-2">
-        <table 
-          class="table table-bordered table-s customer-editor-table" 
-          id="ce-table"
-          data-toggle="table"
-          data-toolbar="#ce-toolbar"
-          data-pagination="true">
-          
+      <div class="table-responsive mt-2">
+        <table id="ce-table" class="table table-bordered table-s customer-editor-table" data-toolbar="#ce-toolbar" data-pagination="true">
           <thead>
             <tr>
               <th data-field="id" data-visible="false" data-switchable="false">id</th>
-              <th data-field="index" data-sortable="true">#</th>
               <th data-field="code" data-sortable="true">รหัสลูกค้า</th>
               <th data-field="name" data-sortable="true">ชื่อลูกค้า</th>
               <th data-field="type_area" data-sortable="true">กลุ่มเขต</th>
@@ -61,15 +56,16 @@
               <th data-field="size" data-sortable="true">ขนาด</th>
               <th data-field="province" data-sortable="true">จังหวัด</th>
               <th data-field="district" data-sortable="true">อำเภอ</th>
-              <th data-field="select_all" data-sortable="true">ทุกรหัส</th>
+              <th data-field="select_all" data-sortable="true">เลือกทั้งหมด</th>
             </tr>
           </thead>
-            <tbody id="ce-tbody">
-                
-            </tbody>
+          <tbody id="ce-tbody">
+            <tr><td colspan="12" class="small text-muted">ยังไม่ได้โหลดข้อมูล</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
+
     <div class="ce-actions mt-2">
       <button class="btn btn-primary" data-role="add">เพิ่มกลุ่มลูกค้า</button>
     </div>

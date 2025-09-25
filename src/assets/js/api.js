@@ -20,9 +20,9 @@ export class API {
       xhr.onerror = () => reject("Request failed");
 
       if (data && typeof data === "object") {
-        xhr.send(JSON.stringify(data)); // ✅ ส่ง JSON ตรงตาม Content-Type
+        xhr.send(JSON.stringify(data));
       } else {
-        xhr.send(); // ✅ ส่งว่างๆ ถ้าไม่มี data
+        xhr.send();
       }
     });
   }
@@ -81,7 +81,7 @@ export class API {
   // ==================================================================================================================
 
   // ดึงข้อมูลโปรโมชั่น
-  static getCondition({ promotion_id = null, campaign_id = null, page = 1, per_page = 10 , q , sortBy, order} = {}) {
+  static getCondition({ promotion_id , campaign_id = null, page = 1, per_page = 10 , q , sortBy, order} = {}) {
   return API.fetchData(
     "/myPromotion/src/connection/condition/getCondition.php",
     "POST",
@@ -104,10 +104,17 @@ export class API {
   // ==================================================== Customer ====================================================
   // ==================================================================================================================
 
-  // ดึงข้อมูลโปรโมชั่น
   static getCustomerOptions() {
     return API.fetchData("/myPromotion/src/connection/Customer/getCustomerOption.php?include=TypeAreas,AreaNames,Segments,Grades,Sizes", "GET");
   }
+
+  static getCustomers({ ids = null, page = 1, per_page = 10, q = '', sortBy = '', order = '', filters = {} } = {}) {
+    const payload = { page, per_page, q, sortBy, order, filters };
+    if (Array.isArray(ids) && ids.length) payload.ids = ids;
+    return API.fetchData('/myPromotion/src/connection/Customer/getCustomer.php', 'POST', payload);
+  }
+
+
 
 
   // ==================================================================================================================

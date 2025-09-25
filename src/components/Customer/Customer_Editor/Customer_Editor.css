@@ -1,14 +1,93 @@
-/* Customer_Editor.css - modal for listing customers */
-#customer-editor-modal { display:none; position:fixed; inset:0; z-index:1300; align-items:center; justify-content:center; }
-.ce-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.4); }
-.ce-dialog { position:relative; z-index:1301; width:1600px; max-width:96%; background:#fff; border-radius:8px; padding:12px; box-shadow:0 10px 30px rgba(0,0,0,0.12); }
-.ce-header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:8px; margin-bottom:8px; }
-.ce-title { font-weight:600; }
-.ce-close { background:transparent; border:0; font-size:20px; cursor:pointer; }
-.ce-toolbar {  }
-.ce-body { min-height:80px; }
-.ce-table { width:100%; border-collapse:collapse; margin-top:8px; }
-.ce-table th, .ce-table td { padding:8px; border-bottom:1px solid #f0f0f0; text-align:left; }
-.ce-actions { text-align:right; margin-top:10px; }
-.fixed-table-toolbar { display: flex; }
-.bs-bars { flex: 1; }
+/* Customer_Editor.css - refactored */
+#customer-editor-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  align-items: center;
+  justify-content: center;
+}
+
+.ce-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.ce-dialog {
+  position: relative;
+  z-index: 1301;
+  width: 1600px;
+  max-width: 96%;
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+}
+
+.ce-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.ce-title {
+  font-weight: 600;
+}
+
+.ce-close {
+  background: transparent;
+  border: 0;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.ce-body {
+  min-height: 80px;
+  display: block;
+}
+
+.ce-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.ce-table th, .ce-table td {
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: left;
+}
+
+.ce-actions {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.fixed-table-toolbar {
+  display: flex;
+}
+
+.bs-bars {
+  flex: 1;
+}
+
+@media (max-width: 700px) {
+  .ce-dialog { width: 96%; padding: 8px; }
+  .ce-body { font-size: 14px; }
+}
+
+.select2-container .select2-dropdown,
+.select2-container--open .select2-dropdown,
+.select2-container--open {
+  z-index: 20000 !important;
+}
+
+.select2-container {
+  z-index: 20000 !important;
+}

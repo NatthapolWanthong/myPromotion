@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="../../assets/vendor/flatpickr/flatpickr.min.css">
 
     <!-- Customer -->
-     <link rel="stylesheet" href="/myPromotion/src/components/Customer/Customer_Editor/Customer_editor.css">
+     <link rel="stylesheet" href="/myPromotion/src/components/Customer/Customer_Editor/Customer_Editor.css">
     <link rel="stylesheet" href="/myPromotion/src/components/Customer/Customer_Add/Customer_Add.css">
     
 </head>
@@ -42,7 +42,7 @@
 <?php include('../../components/modal/modalProductList/modalProductList.html'); ?>
 <?php include('../../components/Condition/modalCondition.html'); ?>
 <?php include('../../components/Condition/modalConditionAdvance/advanceCondition.html'); ?>
-<?php include('../../components/Customer/Customer_Editor/Customer_editor.html'); ?>
+<?php include('../../components/Customer/Customer_Editor/Customer_Editor.html'); ?>
 <?php include('../../components/Customer/Customer_Add/Customer_Add.html'); ?>
 
 
@@ -67,32 +67,38 @@
     <?php include_once('../../components/pagination/pagination.html');?>
 
 
-    <!-- Lib -->
-    <script src="../../assets/vendor/jquery/dist/jquery.slim.min.js"></script>
-    <script src="../../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <!-- ======= libs (single copy, ordered) ======= -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-    <!-- Load Blockly -->
+    <!-- Bootstrap: load bundle ONCE (includes Popper) -->
+    <script src="../../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- bootstrap-table (after bootstrap) -->
+    <script src="../../assets/vendor/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="../../assets/vendor/bootstrap-table/extensions/export/bootstrap-table-export.min.js"></script>
+    <script src="../../assets/vendor/bootstrap-table/locale/bootstrap-table-th-TH.min.js"></script>
+
+    <!-- tableExport (if needed) -->
+    <script src="../../assets/vendor/tableExport.min.js"></script>
+
+    <!-- Select2, Flatpickr -->
+    <script src="../../assets/vendor/select2/js/select2.min.js"></script>
+    <script src="../../assets/vendor/flatpickr/flatpickr"></script>
+    <script src="../../assets/vendor/flatpickr/th.js"></script>
+
+    <!-- Blockly (if used) - keep but avoid duplicate loads -->
     <script src="/myPromotion/src/assets/vendor/blockly/blockly_compressed.js"></script>
     <script src="/myPromotion/src/assets/vendor/blockly/blocks_compressed.js"></script>
     <script src="/myPromotion/src/assets/vendor/blockly/javascript_compressed.js"></script>
     <script src="/myPromotion/src/assets/vendor/blockly/msg/th.js"></script>
     <script src="/myPromotion/src/assets/vendor/blockly/php_compressed.js"></script>
 
-    
-    <script src="../../assets/vendor/bootstrap-table/bootstrap-table.min.js"></script>
-    <script src="/myPromotion/src/assets/vendor/bootstrap/js/bootstrap.bundle.js"></script>
-    <script src="../../assets/vendor/tableExport.min.js"></script>
-    <script src="../../assets/vendor/bootstrap-table/extensions/export/bootstrap-table-export.min.js"></script>
-    <script src="../../assets/vendor/bootstrap-table/locale/bootstrap-table-th-TH.min.js"></script>
-
-    <script src="../../assets/vendor/select2/js/select2.min.js"></script>
-    <script src="../../assets/vendor/flatpickr/flatpickr"></script>
-    <script src="../../assets/vendor/flatpickr/th.js"></script>
+    <!-- your normal scripts (non-module) -->
+    <script src="/myPromotion/src/assets/js/form-validation.js"></script>
     <script src="promotion.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/modalConditionAdvance/advanceCondition.js"></script>
 
-    <!-- Scripts -->   
+    <!-- ======= Your modules (type=module) - load AFTER libs ======= -->
     <script type="module" src="/myPromotion/src/components/Condition/ConditionInit.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionEvents.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionTemplates.js"></script>
@@ -101,17 +107,19 @@
     <script type="module" src="/myPromotion/src/components/Condition/ConditionHelpers.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionParser.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionService.js"></script>
+
     <script type="module" src="/myPromotion/src/components/modal/modalProductList/modalProductList.js"></script>
     <script type="module" src="/myPromotion/src/components/status-count/status-count.js"></script>
     <script type="module" src="../../components/campaignEditor/campaignEditor.js"></script>
     <script type="module" src="../../components/searchBar/searchBar.js"></script>   
     <script type="module" src="../../assets/js/main.js"></script>
     <script type="module" src="/myPromotion/src/components/modal/CreatePromotion/modalCreatePromotion.js"></script>
-    <script src="/myPromotion/src/assets/js/form-validation.js"></script>
-    <script type="module" src="/myPromotion/src/components/PromotionTable/promotionTable.js"></script>
+
+    <!-- Customer components: modules that depend on jQuery & bootstrap-table (these run after libs) -->
     <script type="module" src="/myPromotion/src/components/Customer/Customer_Add/Customer_Add.js"></script>
     <script type="module" src="/myPromotion/src/components/Customer/Customer_Editor/Customer_Editor.js"></script>
     <script type="module" src="/myPromotion/src/components/Customer/Customer.js"></script>
+
 </body>
 </html>
 

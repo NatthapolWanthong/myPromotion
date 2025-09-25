@@ -180,9 +180,179 @@ import { API } from '../../../assets/js/api.js';
       this._el.style.display = 'none'; document.body.style.overflow = ''; document.removeEventListener('keydown', this._onKey);
     }
 
+        // replace existing add() method with this (inside class)
     add() {
-      document.dispatchEvent(new CustomEvent('customer-editor:add-clicked', { detail: { promotion_id: this.promotionId, customerIds: this.getCustomerIds() } }));
+      // This triggers "save group" flow
+      (async () => {
+        try {
+          // clear previous validation UI
+          const clearValidation = (el) => {
+            if (!el) return;
+            el.classList.remove('is-invalid');
+            const existing = el.parentNode && el.parentNode.querySelector('.invalid-feedback');
+            if (existing) existing.remove();
+          };
+          const showValidation = (el, msg) => {
+            if (!el) return;
+            el.classList.add('is-invalid');
+            // create feedback under element (Bootstrap style)
+            let fb = el.parentNode.querySelector('.invalid-feedback');
+            if (!fb) {
+              fb = document.createElement('div');
+              fb.className = 'invalid-feedback';
+              el.parentNode.appendChild(fb);
+            }
+            fb.textContent = msg;
+          };
+
+          // fields
+          const nameEl = dom.qs('input[data-field="Customer-Editor-Name"]', this._el);
+          const startEl = dom.qs('input[data-field="Customer-Editor-date-start"]', this._el);
+          const endEl = dom.qs('input[data-field="Customer-Editor-date-end"]', this._el);
+          const condEl = this._conditionSelect || dom.qs('select[data-field="Customer-Editor-Condition"]', this._el);
+
+          // clear prev errors
+          [nameEl, startEl, endEl, condEl].forEach(clearValidation);
+
+          // basic validation (also try to defer to external form-validate if present)
+          let hasError = false;
+          const valName = nameEl ? nameEl.value.trim() : '';
+          const valStart = startEl ? startEl.value.trim() : '';
+          const valEnd = endEl ? endEl.value.trim() : '';
+          const valCond = condEl ? (condEl.value === '' ? null : condEl.value) : null;
+
+          if (!valName) { showValidation(nameEl, 'กรุณากรอกชื่อกลุ่มลูกค้า'); hasError = true; }
+          if (!valStart) { showValidation(startEl, 'กรุณากรอกวันที่เริ่ม'); hasError = true; }
+          if (!valEnd) { showValidation(endEl, 'กรุณากรอกวันที่สิ้นสุด'); hasError = true; }
+          if (!valCond) { showValidation(condEl, 'กรุณาเลือกเงื่อนไข'); hasError = true; }
+
+          // date sanity: try parse
+          const parseDate = (s) => {
+            if (!s) return null;
+            const t = Date.parse(s);
+            return isNaN(t) ? null : new Date(t);
+          };
+          let dStart = parseDate(valStart);
+          let dEnd = parseDate(valEnd);
+          if (valStart && !dStart) { showValidation(startEl, 'รูปแบบวันที่ไม่ถูกต้อง'); hasError = true; }
+          if (valEnd && !dEnd) { showValidation(endEl, 'รูปแบบวันที่ไม่ถูกต้อง'); hasError = true; }
+          if (dStart && dEnd && dStart.getTime() > dEnd.getTime()) {
+            showValidation(endEl, 'วันที่สิ้นสุดต้องมากกว่า หรือ เท่ากับ วันที่เริ่ม');
+            hasError = true;
+          }
+
+          if (hasError) return;
+
+          // gather members: authoritative list is this.customerIds (set by AddModal)
+          const tableEl = dom.qs(this._tableSelector, this._el);
+          const $t = window.jQuery && window.jQuery(tableEl);
+          const members = [];
+          const seen = new Set();
+          if (Array.isArray(this.customerIds) && this.customerIds.length) {
+            for (const cidRaw of this.customerIds) {
+              const cid = Number(cidRaw);
+              if (!cid || seen.has(cid)) continue;
+              seen.add(cid);
+              // try to get select_all from row cache, otherwise DOM checkbox
+              let sel = 0;
+              try {
+                if ($t && $t.data && $t.data('bootstrap.table')) {
+                  const row = $t.bootstrapTable('getRowByUniqueId', cid);
+                  if (row && row.select_all !== undefined) {
+                    sel = (row.select_all === true || Number(row.select_all) === 1) ? 1 : 0;
+                  } else {
+                    // try find input in DOM
+                    const cb = tableEl.querySelector(`.ce-input-selectall[data-row-id="${cid}"]`);
+                    if (cb) {
+                      // if it's checkbox
+                      if (cb.type === 'checkbox') sel = cb.checked ? 1 : 0;
+                      else sel = cb.value ? 1 : 0;
+                    }
+                  }
+                } else {
+                  // fallback DOM scan
+                  const cb = tableEl.querySelector(`.ce-input-selectall[data-row-id="${cid}"]`);
+                  if (cb) sel = (cb.type === 'checkbox') ? (cb.checked ? 1 : 0) : (cb.value ? 1 : 0);
+                }
+              } catch (e) { /* ignore */ }
+
+              members.push({ customer_id: cid, select_all: sel });
+            }
+          }
+
+          if (members.length === 0) {
+            // show error near toolbar name input
+            showValidation(nameEl, 'ต้องมีสมาชิกในกลุ่มอย่างน้อย 1 รายการ');
+            return;
+          }
+
+          // build payload (normalize dates to "YYYY-MM-DD HH:mm:ss" if possible)
+          const fmtDT = (d) => {
+            if (!d) return '';
+            const pad = (n) => String(n).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            const mm = pad(d.getMonth() + 1);
+            const dd = pad(d.getDate());
+            const hh = pad(d.getHours());
+            const mi = pad(d.getMinutes());
+            const ss = pad(d.getSeconds());
+            return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+          };
+
+          const payload = {
+            name: valName,
+            condition_id: Number(valCond),
+            start_date: fmtDT(dStart),
+            end_date: fmtDT(dEnd),
+            promotion_id: this.promotionId ? Number(this.promotionId) : null,
+            members: members
+          };
+
+          // UI: disable button and show loading text
+          const addBtns = Array.from(this._el.querySelectorAll('[data-role="add"]'));
+          addBtns.forEach(b => { b.dataset.orig = b.innerHTML; b.disabled = true; b.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังบันทึก...'; });
+
+          // call API
+          try {
+            const res = await API.insertCustomerGroup(payload);
+            if (res && res.success) {
+              // success: dispatch event + close modal
+              try {
+                document.dispatchEvent(new CustomEvent('customer:group:created', { detail: { group_id: res.group_id, inserted_members: res.inserted_members, promotion_id: payload.promotion_id } }));
+              } catch (e) {}
+              // show brief success (alert fallback)
+              try { alert('บันทึกกลุ่มลูกค้าเรียบร้อย'); } catch(e){}
+              this.close();
+            } else {
+              // server returned error
+              if (res && res.errors && typeof res.errors === 'object') {
+                // show field errors if provided
+                if (res.errors.name) showValidation(nameEl, res.errors.name);
+                if (res.errors.start_date) showValidation(startEl, res.errors.start_date);
+                if (res.errors.end_date) showValidation(endEl, res.errors.end_date);
+                if (res.errors.members) {
+                  // show near name as generic members error
+                  showValidation(nameEl, res.errors.members);
+                }
+              } else {
+                alert('บันทึกล้มเหลว: ' + (res && res.message ? res.message : 'Unknown error'));
+              }
+            }
+          } catch (err) {
+            console.error('API error', err);
+            alert('เกิดข้อผิดพลาดขณะบันทึก: ' + (err && err.message ? err.message : String(err)));
+          } finally {
+            // restore buttons
+            addBtns.forEach(b => { b.disabled = false; b.innerHTML = (b.dataset.orig || 'เพิ่มกลุ่มลูกค้า'); });
+          }
+
+        } catch (e) {
+          console.error('save group failed', e);
+          alert('เกิดข้อผิดพลาดไม่คาดคิด');
+        }
+      })();
     }
+
 
     _renderEmptyState() {
       const tbody = dom.qs('#ce-tbody', this._el);

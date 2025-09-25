@@ -114,6 +114,9 @@ export class API {
     return API.fetchData('/myPromotion/src/connection/Customer/getCustomer.php', 'POST', payload);
   }
 
+  static insertCustomerGroup(dataObj) {
+    return API.fetchData("/myPromotion/src/connection/Customer/insertCustomerGroup.php", "POST", dataObj);
+  }
 
 
 

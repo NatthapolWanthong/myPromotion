@@ -114,9 +114,22 @@ export class API {
     return API.fetchData('/myPromotion/src/connection/Customer/getCustomer.php', 'POST', payload);
   }
 
+  static getCustomerGroup({ promotion_id = null, page = 1, per_page = 10, q = '' } = {}) {
+    return API.fetchData('/myPromotion/src/connection/Customer/getCustomerGroup.php', 'POST', { promotion_id, page, per_page, q });
+  }
+
   static insertCustomerGroup(dataObj) {
     return API.fetchData("/myPromotion/src/connection/Customer/insertCustomerGroup.php", "POST", dataObj);
   }
+  
+  static getCustomerGroup({ promotion_id = null, page = 1, per_page = 10, q = '', group_id = null } = {}) {
+    return API.fetchData('/myPromotion/src/connection/Customer/getCustomerGroup.php', 'POST', { promotion_id, page, per_page, q, group_id });
+  }
+
+  static deleteCustomerGroup(id) {
+    return API.fetchData('/myPromotion/src/connection/Customer/deleteCustomerGroup.php', 'POST', { group_id: id });
+  }
+
 
 
 

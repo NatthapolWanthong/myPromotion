@@ -28,9 +28,14 @@ import { API } from '../../../assets/js/api.js';
       this.dateStart = null;
       this.dateEnd = null;
       this.conditionId = null;
-      this.customerIds = [];     // authoritative ids list (from Customer_Add)
+      this.customerIds = [];     // authoritative ids list (from Customer_Add or loaded group)
       this.promotionId = null;
       this.campaignId = null;
+
+
+      // edit-specific
+      this._groupId = null;           // when editing an existing group
+      this._membersMap = new Map();   // customer_id -> select_all (1/0)
 
       // table instance flag
       this._tableInitialized = false;
@@ -45,18 +50,22 @@ import { API } from '../../../assets/js/api.js';
       // keyboard close
       this._onKey = (e) => { if (e.key === 'Escape') this.close(); };
 
+      // hide the promotion display per request (remove "Promotion ID: X - ...")
+      try {
+        const pidSpan = dom.qs('#ce-pid', this._el);
+        if (pidSpan && pidSpan.parentNode) {
+          pidSpan.parentNode.style.display = 'none';
+        }
+      } catch (e) { /* ignore */ }
+
       // Listen to the global event that Customer_Add dispatches when user saves selection
       document.addEventListener('customer:add:submitted', (ev) => {
         try {
           const detail = (ev && ev.detail) ? ev.detail : {};
           const ids = Array.isArray(detail.selected_ids) ? detail.selected_ids : [];
-          // Save promotion id if provided
+          // Save promotion id if provided (but do not show it)
           if (detail.promotion_id !== undefined && detail.promotion_id !== null && detail.promotion_id !== '') {
             this.promotionId = detail.promotion_id;
-            const pidEl = dom.qs('#ce-pid', this._el);
-            const pnameEl = dom.qs('#ce-pname', this._el);
-            if (pidEl) pidEl.textContent = this.promotionId;
-            if (pnameEl) pnameEl.textContent = detail.name ? ` - ${detail.name}` : '';
             // load conditions for this promotion
             this._loadConditions(this.promotionId).catch(err => console.warn('loadConditions failed', err));
           } else {
@@ -65,7 +74,7 @@ import { API } from '../../../assets/js/api.js';
           }
           // store ids and load customers
           this.setCustomerIds(ids);
-          // open editor so user sees the results
+          // open editor so user sees the results (this will also clear inputs for add-mode)
           this.open(this.promotionId, detail.name ?? '');
         } catch (e) {
           console.error('customer:add:submitted handler failed', e);
@@ -148,6 +157,207 @@ import { API } from '../../../assets/js/api.js';
       } else { this._conditionSelect.value = ''; }
     }
 
+    /* helper: clear inputs for add-mode and set date defaults from modal data-field form-begin/form-end */
+    _clearInputsForAddMode() {
+      try {
+        const nameEl = dom.qs('input[data-field="Customer-Editor-Name"]', this._el);
+        const startEl = dom.qs('input[data-field="Customer-Editor-date-start"]', this._el);
+        const endEl = dom.qs('input[data-field="Customer-Editor-date-end"]', this._el);
+
+        if (nameEl) nameEl.value = '';
+
+        let defaultBegin = '', defaultEnd = '';
+        const beginSource = dom.qs('[data-field="form-begin"]', this._el);
+        const endSource = dom.qs('[data-field="form-end"]', this._el);
+        if (beginSource) defaultBegin = (beginSource.value !== undefined) ? beginSource.value : (beginSource.textContent || '');
+        else defaultBegin = this._el.dataset.formBegin ?? '';
+        if (endSource) defaultEnd = (endSource.value !== undefined) ? endSource.value : (endSource.textContent || '');
+        else defaultEnd = this._el.dataset.formEnd ?? '';
+
+        if (startEl) {
+          if (startEl._flatpickr && typeof startEl._flatpickr.setDate === 'function') {
+            try { startEl._flatpickr.setDate(defaultBegin || ''); } catch (e) { startEl.value = defaultBegin || ''; }
+          } else {
+            startEl.value = defaultBegin || '';
+          }
+        }
+        if (endEl) {
+          if (endEl._flatpickr && typeof endEl._flatpickr.setDate === 'function') {
+            try { endEl._flatpickr.setDate(defaultEnd || ''); } catch (e) { endEl.value = defaultEnd || ''; }
+          } else {
+            endEl.value = defaultEnd || '';
+          }
+        }
+
+        // clear condition select
+        if (this._conditionSelect) {
+          if (window.jQuery && window.jQuery(this._conditionSelect).data('select2')) {
+            window.jQuery(this._conditionSelect).val(null).trigger('change');
+          } else {
+            this._conditionSelect.value = '';
+            this.conditionId = null;
+          }
+        }
+
+        this._membersMap.clear();
+
+        const addBtns = Array.from(this._el.querySelectorAll('[data-role="add"]'));
+        addBtns.forEach(b => { b.innerHTML = (b.dataset.orig || 'เพิ่มกลุ่มลูกค้า'); b.dataset.mode = 'create'; b.disabled = false; });
+      } catch (e) {
+        console.warn('_clearInputsForAddMode failed', e);
+      }
+    }
+
+    /* -------------------
+       Public API for edit:
+       - loadGroupData(groupObj) : populate modal with group + members
+       ------------------- */
+    loadGroupData(group = {}) {
+      try {
+        if (!group || !group.id) return;
+        this._groupId = Number(group.id);
+        this.promotionId = group.promotion_id ? String(group.promotion_id) : this.promotionId;
+        this._pid = this.promotionId;
+
+        // set basic fields
+        const nameEl = dom.qs('input[data-field="Customer-Editor-Name"]', this._el);
+        const startEl = dom.qs('input[data-field="Customer-Editor-date-start"]', this._el);
+        const endEl = dom.qs('input[data-field="Customer-Editor-date-end"]', this._el);
+        const condEl = dom.qs('input[data-field="Customer-Editor-Condition"]', this._el);
+
+        if (nameEl) nameEl.value = group.name ?? '';
+
+        // set start/end safely (flatpickr aware)
+        try {
+          if (startEl) {
+            if (startEl._flatpickr && typeof startEl._flatpickr.setDate === 'function') {
+              startEl._flatpickr.setDate(group.start_date ?? '', true);
+            } else {
+              startEl.value = group.start_date ?? '';
+            }
+          }
+        } catch (e) { if (startEl) startEl.value = group.start_date ?? ''; }
+
+        try {
+          if (endEl) {
+            if (endEl._flatpickr && typeof endEl._flatpickr.setDate === 'function') {
+              endEl._flatpickr.setDate(group.end_date ?? '', true);
+            } else {
+              endEl.value = group.end_date ?? '';
+            }
+          }
+        } catch (e) { if (endEl) endEl.value = group.end_date ?? ''; }
+
+
+        // condEl = $('#mySelect2').val();
+
+
+
+
+        // load conditions and set selected (set after options are loaded to support select2)
+        this._loadConditions(this.promotionId).then(() => {
+          try {
+            console.log("conditionId : " + (group.condition_id ?? group.conditionId));
+
+            // --- FIX: ensure we select the proper element (was using 'input' erroneously) ---
+            const condEl = dom.qs('select[data-field="Customer-Editor-Condition"]', this._el) || this._conditionSelect;
+
+            const condVal = group.condition_id ?? group.conditionId ?? null;
+            if (condEl && condVal !== null && condVal !== undefined && condVal !== '') {
+              const v = String(condVal);
+
+              // 1) Robust DOM-level selection first (safe regardless of select2)
+              try {
+                const opt = condEl.querySelector(`option[value="${v.replace(/"/g, '\\"')}"]`);
+                if (opt) {
+                  // set option selected attribute (DOM-level)
+                  opt.selected = true;
+                } else {
+                  // if option not present, optionally create it (rare) — commented out by default
+                  // const newOpt = document.createElement('option'); newOpt.value = v; newOpt.textContent = '...'; newOpt.selected = true; condEl.appendChild(newOpt);
+                }
+              } catch (e) {
+                console.warn('failed to set option.selected DOM fallback', e);
+              }
+
+              // set internal state
+              this.conditionId = isFinite(v) ? Number(v) : v;
+
+              // 2) If select2 is active, set via jQuery + trigger change,
+              //    and defer a microtask to avoid race with rendering
+              if (window.jQuery && window.jQuery(condEl).data('select2')) {
+                try {
+                  window.jQuery(condEl).val(v).trigger('change');
+
+                  // small defer to let select2 update UI/repaint (addresses timing issues)
+                  setTimeout(() => {
+                    try {
+                      // extra trigger for select2 specific handlers
+                      window.jQuery(condEl).trigger('change.select2');
+
+                      // fallback: if still not showing, re-init select2 (safe guard)
+                      const sel2 = window.jQuery(condEl).data('select2');
+                      if (!sel2 || String(window.jQuery(condEl).val()) !== v) {
+                        try {
+                          // destroy + re-init (use same options as initial init)
+                          const opts = window.jQuery(condEl).data('select2-options') || { theme: 'bootstrap-5', placeholder: 'เลือกเงื่อนไข', allowClear: true, width: 'resolve', dropdownParent: window.jQuery(document.body) };
+                          window.jQuery(condEl).select2('destroy');
+                          window.jQuery(condEl).select2(opts);
+                          window.jQuery(condEl).val(v).trigger('change');
+                        } catch (ee) {
+                          // non-fatal
+                          console.warn('select2 re-init fallback failed', ee);
+                        }
+                      }
+                    } catch (e) { /* ignore */ }
+                  }, 0);
+                } catch (e) {
+                  console.warn('setting select2 value failed, falling back to DOM value', e);
+                  try { condEl.value = v; } catch (ee) { /* ignore */ }
+                }
+              } else {
+                // plain select (no select2) — set value directly
+                try { condEl.value = v; } catch (e) { /* ignore */ }
+              }
+            } else {
+              // ensure cleared
+              if (this._conditionSelect) {
+                try {
+                  if (window.jQuery && window.jQuery(this._conditionSelect).data('select2')) {
+                    window.jQuery(this._conditionSelect).val(null).trigger('change');
+                  } else {
+                    this._conditionSelect.value = '';
+                    this.conditionId = null;
+                  }
+                } catch (e) { /* ignore */ }
+              }
+            }
+          } catch (e) { /* ignore */ }
+        }).catch(()=>{});
+
+
+        // members -> set authoritative customerIds and membersMap(select_all)
+        const members = Array.isArray(group.members) ? group.members : (group.members_list ?? []);
+        this.customerIds = members.map(m => Number(m.customer_id)).filter(n => !Number.isNaN(n));
+        this._membersMap = new Map();
+        members.forEach(m => {
+          const cid = Number(m.customer_id);
+          const sel = (m.select_all === true || Number(m.select_all) === 1 || String(m.select_all) === '1') ? 1 : 0;
+          if (cid) this._membersMap.set(cid, sel);
+        });
+
+        // ensure table initialized & refresh (this will sync checkboxes & apply select_all after load)
+        if (!this._tableInitialized) this._initTable();
+        this._refreshTable(true);
+
+        // change add button label to indicate edit
+        const addBtns = Array.from(this._el.querySelectorAll('[data-role="add"]'));
+        addBtns.forEach(b => { b.dataset.orig = b.innerHTML; b.disabled = false; b.innerHTML = 'บันทึก'; b.dataset.mode = 'edit'; });
+      } catch (e) {
+        console.error('loadGroupData failed', e);
+      }
+    }
+
     /* public API */
     getCustomerIds() { return Array.isArray(this.customerIds) ? this.customerIds.slice() : []; }
 
@@ -163,9 +373,17 @@ import { API } from '../../../assets/js/api.js';
     open(pid = '', pname = '') {
       this._pid = pid ?? ''; this._pname = pname ?? ''; if (this._pid) this.promotionId = this._pid;
       this._el.style.display = 'flex'; document.body.style.overflow = 'hidden';
-      dom.qs('#ce-pid', this._el) && (dom.qs('#ce-pid', this._el).textContent = this._pid);
-      dom.qs('#ce-pname', this._el) && (dom.qs('#ce-pname', this._el).textContent = this._pname ? ` - ${this._pname}` : '');
-      if (this._pid) this._loadConditions(this._pid).catch(err => console.warn('loadConditions on open failed', err));
+
+      // If we're in "add mode" (no editing group), clear previous inputs and set default dates from promo
+      if (!this._groupId) {
+        this._clearInputsForAddMode();
+        // load conditions for promotion (options will populate select; select remains cleared)
+        if (this._pid) this._loadConditions(this._pid).catch(err => console.warn('loadConditions on open failed', err));
+      } else {
+        // if editing an existing group, ensure conditions loaded (loadGroupData handles selecting value)
+        if (this._pid) this._loadConditions(this._pid).catch(err => console.warn('loadConditions on open failed', err));
+      }
+
       if (Array.isArray(this.customerIds) && this.customerIds.length > 0) {
         if (typeof window.responseHandler !== 'function') window.responseHandler = (res) => res;
         this._initTable();
@@ -177,10 +395,16 @@ import { API } from '../../../assets/js/api.js';
     }
 
     close() {
+      // reset edit state but keep last values in inputs if user reopened intentionally
+      this._groupId = null;
+      this._membersMap.clear();
+      // restore add button text if we changed it
+      const addBtns = Array.from(this._el.querySelectorAll('[data-role="add"]'));
+      addBtns.forEach(b => { b.innerHTML = (b.dataset.orig || 'เพิ่มกลุ่มลูกค้า'); b.dataset.mode = 'create'; });
       this._el.style.display = 'none'; document.body.style.overflow = ''; document.removeEventListener('keydown', this._onKey);
     }
 
-        // replace existing add() method with this (inside class)
+    // add() now handles create OR update depending on this._groupId
     add() {
       // This triggers "save group" flow
       (async () => {
@@ -243,7 +467,7 @@ import { API } from '../../../assets/js/api.js';
 
           if (hasError) return;
 
-          // gather members: authoritative list is this.customerIds (set by AddModal)
+          // gather members: authoritative list is this.customerIds (set by AddModal or loaded)
           const tableEl = dom.qs(this._tableSelector, this._el);
           const $t = window.jQuery && window.jQuery(tableEl);
           const members = [];
@@ -253,10 +477,12 @@ import { API } from '../../../assets/js/api.js';
               const cid = Number(cidRaw);
               if (!cid || seen.has(cid)) continue;
               seen.add(cid);
-              // try to get select_all from row cache, otherwise DOM checkbox
+              // try to get select_all from membersMap or row cache, otherwise DOM checkbox
               let sel = 0;
               try {
-                if ($t && $t.data && $t.data('bootstrap.table')) {
+                if (this._membersMap && this._membersMap.has(cid)) {
+                  sel = Number(this._membersMap.get(cid)) ? 1 : 0;
+                } else if ($t && $t.data && $t.data('bootstrap.table')) {
                   const row = $t.bootstrapTable('getRowByUniqueId', cid);
                   if (row && row.select_all !== undefined) {
                     sel = (row.select_all === true || Number(row.select_all) === 1) ? 1 : 0;
@@ -264,7 +490,6 @@ import { API } from '../../../assets/js/api.js';
                     // try find input in DOM
                     const cb = tableEl.querySelector(`.ce-input-selectall[data-row-id="${cid}"]`);
                     if (cb) {
-                      // if it's checkbox
                       if (cb.type === 'checkbox') sel = cb.checked ? 1 : 0;
                       else sel = cb.value ? 1 : 0;
                     }
@@ -308,6 +533,9 @@ import { API } from '../../../assets/js/api.js';
             members: members
           };
 
+          // If edit mode, include group_id
+          if (this._groupId) payload.group_id = Number(this._groupId);
+
           // UI: disable button and show loading text
           const addBtns = Array.from(this._el.querySelectorAll('[data-role="add"]'));
           addBtns.forEach(b => { b.dataset.orig = b.innerHTML; b.disabled = true; b.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังบันทึก...'; });
@@ -318,10 +546,11 @@ import { API } from '../../../assets/js/api.js';
             if (res && res.success) {
               // success: dispatch event + close modal
               try {
-                document.dispatchEvent(new CustomEvent('customer:group:created', { detail: { group_id: res.group_id, inserted_members: res.inserted_members, promotion_id: payload.promotion_id } }));
+                const eventName = this._groupId ? 'customer:group:updated' : 'customer:group:created';
+                document.dispatchEvent(new CustomEvent(eventName, { detail: { group_id: res.group_id || this._groupId, inserted_members: res.inserted_members, promotion_id: payload.promotion_id } }));
               } catch (e) {}
               // show brief success (alert fallback)
-              try { alert('บันทึกกลุ่มลูกค้าเรียบร้อย'); } catch(e){}
+              try { alert(this._groupId ? 'แก้ไขกลุ่มลูกค้าเรียบร้อย' : 'บันทึกกลุ่มลูกค้าเรียบร้อย'); } catch(e){}
               this.close();
             } else {
               // server returned error
@@ -411,7 +640,7 @@ import { API } from '../../../assets/js/api.js';
               // unique input id เพื่อ accessibility (ไม่จำเป็นแต่ดี)
               const inputId = `ce-select-${rid}-${index}`;
               return `<div class="form-check" style="display:flex; justify-content:center; align-items:center; height:100%;">
-      <input class="form-check-input ce-input-selectall" type="checkbox" data-row-id="${rowId}" ${checked}>
+      <input id="${inputId}" class="form-check-input ce-input-selectall" type="checkbox" data-row-id="${rid}" ${checked ? 'checked' : ''}>
     </div>`;
             }
           }
@@ -467,6 +696,12 @@ import { API } from '../../../assets/js/api.js';
               console.warn('updateByUniqueId failed', err);
             }
 
+            // update membersMap authoritative store
+            try {
+              const idNum = Number(rowId);
+              if (!Number.isNaN(idNum)) self._membersMap.set(idNum, checked);
+            } catch (e) { /* ignore */ }
+
             // (optional) If you want to persist immediately, call API here:
             // API.saveCustomerSelectAll({ id: rowId, select_all: checked }).catch(err => console.error('save failed', err));
           } catch (e) {
@@ -521,7 +756,7 @@ import { API } from '../../../assets/js/api.js';
               // create checkbox element
               const inputId = `ce-select-${rowId}-${idx}`;
               tdSelect.innerHTML = `<div class="form-check" style="display:flex; justify-content:center; align-items:center; height:100%;">
-      <input class="form-check-input ce-input-selectall" type="checkbox" data-row-id="${rowId}" ${checked}>
+      <input id="${inputId}" class="form-check-input ce-input-selectall" type="checkbox" data-row-id="${rowId}" ${checked ? 'checked' : ''}>
     </div>`;
             });
 
@@ -585,6 +820,29 @@ import { API } from '../../../assets/js/api.js';
               }
             });
             // --- END: ensure select_all TD + input exist ---
+
+            // --- START: apply membersMap select_all values to visible rows ---
+            try {
+              if (self._membersMap && self._membersMap.size) {
+                const visible = $(tableEl).bootstrapTable('getData') || [];
+                visible.forEach(r => {
+                  const id = Number(r.id);
+                  if (!Number.isNaN(id) && self._membersMap.has(id)) {
+                    const sel = self._membersMap.get(id) ? 1 : 0;
+                    try { $(tableEl).bootstrapTable('updateByUniqueId', { id: id, row: { select_all: sel } }); } catch (e) { /* ignore */ }
+                    // sync DOM checkbox if present
+                    const cb = tableEl.querySelector(`.ce-input-selectall[data-row-id="${id}"]`);
+                    if (cb) {
+                      if (cb.type === 'checkbox') cb.checked = !!sel;
+                      else cb.value = sel ? '1' : '';
+                    }
+                  }
+                });
+              }
+            } catch (e) {
+              console.warn('apply membersMap failed', e);
+            }
+            // --- END apply membersMap ---
 
           } catch (e) {
             console.error('load-success handler failed', e);

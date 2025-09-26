@@ -123,7 +123,7 @@ function makeCustomerListHTML(promotionId){
 
       <div class="table-responsive mb-2">
         <table 
-          class="table table-sm table-bordered promo-conditions-table"
+          class="table table-sm table-bordered promo-customer-table"
           id="customersTable-${pid}"
           data-unique-id="id"
         >
@@ -133,12 +133,13 @@ function makeCustomerListHTML(promotionId){
               <th data-field="index" data-sortable="true">#</th>
               <th data-field="type_area" data-sortable="true">กลุ่มเขต</th>
               <th data-field="area_name" data-sortable="true">เขต</th>
-              <th data-field="segment" data-sortable="true">กลุ่มลูกค้า</th>
+              <th data-field="segment" data-sortable="true" data-visible="false" data-switchable="false">กลุ่มลูกค้า</th>
               <th data-field="name" data-sortable="true">ชื่อกลุ่มลูกค้า</th>
               <th data-field="customer_code" data-sortable="true">รหัสลูกค้า</th>
               <th data-field="condition" data-sortable="true">เงื่อนไข</th>
               <th data-field="start_date" data-sortable="true">เริ่ม</th>
               <th data-field="end_date" data-sortable="true">สิ้นสุด</th>
+              <th data-field="manage">จัดการ</th>
             </tr> 
           </thead>
         </table>
@@ -483,54 +484,160 @@ export class CampaignCard {
 
       } catch(e){}
 
-      // ========== Initialize bootstrap-table for customers (uses same styling class) ==========
+      // --- robust init for customer table: wait for both element AND manager ---
+      // --- improved ensureCustomerTableInit: wait for element and manager, queue if needed ---
+(function ensureCustomerTableInit(pid) {
+  const selector = `#customersTable-${pid}`;
+  const elementTimeoutMs = 10000; // wait up to 10s for the element to appear
+  const managerPollIntervalMs = 250;
+  const managerPollMaxAttempts = 80; // ~20s max polling for manager when queued
+
+  // ensure global pending queue exists
+  window._pendingCustomerInits = window._pendingCustomerInits || [];
+
+  // process pending queue: try to init any entries where both el+manager ready
+  function processPendingQueue() {
+    if (!window._pendingCustomerInits || !window._pendingCustomerInits.length) return;
+    if (!window._CustomerTableManager || typeof window._CustomerTableManager.initTableForPid !== 'function') return;
+
+    const remaining = [];
+    window._pendingCustomerInits.forEach(entry => {
       try {
-        const pid = item.id;
-        const $custTable = $(`#customersTable-${pid}`);
+        const el = document.querySelector(entry.selector);
+        if (el) {
+          try { window._CustomerTableManager.initTableForPid(entry.pid, el); }
+          catch (err) { console.warn('initTableForPid threw for pid', entry.pid, err); remaining.push(entry); }
+        } else {
+          // element still missing -> keep it queued (maybe created later)
+          remaining.push(entry);
+        }
+      } catch (e) {
+        remaining.push(entry);
+      }
+    });
+    window._pendingCustomerInits = remaining;
+  }
 
-        const customerColumns = [
-          
-        ];
+  // allow external side (CustomerTableManager) to tell us it's ready:
+  // when manager script initializes, it can: window.dispatchEvent(new Event('CustomerTableManager:ready'))
+  // we listen and attempt to process queue immediately.
+  if (!ensureCustomerTableInit._listenerInstalled) {
+    ensureCustomerTableInit._listenerInstalled = true;
+    window.addEventListener('CustomerTableManager:ready', () => {
+      try { processPendingQueue(); } catch (e) { /* ignore */ }
+    });
+  }
 
-        $custTable.bootstrapTable({
-          toolbar: `#toolbar-customers-${pid}`,
-          pagination: true,
-          sidePagination: 'client',
-          showColumns: true,
-          search: true,
-          showExport: true,
-          exportTypes: ['csv','excel'],
-          pageSize: 10,
-          pageList: [10,25,50],
-          columns: customerColumns,
-          showRefresh: true,
-          data: [] 
-        });
+  // helper to attempt immediate init if possible
+  const tryInitNow = (el) => {
+    if (!el) return false;
+    if (window._CustomerTableManager && typeof window._CustomerTableManager.initTableForPid === 'function') {
+      try {
+        window._CustomerTableManager.initTableForPid(pid, el);
+        return true;
+      } catch (err) {
+        console.warn('CustomerTableManager.initTableForPid threw', err);
+        return false;
+      }
+    }
+    return false;
+  };
 
-        setTimeout(()=> {
-          try {
-            if ($custTable && $custTable.length && $custTable.data('bootstrap.table')) {
-              $custTable.bootstrapTable('resetView');
-            }
-          } catch(e){ console.warn('resetView cust table failed', e); }
-        }, 120);
+  // 1) if element already exists -> try immediate init or queue
+  const existingEl = document.querySelector(selector);
+  if (existingEl) {
+    if (tryInitNow(existingEl)) return;
+    // manager not ready -> queue the init
+    window._pendingCustomerInits.push({ pid, selector });
+    // start light-weight polling for manager to process the queue
+    startManagerPollIfNeeded();
+    return;
+  }
 
-        $custTable.on('load-success.bs.table', function (e, data) {
-          try {
-            const total = (data && data.total) ? data.total : ($custTable.bootstrapTable('getOptions').totalRows || ($custTable.bootstrapTable('getData') || []).length);
-            const opts = $custTable.bootstrapTable('getOptions');
-            const page = opts.pageNumber || 1;
-            const pageSize = opts.pageSize || 10;
-            const totalPages = Math.max(1, Math.ceil(total / pageSize));
-            const pi = document.querySelector(`#paginationInfoCustomer-${pid}`);
-            if (pi) pi.textContent = `Page ${page} / ${totalPages}`;
-            const badge = document.querySelector(`#customer-count-${pid}`);
-            if (badge) badge.textContent = String(total ?? 0);
-          } catch(e){ /* ignore */ }
-        });
+  // 2) element does not exist yet -> observe DOM for its creation (with timeout)
+  let mo;
+  let done = false;
+  const onFoundElement = (el) => {
+    if (done) return;
+    done = true;
+    try { mo && mo.disconnect(); } catch(_) {}
+    // try init immediately, else push to queue for manager
+    if (!tryInitNow(el)) {
+      window._pendingCustomerInits.push({ pid, selector });
+      startManagerPollIfNeeded();
+    }
+  };
 
-      } catch(e){}
+  try {
+    mo = new MutationObserver((mutations) => {
+      try {
+        const el = document.querySelector(selector);
+        if (el) onFoundElement(el);
+      } catch (e) { /* ignore */ }
+    });
+    mo.observe(document.documentElement || document.body, { childList: true, subtree: true });
+  } catch (e) {
+    // MutationObserver may fail in some envs; fallback to simple polling for element
+    const fallbackInterval = setInterval(() => {
+      try {
+        const el = document.querySelector(selector);
+        if (el) {
+          clearInterval(fallbackInterval);
+          onFoundElement(el);
+        }
+      } catch (e) {}
+    }, 150);
+    // safety timeout to clear fallback if nothing appears
+    setTimeout(() => clearInterval(fallbackInterval), elementTimeoutMs);
+  }
 
+  // stop observation after timeout if not found
+  setTimeout(() => {
+    if (done) return;
+    done = true;
+    try { mo && mo.disconnect(); } catch(_) {}
+    const el = document.querySelector(selector);
+    if (el) {
+      if (!tryInitNow(el)) {
+        window._pendingCustomerInits.push({ pid, selector });
+        startManagerPollIfNeeded();
+      }
+    } else {
+      // element never appeared within timeout: push a placeholder to pending so it can be retried later (or removed)
+      // we do NOT spam console.warn here to avoid noisy logs; show a debug only
+      console.debug(`customersTable element ${selector} not found after ${elementTimeoutMs}ms; queued for later if created.`);
+      window._pendingCustomerInits.push({ pid, selector });
+      startManagerPollIfNeeded();
+    }
+  }, elementTimeoutMs);
+
+  // start a short polling that tries to process queue when manager becomes available
+  function startManagerPollIfNeeded() {
+    if (ensureCustomerTableInit._managerPollRunning) return;
+    ensureCustomerTableInit._managerPollRunning = true;
+    let attempts = 0;
+    const iv = setInterval(() => {
+      attempts++;
+      try {
+        if (window._CustomerTableManager && typeof window._CustomerTableManager.initTableForPid === 'function') {
+          try { processPendingQueue(); } catch (e) { console.warn('processPendingQueue error', e); }
+        }
+        // stop if queue empty or attempts exhausted
+        if ((!window._pendingCustomerInits || window._pendingCustomerInits.length === 0) || attempts >= managerPollMaxAttempts) {
+          clearInterval(iv);
+          ensureCustomerTableInit._managerPollRunning = false;
+        }
+      } catch (e) {
+        clearInterval(iv);
+        ensureCustomerTableInit._managerPollRunning = false;
+      }
+    }, managerPollIntervalMs);
+  }
+
+})(item.id);
+
+
+      // --- initialize flatpickr only for inputs inside THIS card (avoid global selector) ---
       try {
         const defaultOptions = {
           enableTime: true,
@@ -543,9 +650,31 @@ export class CampaignCard {
           enableSeconds: true,
           allowInput: true
         };
-        flatpickr(".date-picker", defaultOptions);
-        flatpickr(".date-picker-disabled", { ...defaultOptions, clickOpens: false, allowInput: false });
-      } catch(e){}
+
+        // only initialize date-picker elements that belong to the current card we just appended
+        const cardDatePickers = card.querySelectorAll('.date-picker');
+        cardDatePickers.forEach(el => {
+          try {
+            // If input has a clearly non-empty and parseable value, pass it; otherwise allowInput true will handle it
+            flatpickr(el, defaultOptions);
+          } catch (e) {
+            // don't spam console for invalid single inputs
+            console.debug('flatpickr init failed for one input (ignored)', e);
+          }
+        });
+
+        const cardDisabledPickers = card.querySelectorAll('.date-picker-disabled');
+        cardDisabledPickers.forEach(el => {
+          try {
+            flatpickr(el, { ...defaultOptions, clickOpens: false, allowInput: false });
+          } catch (e) {
+            console.debug('flatpickr disabled init failed (ignored)', e);
+          }
+        });
+      } catch (e) {
+        console.warn('flatpickr per-card init failed', e);
+      }
+
 
     });
     CardEditController.registerCardEventListeners(this.container, this.originalValuesMap, this.options.status);

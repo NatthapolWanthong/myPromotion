@@ -424,6 +424,21 @@
       this._el.style.display = 'flex';
       document.body.style.overflow = 'hidden';
       const pidInput = dom.qs('#ca-promotion-id'); if (pidInput) pidInput.value = pid;
+
+      // === NEW: when opening, if there is an editor modal instance, sync selectedIds from it ===
+      try {
+        const editor = window._customerEditorModal || window.CustomerEditorModal && window.CustomerEditorModal.instance;
+        if (editor && typeof editor.getCustomerIds === 'function') {
+          const idsFromEditor = Array.isArray(editor.getCustomerIds && editor.getCustomerIds()) ? editor.getCustomerIds() : [];
+          if (Array.isArray(idsFromEditor) && idsFromEditor.length) {
+            this.setSelectedIds(idsFromEditor);
+          }
+        }
+      } catch (e) {
+        console.warn('failed to sync selectedIds from editor on open', e);
+      }
+      // ====================================================================
+
       document.addEventListener('keydown', this._onKey);
 
       const $table = window.jQuery && window.jQuery('#ca-table');

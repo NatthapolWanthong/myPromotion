@@ -462,7 +462,7 @@ textarea, input, select {
 /* ===== Table visual styling for promo conditions & customers (paste near table styles) ===== */
 
 /* global table base */
-.promo-conditions-table,
+.promo-table,
 .table.table-bordered {
   border-radius: 15px;
   overflow: hidden;
@@ -470,7 +470,7 @@ textarea, input, select {
 }
 
 /* header */
-.promo-conditions-table thead th {
+.promo-table thead th {
   background: linear-gradient(180deg, #ffffff 0%, #f8fafb 100%);
   color: #1f2937;
   font-weight: 700;
@@ -482,18 +482,18 @@ textarea, input, select {
 }
 
 /* small compact rows */
-.promo-conditions-table tbody tr {
+.promo-table tbody tr {
   background: #000000;
   transition: transform .12s ease, box-shadow .12s ease;
   border-width: 2px;
 }
-.promo-conditions-table tbody tr:hover {
+.promo-table tbody tr:hover {
   transform: translateY(-0.5px);
   box-shadow: 0 8px 20px rgba(2,6,23,0.06);
 }
 
 /* cells */
-.promo-conditions-table td {
+.promo-table td {
   padding: 10px 12px;
   font-size: 13px;
   color: #374151;
@@ -502,21 +502,21 @@ textarea, input, select {
 }
 
 /* # column - centered */
-.promo-conditions-table td:nth-child(2),
-.promo-conditions-table th:nth-child(2) {
+.promo-table td:nth-child(2),
+.promo-table th:nth-child(2) {
   text-align: start;
   width: 300px;
 }
 
 /* actions column */
-.promo-conditions-table td:last-child,
-.promo-conditions-table th:last-child {
+.promo-table td:last-child,
+.promo-table th:last-child {
   text-align: center;
   width: 180px;
 }
 
 /* Data column: show pre inside scrollable area, monospace for JSON */
-.promo-conditions-table td:nth-child(4) pre {
+.promo-table td:nth-child(4) pre {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
   font-size: 12px;
   line-height: 1.35;
@@ -560,8 +560,8 @@ textarea, input, select {
 
 /* responsive: compress columns on small screens */
 @media (max-width: 900px) {
-  .promo-conditions-table td:nth-child(4) pre { max-height: 120px; font-size: 11px; }
-  .promo-conditions-table thead th { font-size: 12px; }
+  .promo-table td:nth-child(4) pre { max-height: 120px; font-size: 11px; }
+  .promo-table thead th { font-size: 12px; }
 }
 
 /* subtle badge */

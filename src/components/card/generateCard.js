@@ -80,7 +80,7 @@ function makeConditionListHTML(promotionId){
 
       <div class="table-responsive mb-2">
         <table 
-          class="table table-sm table-bordered promo-conditions-table"
+          class="table table-sm table-bordered promo-conditions-table promo-table"
           id="conditionsListTable-${pid}"
           data-unique-id="id"
         >
@@ -123,7 +123,7 @@ function makeCustomerListHTML(promotionId){
 
       <div class="table-responsive mb-2">
         <table 
-          class="table table-sm table-bordered promo-customer-table"
+          class="table table-sm table-bordered promo-customer-table promo-table"
           id="customersTable-${pid}"
           data-unique-id="id"
         >

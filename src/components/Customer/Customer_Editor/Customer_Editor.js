@@ -462,6 +462,10 @@ import { API } from '../../../assets/js/api.js';
         this._destroyTable(); this._renderEmptyState();
       }
       document.addEventListener('keydown', this._onKey);
+
+      if (this._pid) {
+        this._updatePromoCustomerBadge(this._pid).catch(()=>{});
+      }
     }
 
 
@@ -647,6 +651,7 @@ import { API } from '../../../assets/js/api.js';
           alert('เกิดข้อผิดพลาดไม่คาดคิด');
         }
       })();
+      try { if (pid) self._updatePromoCustomerBadge(pid).catch(()=>{}); } catch(e){/*ignore*/ }
     }
 
 
@@ -713,7 +718,6 @@ import { API } from '../../../assets/js/api.js';
 
         ];
 
-        // init table (we control init: ensure HTML doesn't auto-init)
         $(tableEl).bootstrapTable({
           url: '/myPromotion/src/connection/Customer/getCustomer.php',
           method: 'post',
@@ -749,54 +753,45 @@ import { API } from '../../../assets/js/api.js';
           responseHandler(res) { return res; }
         });
 
-        // Delegated input handler
         $(tableEl).off('change.ce-input-selectall').on('change', '.ce-input-selectall', function () {
           try {
             const $el = $(this);
             const rowId = $el.data('row-id');
-            const checked = $el.prop('checked') ? 1 : 0; // store as 1/0 or boolean ตามต้องการ
+            const checked = $el.prop('checked') ? 1 : 0; 
             console.debug('ce-input-selectall change', { rowId, checked });
 
-            // update bootstrap-table cache via unique id
             try {
               $(tableEl).bootstrapTable('updateByUniqueId', { id: rowId, row: { select_all: checked } });
             } catch (err) {
               console.warn('updateByUniqueId failed', err);
             }
 
-            // update membersMap authoritative store
             try {
               const idNum = Number(rowId);
               if (!Number.isNaN(idNum)) self._membersMap.set(idNum, checked);
             } catch (e) { /* ignore */ }
-
-            // (optional) If you want to persist immediately, call API here:
-            // API.saveCustomerSelectAll({ id: rowId, select_all: checked }).catch(err => console.error('save failed', err));
           } catch (e) {
             console.error('ce-input-selectall change handler failed', e);
           }
         });
 
 
-        // post-body: ensure inputs exist (defensive against escape/sanitizer/auto-renders)
         $(tableEl).off('post-body.bs.table.ensureInputs').on('post-body.bs.table.ensureInputs', function () {
           try {
             const headerThs = tableEl.querySelectorAll('thead th');
             const expectedCells = headerThs.length;
             const rows = tableEl.querySelectorAll('tbody tr');
 
-            // find index of select_all header (best effort)
             let selectIndex = -1;
             Array.from(headerThs).forEach((th, idx) => {
               const df = th.getAttribute('data-field') || th.dataset.field;
               if (df === 'select_all') selectIndex = idx;
             });
-            // fallback to last column if not found
+
             if (selectIndex === -1) selectIndex = expectedCells - 1;
 
             rows.forEach((tr, idx) => {
               const currCells = tr.children.length;
-              // ensure enough TDs
               if (currCells < expectedCells) {
                 for (let i = currCells; i < expectedCells; i++) {
                   const td = document.createElement('td');
@@ -805,14 +800,9 @@ import { API } from '../../../assets/js/api.js';
               }
               const tdSelect = tr.children[selectIndex];
               if (!tdSelect) return;
-
-              // if checkbox already present skip
               if (tdSelect.querySelector('.ce-input-selectall')) return;
 
-              // detect existing value in row data cell (if server returned select_all in row object,
-              // bootstrap-table may have printed it elsewhere; fallback: unchecked)
               let rowId = tr.getAttribute('data-uniqueid') || tr.dataset.uniqueid || '';
-              // try to extract select_all from bootstrap-table row cache if possible
               let val = '';
               try {
                 const rowObj = $(tableEl).bootstrapTable('getRowByUniqueId', rowId);
@@ -821,7 +811,6 @@ import { API } from '../../../assets/js/api.js';
 
               const checked = (val === true || val === 1 || String(val).toLowerCase() === 'true' || String(val) === '1');
 
-              // create checkbox element
               const inputId = `ce-select-${rowId}-${idx}`;
               tdSelect.innerHTML = `<div class="form-check" style="display:flex; justify-content:center; align-items:center; height:100%;">
       <input id="${inputId}" class="form-check-input ce-input-selectall" type="checkbox" data-row-id="${rowId}" ${checked ? 'checked' : ''}>
@@ -835,10 +824,8 @@ import { API } from '../../../assets/js/api.js';
         });
 
 
-        // when rows are loaded: ensure selection sync & update badge
         $(tableEl).on('load-success.bs.table', function (e, data) {
           try {
-            // preserve your existing selection sync + badge logic
             if (Array.isArray(self.customerIds) && self.customerIds.length) {
               try { $(tableEl).bootstrapTable('checkBy', { field: 'id', values: self.customerIds }); } catch (err) { /* ignore */ }
             }
@@ -852,7 +839,7 @@ import { API } from '../../../assets/js/api.js';
             const badge = document.querySelector(`#customer-count-${self._pid ?? ''}`);
             if (badge) badge.textContent = String(total ?? 0);
 
-            // --- START: ensure select_all TD + input exist ---
+
             const headerThs = tableEl.querySelectorAll('thead th');
             const expectedCells = headerThs.length;
             const rows = tableEl.querySelectorAll('tbody tr');
@@ -862,8 +849,6 @@ import { API } from '../../../assets/js/api.js';
               if (currCells < expectedCells) {
                 for (let i = currCells; i < expectedCells; i++) {
                   const td = document.createElement('td');
-                  // if this is the select_all column (last th has data-field="select_all")
-                  // safer: check header data-field at this index
                   const th = headerThs[i];
                   const field = th ? (th.getAttribute('data-field') || th.dataset.field) : null;
                   if (field === 'select_all' || i === expectedCells - 1) {
@@ -875,13 +860,11 @@ import { API } from '../../../assets/js/api.js';
                   tr.appendChild(td);
                 }
               } else {
-                // if enough cells exist but select_all cell is empty or missing input, ensure input is present
                 const thIndex = Array.from(headerThs).findIndex(t => (t.getAttribute('data-field') || t.dataset.field) === 'select_all');
                 if (thIndex >= 0) {
                   const td = tr.children[thIndex];
                   if (td && !td.querySelector('.ce-input-selectall')) {
                     const id = tr.getAttribute('data-uniqueid') || tr.dataset.uniqueid || '';
-                    // replace content
                     td.innerHTML = `<input type="text" class="form-control form-control-sm ce-input-selectall" data-row-id="${id}" value="${td.textContent.trim() || ''}">`;
                   }
                 }
@@ -897,7 +880,6 @@ import { API } from '../../../assets/js/api.js';
                   if (!Number.isNaN(id) && self._membersMap.has(id)) {
                     const sel = self._membersMap.get(id) ? 1 : 0;
                     try { $(tableEl).bootstrapTable('updateByUniqueId', { id: id, row: { select_all: sel } }); } catch (e) { /* ignore */ }
-                    // sync DOM checkbox if present
                     const cb = tableEl.querySelector(`.ce-input-selectall[data-row-id="${id}"]`);
                     if (cb) {
                       if (cb.type === 'checkbox') cb.checked = !!sel;
@@ -906,10 +888,12 @@ import { API } from '../../../assets/js/api.js';
                   }
                 });
               }
+
+              if (self._pid) self._updatePromoCustomerBadge(self._pid).catch(()=>{});
+
             } catch (e) {
               console.warn('apply membersMap failed', e);
             }
-            // --- END apply membersMap ---
 
           } catch (e) {
             console.error('load-success handler failed', e);
@@ -917,30 +901,21 @@ import { API } from '../../../assets/js/api.js';
         });
 
 
-        // keep authoritative this.customerIds in sync with user selection
-        // --- MERGE strategy: only add/remove visible-page ids, keep selections from other pages intact ---
         $(tableEl).on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
           try {
-            // visible rows on current page
             const visible = $(tableEl).bootstrapTable('getData') || [];
             const visibleIds = visible.map(r => Number(r.id)).filter(id => !Number.isNaN(id));
-
-            // currently selected rows on this page
             const selected = $(tableEl).bootstrapTable('getSelections') || [];
             const selectedOnPage = new Set(selected.map(r => Number(r.id)).filter(id => !Number.isNaN(id)));
-
-            // authoritative store as a Set for easy add/remove
             const store = new Set(Array.isArray(self.customerIds) ? self.customerIds.map(n => Number(n)).filter(n => !Number.isNaN(n)) : []);
 
-            // for each visible id: if currently selected on this page -> add; otherwise -> remove
+
             visibleIds.forEach(id => {
               if (selectedOnPage.has(id)) store.add(id);
               else store.delete(id);
             });
 
-            // write back authoritative array (sorted optional)
             self.customerIds = Array.from(store);
-            // optional: console.debug('customerIds updated:', self.customerIds);
           } catch (e) {
             console.warn('sync selection failed', e);
           }
@@ -992,12 +967,147 @@ import { API } from '../../../assets/js/api.js';
       }
     }
 
+
+    async _updatePromoCustomerBadge(promotionId) {
+      try {
+        const pid = promotionId || this._pid;
+        if (!pid) return;
+        let res;
+        try {
+          res = await API.getCustomerGroup({ promotion_id: pid, page: 1, per_page: 1, q: '' });
+        } catch (err) {
+          console.warn('_updatePromoCustomerBadge API error', err);
+          res = null;
+        }
+
+        let total = 0;
+        if (res && typeof res === 'object') {
+          // attempt common shapes
+          if (typeof res.total === 'number') total = Number(res.total);
+          else if (typeof res.total === 'string' && res.total !== '') total = Number(res.total) || 0;
+          else if (Array.isArray(res.rows)) total = res.total || res.rows.length || 0;
+          else if (Array.isArray(res.data)) total = res.total || res.data.length || 0;
+        }
+
+        try {
+          const badge = document.querySelector(`#customer-count-${pid}`);
+          if (badge) badge.textContent = String(total ?? 0);
+        } catch (e) { /* ignore */ }
+
+        try {
+          const modalBadge = document.querySelector(`#promo-count-modal-${pid}`);
+          if (modalBadge) modalBadge.textContent = String(total ?? 0);
+        } catch (e) { /* ignore */ }
+
+      } catch (e) {
+        console.warn('updatePromoCustomerBadge failed', e);
+      }
+    }
+
+
     async loadCustomersByIds(ids = []) {
       this.setCustomerIds(ids);
       if (this.customerIds.length > 0) this._refreshTable(true);
     }
   }
 
-  // expose globally
+  
+
   window.CustomerEditorModal = CustomerEditorModal;
+
+    
+  // -------- update promo badges automatically when any bootstrap-table loads --------
+  (function () {
+    // require jQuery & bootstrap-table
+    if (typeof window.jQuery === 'undefined') return;
+    const $ = window.jQuery;
+
+    // delegated handler: whenever any table triggers load-success.bs.table
+    $(document).on('load-success.bs.table', 'table', function (e, data) {
+      try {
+        const table = this;
+        const $table = $(table);
+
+        // try to derive promotion id from table id like "customersTable-<pid>"
+        const tid = table.id || '';
+        let pid = null;
+        const m = tid.match(/^customersTable-(.+)$/);
+        if (m && m[1]) pid = m[1];
+
+        // also support badges keyed by promotion id included on table dataset: data-promotion-id
+        if (!pid && table.dataset && table.dataset.promotionId) pid = table.dataset.promotionId;
+
+        // compute total (prefer data.total provided by bootstrap-table response)
+        let total = 0;
+        if (data && typeof data === 'object') {
+          if (typeof data.total === 'number') total = Number(data.total);
+          else if (typeof data.total === 'string' && data.total !== '') total = Number(data.total) || 0;
+        }
+        // fallback to option.totalRows (bootstrap-table stores it)
+        if ((!total || total === 0) && $table.length && $table.data('bootstrap.table')) {
+          try {
+            const opts = $table.bootstrapTable('getOptions') || {};
+            if (typeof opts.totalRows === 'number') total = Number(opts.totalRows || 0);
+          } catch (e) { /* ignore */ }
+        }
+
+        // if pid available update matching badges; else try to find any badge elements related to this table
+        if (pid) {
+          const badge = document.querySelector(`#customer-count-${pid}`);
+          if (badge) badge.textContent = String(total ?? 0);
+          const modalBadge = document.querySelector(`#promo-count-modal-${pid}`);
+          if (modalBadge) modalBadge.textContent = String(total ?? 0);
+        } else {
+          // fallback: if table has a nearest wrapper with data-promotion-id
+          let wrapperPid = null;
+          const wrap = $table.closest('[data-promotion-id]');
+          if (wrap && wrap.length) wrapperPid = wrap.attr('data-promotion-id');
+          if (wrapperPid) {
+            const badge = document.querySelector(`#customer-count-${wrapperPid}`);
+            if (badge) badge.textContent = String(total ?? 0);
+            const modalBadge = document.querySelector(`#promo-count-modal-${wrapperPid}`);
+            if (modalBadge) modalBadge.textContent = String(total ?? 0);
+          } else {
+            // last resort: update any visible badge elements inside same container as the table
+            try {
+              const parent = table.closest ? table.closest('.promo-card, .card, .container') : null;
+              if (parent) {
+                const badges = parent.querySelectorAll('[id^="customer-count-"]');
+                badges.forEach(b => { b.textContent = String(total ?? 0); });
+              }
+            } catch (e) { /* ignore */ }
+          }
+        }
+      } catch (err) {
+        console.warn('badge update on load-success failed', err);
+      }
+    });
+
+    // Also update on post-body (table rows rendered) just in case response handler didn't include total
+    $(document).on('post-body.bs.table', 'table', function () {
+      try {
+        const table = this;
+        const $table = $(table);
+        const tid = table.id || '';
+        const m = tid.match(/^customersTable-(.+)$/);
+        const pid = m && m[1] ? m[1] : (table.dataset ? table.dataset.promotionId : null);
+        if (!pid) return;
+        // try options.totalRows
+        let total = 0;
+        if ($table.length && $table.data('bootstrap.table')) {
+          try {
+            const opts = $table.bootstrapTable('getOptions') || {};
+            if (typeof opts.totalRows === 'number') total = Number(opts.totalRows || 0);
+          } catch (e) { /* ignore */ }
+        }
+        const badge = document.querySelector(`#customer-count-${pid}`);
+        if (badge) badge.textContent = String(total ?? 0);
+        const modalBadge = document.querySelector(`#promo-count-modal-${pid}`);
+        if (modalBadge) modalBadge.textContent = String(total ?? 0);
+      } catch (e) { /* ignore */ }
+    });
+
+  })();
+
+
 })(); 

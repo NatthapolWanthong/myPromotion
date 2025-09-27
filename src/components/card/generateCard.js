@@ -184,15 +184,15 @@ function makeCustomerListHTML(promotionId){
           <thead>
             <tr>
               <th data-field="id" data-visible="false" data-switchable="false">id</th>
-              <th data-field="index" data-sortable="true">#</th>
-              <th data-field="type_area" data-sortable="true">กลุ่มเขต</th>
-              <th data-field="area_name" data-sortable="true">เขต</th>
-              <th data-field="segment" data-sortable="true" data-visible="false" data-switchable="false">กลุ่มลูกค้า</th>
-              <th data-field="name" data-sortable="true">ชื่อกลุ่มลูกค้า</th>
-              <th data-field="customer_code" data-sortable="true">รหัสลูกค้า</th>
-              <th data-field="condition" data-sortable="true">เงื่อนไข</th>
-              <th data-field="start_date" data-sortable="true">เริ่ม</th>
-              <th data-field="end_date" data-sortable="true">สิ้นสุด</th>
+              <th data-field="index" data-sortable="false">#</th>
+              <th data-field="type_area" data-sortable="false">กลุ่มเขต</th>
+              <th data-field="area_name" data-sortable="false">เขต</th>
+              <th data-field="segment" data-sortable="false" data-visible="false" data-switchable="false">กลุ่มลูกค้า</th>
+              <th data-field="name" data-sortable="false">ชื่อกลุ่มลูกค้า</th>
+              <th data-field="customer_code" data-sortable="false">รหัสลูกค้า</th>
+              <th data-field="condition" data-sortable="false">เงื่อนไข</th>
+              <th data-field="start_date" data-sortable="false">เริ่ม</th>
+              <th data-field="end_date" data-sortable="false">สิ้นสุด</th>
               <th data-field="manage">จัดการ</th>
             </tr> 
           </thead>
@@ -338,7 +338,7 @@ export class CampaignCard {
 
             <div class="col col-expand-4">
               <button class="btn btn-outline-primary btn-history d-none">History</button>
-              <button class="btn btn-danger btn-delete">Delete</button>
+              <button class="btn btn-danger btn-delete d-none">Delete</button>
               <button class="btn btn-primary btn-edit ${isPromotion ? `d-none`:``}">Edit</button>
               <button class="btn btn-secondary btn-cancel d-none">Cancel</button>
               <button class="btn btn-success btn-save d-none">Save</button>

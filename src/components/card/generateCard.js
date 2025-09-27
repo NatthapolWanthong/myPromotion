@@ -56,6 +56,60 @@ window.addEventListener('condition:saved', (ev) => {
   }
 });
 
+window.addEventListener('customer:add:submitted', (ev) => {
+  try {
+    const pid = String(ev?.detail?.promotion_id || '');
+    if (!pid) return;
+
+    const selector = `#customersTable-${pid}`;
+    const tryRefresh = () => {
+      try {
+        const $t = window.jQuery ? window.jQuery(selector) : null;
+        if ($t && $t.data && $t.data('bootstrap.table')) {
+          $t.bootstrapTable('refresh', { silent: true });
+          return true;
+        }
+        if (window._CustomerTableManager && typeof window._CustomerTableManager.refresh === 'function') {
+          window._CustomerTableManager.refresh(pid);
+          return true;
+        }
+        return false;
+      } catch (e) {
+        console.warn('refresh promo customer table error', e);
+        return false;
+      }
+    };
+
+    if (!tryRefresh()) {
+      let attempts = 0;
+      const iv = setInterval(() => {
+        attempts++;
+        if (tryRefresh() || attempts >= 8) clearInterval(iv);
+      }, 250);
+    }
+  } catch (e) {
+    console.warn('customer:add:submitted handler failed', e);
+  }
+});
+
+window.addEventListener('customer:group:created', (ev) => {
+  try {
+    const pid = ev?.detail?.promotion_id;
+    if (pid && window._CustomerTableManager && typeof window._CustomerTableManager.refresh === 'function') {
+      window._CustomerTableManager.refresh(pid);
+    }
+  } catch (e) { /* ignore */ }
+});
+window.addEventListener('customer:group:updated', (ev) => {
+  try {
+    const pid = ev?.detail?.promotion_id;
+    if (pid && window._CustomerTableManager && typeof window._CustomerTableManager.refresh === 'function') {
+      window._CustomerTableManager.refresh(pid);
+    }
+  } catch (e) { /* ignore */ }
+});
+
+
 /* -------------------------
    makeConditionListHTML - toolbar ABOVE table (bootstrap-table will render search/pagination)
    ------------------------- */
@@ -484,43 +538,39 @@ export class CampaignCard {
 
       } catch(e){}
 
-      // --- robust init for customer table: wait for both element AND manager ---
-      // --- improved ensureCustomerTableInit: wait for element and manager, queue if needed ---
-(function ensureCustomerTableInit(pid) {
-  const selector = `#customersTable-${pid}`;
-  const elementTimeoutMs = 10000; // wait up to 10s for the element to appear
-  const managerPollIntervalMs = 250;
-  const managerPollMaxAttempts = 80; // ~20s max polling for manager when queued
 
-  // ensure global pending queue exists
-  window._pendingCustomerInits = window._pendingCustomerInits || [];
+  (function ensureCustomerTableInit(pid) {
+    const selector = `#customersTable-${pid}`;
+    const elementTimeoutMs = 10000; // wait up to 10s for the element to appear
+    const managerPollIntervalMs = 250;
+    const managerPollMaxAttempts = 80; // ~20s max polling for manager when queued
 
-  // process pending queue: try to init any entries where both el+manager ready
-  function processPendingQueue() {
-    if (!window._pendingCustomerInits || !window._pendingCustomerInits.length) return;
-    if (!window._CustomerTableManager || typeof window._CustomerTableManager.initTableForPid !== 'function') return;
+    // ensure global pending queue exists
+    window._pendingCustomerInits = window._pendingCustomerInits || [];
 
-    const remaining = [];
-    window._pendingCustomerInits.forEach(entry => {
-      try {
-        const el = document.querySelector(entry.selector);
-        if (el) {
-          try { window._CustomerTableManager.initTableForPid(entry.pid, el); }
-          catch (err) { console.warn('initTableForPid threw for pid', entry.pid, err); remaining.push(entry); }
-        } else {
-          // element still missing -> keep it queued (maybe created later)
+    // process pending queue: try to init any entries where both el+manager ready
+    function processPendingQueue() {
+      if (!window._pendingCustomerInits || !window._pendingCustomerInits.length) return;
+      if (!window._CustomerTableManager || typeof window._CustomerTableManager.initTableForPid !== 'function') return;
+
+      const remaining = [];
+      window._pendingCustomerInits.forEach(entry => {
+        try {
+          const el = document.querySelector(entry.selector);
+          if (el) {
+            try { window._CustomerTableManager.initTableForPid(entry.pid, el); }
+            catch (err) { console.warn('initTableForPid threw for pid', entry.pid, err); remaining.push(entry); }
+          } else {
+            // element still missing -> keep it queued (maybe created later)
+            remaining.push(entry);
+          }
+        } catch (e) {
           remaining.push(entry);
         }
-      } catch (e) {
-        remaining.push(entry);
-      }
-    });
-    window._pendingCustomerInits = remaining;
-  }
+      });
+      window._pendingCustomerInits = remaining;
+    }
 
-  // allow external side (CustomerTableManager) to tell us it's ready:
-  // when manager script initializes, it can: window.dispatchEvent(new Event('CustomerTableManager:ready'))
-  // we listen and attempt to process queue immediately.
   if (!ensureCustomerTableInit._listenerInstalled) {
     ensureCustomerTableInit._listenerInstalled = true;
     window.addEventListener('CustomerTableManager:ready', () => {
@@ -543,18 +593,16 @@ export class CampaignCard {
     return false;
   };
 
-  // 1) if element already exists -> try immediate init or queue
+
   const existingEl = document.querySelector(selector);
   if (existingEl) {
     if (tryInitNow(existingEl)) return;
-    // manager not ready -> queue the init
     window._pendingCustomerInits.push({ pid, selector });
-    // start light-weight polling for manager to process the queue
     startManagerPollIfNeeded();
     return;
   }
 
-  // 2) element does not exist yet -> observe DOM for its creation (with timeout)
+
   let mo;
   let done = false;
   const onFoundElement = (el) => {
@@ -577,7 +625,6 @@ export class CampaignCard {
     });
     mo.observe(document.documentElement || document.body, { childList: true, subtree: true });
   } catch (e) {
-    // MutationObserver may fail in some envs; fallback to simple polling for element
     const fallbackInterval = setInterval(() => {
       try {
         const el = document.querySelector(selector);
@@ -587,11 +634,9 @@ export class CampaignCard {
         }
       } catch (e) {}
     }, 150);
-    // safety timeout to clear fallback if nothing appears
     setTimeout(() => clearInterval(fallbackInterval), elementTimeoutMs);
   }
 
-  // stop observation after timeout if not found
   setTimeout(() => {
     if (done) return;
     done = true;
@@ -603,15 +648,12 @@ export class CampaignCard {
         startManagerPollIfNeeded();
       }
     } else {
-      // element never appeared within timeout: push a placeholder to pending so it can be retried later (or removed)
-      // we do NOT spam console.warn here to avoid noisy logs; show a debug only
       console.debug(`customersTable element ${selector} not found after ${elementTimeoutMs}ms; queued for later if created.`);
       window._pendingCustomerInits.push({ pid, selector });
       startManagerPollIfNeeded();
     }
   }, elementTimeoutMs);
 
-  // start a short polling that tries to process queue when manager becomes available
   function startManagerPollIfNeeded() {
     if (ensureCustomerTableInit._managerPollRunning) return;
     ensureCustomerTableInit._managerPollRunning = true;
@@ -622,7 +664,6 @@ export class CampaignCard {
         if (window._CustomerTableManager && typeof window._CustomerTableManager.initTableForPid === 'function') {
           try { processPendingQueue(); } catch (e) { console.warn('processPendingQueue error', e); }
         }
-        // stop if queue empty or attempts exhausted
         if ((!window._pendingCustomerInits || window._pendingCustomerInits.length === 0) || attempts >= managerPollMaxAttempts) {
           clearInterval(iv);
           ensureCustomerTableInit._managerPollRunning = false;
@@ -637,7 +678,6 @@ export class CampaignCard {
 })(item.id);
 
 
-      // --- initialize flatpickr only for inputs inside THIS card (avoid global selector) ---
       try {
         const defaultOptions = {
           enableTime: true,

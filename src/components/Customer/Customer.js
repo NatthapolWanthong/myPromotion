@@ -215,7 +215,6 @@ import { API } from '../../assets/js/api.js';
       }
     });
 
-    // handle edit - fetch group and open editor modal pre-filled
     document.addEventListener('customers:edit', async function(ev){
       try {
         const detail = ev && ev.detail ? ev.detail : {};
@@ -257,6 +256,18 @@ import { API } from '../../assets/js/api.js';
         alert('เกิดข้อผิดพลาดขณะโหลดข้อมูลสำหรับแก้ไข');
       }
     });
+
+    document.addEventListener('customer:add:submitted', function (ev) {
+      try {
+        const pid = ev && ev.detail && ev.detail.promotion_id ? ev.detail.promotion_id : null;
+        if (pid && window._CustomerTableManager) {
+          window._CustomerTableManager.refresh(pid);
+        }
+      } catch (e) {
+        console.warn('customer:add:submitted refresh handler failed', e);
+      }
+    });
+
 
     try {
       if (typeof API !== 'undefined' && API.getCustomerOptions) {

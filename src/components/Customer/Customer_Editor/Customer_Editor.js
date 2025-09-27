@@ -41,6 +41,15 @@ import { API } from '../../../assets/js/api.js';
       this._tableInitialized = false;
       this._tableSelector = '#ce-table';
 
+      this._conditionsCache = new Map();
+      this._loadingConditionsPromise = null;
+      this._conditionsLoadedFor = null;
+      this._select2Options = {
+        theme: 'bootstrap-5', placeholder: 'เลือกเงื่อนไข', allowClear: true, width: 'resolve', dropdownParent: window.jQuery ? window.jQuery(document.body) : null
+      };
+      this._pendingConditionValue = null;
+
+
       // bind UI
       this._bindUIListeners();
 
@@ -57,29 +66,58 @@ import { API } from '../../../assets/js/api.js';
           pidSpan.parentNode.style.display = 'none';
         }
       } catch (e) { /* ignore */ }
+      
 
-      // Listen to the global event that Customer_Add dispatches when user saves selection
-      document.addEventListener('customer:add:submitted', (ev) => {
-        try {
-          const detail = (ev && ev.detail) ? ev.detail : {};
-          const ids = Array.isArray(detail.selected_ids) ? detail.selected_ids : [];
-          // Save promotion id if provided (but do not show it)
-          if (detail.promotion_id !== undefined && detail.promotion_id !== null && detail.promotion_id !== '') {
-            this.promotionId = detail.promotion_id;
-            // load conditions for this promotion
-            this._loadConditions(this.promotionId).catch(err => console.warn('loadConditions failed', err));
-          } else {
-            // if no promotion_id, clear/disable select
-            this._setConditionSelectDisabled(true);
+    
+
+    document.addEventListener('customer:add:submitted', (ev) => {
+      try {
+        const detail = (ev && ev.detail) ? ev.detail : {};
+        const ids = Array.isArray(detail.selected_ids) ? detail.selected_ids : [];
+        console.log("detail.selected_ids = " + detail.selected_ids)
+
+        // preserveCondition flag from Add modal => do not clear or reload condition select if true
+        const preserve = !!detail.preserveCondition;
+
+        // If preserving, capture current select value so _loadConditions can re-apply it after options are rendered
+        if (preserve && this._conditionSelect) {
+          try {
+            let curVal = null;
+            if (window.jQuery && window.jQuery(this._conditionSelect).data('select2')) {
+              curVal = window.jQuery(this._conditionSelect).val();
+            } else {
+              curVal = this._conditionSelect.value;
+            }
+            this._pendingConditionValue = (curVal !== null && curVal !== undefined && String(curVal) !== '') ? String(curVal) : null;
+          } catch (e) {
+            // non-fatal
+            this._pendingConditionValue = null;
           }
-          // store ids and load customers
-          this.setCustomerIds(ids);
-          // open editor so user sees the results (this will also clear inputs for add-mode)
-          this.open(this.promotionId, detail.name ?? '');
-        } catch (e) {
-          console.error('customer:add:submitted handler failed', e);
+        } else {
+          // clear any pending when not preserving
+          this._pendingConditionValue = null;
         }
-      });
+
+        // Save promotion id if provided (but do not show it)
+        if (detail.promotion_id !== undefined && detail.promotion_id !== null && detail.promotion_id !== '') {
+          this.promotionId = detail.promotion_id;
+          this._pid = this.promotionId;
+
+          this._loadConditions(this.promotionId).catch(err => console.warn('loadConditions failed', err));
+        } else {
+          this._setConditionSelectDisabled(true);
+        }
+
+        // store ids and load customers
+        this.setCustomerIds(ids);
+
+        this.open(this.promotionId, detail.name ?? '', { skipClearInputs: preserve });
+
+      } catch (e) {
+        console.error('customer:add:submitted handler failed', e);
+      }
+    });
+
     }
 
     _bindUIListeners() {
@@ -100,14 +138,28 @@ import { API } from '../../../assets/js/api.js';
       this._conditionSelect = dom.qs('select[data-field="Customer-Editor-Condition"]', this._el);
       if (!this._conditionSelect) return;
       this._setConditionSelectDisabled(true);
+
+      const select2Opts = Object.assign({}, this._select2Options);
+      if (window.jQuery) {
+        try { window.jQuery(this._conditionSelect).data('select2-options', select2Opts); } catch(e){/*ignore*/ }
+      }
+
       if (window.jQuery && typeof window.jQuery(this._conditionSelect).select2 === 'function') {
-        window.jQuery(this._conditionSelect).select2({
-          theme: 'bootstrap-5', placeholder: 'เลือกเงื่อนไข', allowClear: true, width: 'resolve', dropdownParent: window.jQuery(document.body)
-        });
-        window.jQuery(this._conditionSelect).on('change', () => {
-          const val = window.jQuery(this._conditionSelect).val();
-          this.conditionId = (val === null || val === undefined || val === '') ? null : (isFinite(val) ? Number(val) : val);
-        });
+        try {
+          if (!window.jQuery(this._conditionSelect).data('select2')) {
+            window.jQuery(this._conditionSelect).select2(select2Opts);
+          }
+          window.jQuery(this._conditionSelect).off('change.customerEditor').on('change.customerEditor', () => {
+            const val = window.jQuery(this._conditionSelect).val();
+            this.conditionId = (val === null || val === undefined || val === '') ? null : (isFinite(val) ? Number(val) : val);
+          });
+        } catch (e) {
+          console.warn('_initConditionSelect select2 init failed', e);
+          this._conditionSelect.addEventListener('change', () => {
+            const val = this._conditionSelect.value;
+            this.conditionId = (val === '') ? null : (isFinite(val) ? Number(val) : val);
+          });
+        }
       } else {
         this._conditionSelect.addEventListener('change', () => {
           const val = this._conditionSelect.value;
@@ -115,6 +167,7 @@ import { API } from '../../../assets/js/api.js';
         });
       }
     }
+
 
     _setConditionSelectDisabled(disabled = true) {
       if (!this._conditionSelect) return;
@@ -125,39 +178,123 @@ import { API } from '../../../assets/js/api.js';
     }
 
     async _loadConditions(promotionId) {
-      if (!this._conditionSelect) return;
-      if (!promotionId) { this._clearConditionOptions(); this._setConditionSelectDisabled(true); return; }
-      try {
-        this._setConditionSelectDisabled(true);
-        const res = await API.getCondition({ promotion_id: promotionId, page: 1, per_page: 1000, q: '', sortBy: 'id', order: 'ASC' });
-        const arr = Array.isArray(res) ? res : (Array.isArray(res.data) ? res.data : []);
-        this._clearConditionOptions();
-        const placeholderOpt = document.createElement('option'); placeholderOpt.value = ''; placeholderOpt.textContent = ''; this._conditionSelect.appendChild(placeholderOpt);
-        arr.forEach(item => {
-          const id = (item.id !== undefined && item.id !== null) ? item.id : (item.condition_id ?? item.conditionId ?? null);
-          const text = item.condition_name ?? item.name ?? item.conditionName ?? String(id ?? '');
-          if (id === null || id === undefined) return;
-          const opt = document.createElement('option'); opt.value = String(id); opt.textContent = text; this._conditionSelect.appendChild(opt);
-        });
+      if (!this._conditionSelect) return Promise.resolve([]);
+      if (!promotionId) { this._clearConditionOptions(); this._setConditionSelectDisabled(true); return Promise.resolve([]); }
+
+      if (this._conditionsCache.has(promotionId)) {
+        const cached = this._conditionsCache.get(promotionId);
+        this._renderConditionOptions(cached);
+        this._conditionsLoadedFor = promotionId;
         this._setConditionSelectDisabled(false);
-        if (window.jQuery && window.jQuery(this._conditionSelect).data('select2')) {
-          window.jQuery(this._conditionSelect).trigger('change.select2');
+        if (this._pendingConditionValue !== null) {
+          this._applyConditionValue(this._pendingConditionValue);
+          this._pendingConditionValue = null;
         }
-      } catch (err) {
-        console.error('Failed to load conditions', err); this._clearConditionOptions(); this._setConditionSelectDisabled(true);
+        return Promise.resolve(cached);
+      }
+
+      if (this._loadingConditionsPromise && this._conditionsLoadedFor === promotionId) {
+        return this._loadingConditionsPromise;
+      }
+
+      this._setConditionSelectDisabled(true);
+      this._loadingConditionsPromise = (async () => {
+        try {
+          const res = await API.getCondition({ promotion_id: promotionId, page: 1, per_page: 1000, q: '', sortBy: 'id', order: 'ASC' });
+          const arr = Array.isArray(res) ? res : (Array.isArray(res.data) ? res.data : []);
+          // cache
+          this._conditionsCache.set(promotionId, arr);
+          this._renderConditionOptions(arr);
+          this._conditionsLoadedFor = promotionId;
+          this._setConditionSelectDisabled(false);
+
+          if (this._pendingConditionValue !== null) {
+            this._applyConditionValue(this._pendingConditionValue);
+            this._pendingConditionValue = null;
+          }
+          return arr;
+        } catch (err) {
+          console.error('Failed to load conditions', err);
+          this._clearConditionOptions();
+          this._setConditionSelectDisabled(true);
+          return [];
+        } finally {
+          this._loadingConditionsPromise = null;
+        }
+      })();
+
+      return this._loadingConditionsPromise;
+    }
+
+    _renderConditionOptions(arr = []) {
+      if (!this._conditionSelect) return;
+      // clear existing
+      while (this._conditionSelect.firstChild) this._conditionSelect.removeChild(this._conditionSelect.firstChild);
+      // placeholder
+      const placeholderOpt = document.createElement('option'); placeholderOpt.value = ''; placeholderOpt.textContent = ''; this._conditionSelect.appendChild(placeholderOpt);
+      arr.forEach(item => {
+        const id = (item.id !== undefined && item.id !== null) ? item.id : (item.condition_id ?? item.conditionId ?? null);
+        const text = item.condition_name ?? item.name ?? item.conditionName ?? String(id ?? '');
+        if (id === null || id === undefined) return;
+        const opt = document.createElement('option'); opt.value = String(id); opt.textContent = text; this._conditionSelect.appendChild(opt);
+      });
+
+      if (window.jQuery && window.jQuery(this._conditionSelect).data('select2')) {
+        try { window.jQuery(this._conditionSelect).trigger('change.select2'); } catch(e){/*ignore*/ }
       }
     }
+
+    _applyConditionValue(v) {
+      if (!this._conditionSelect) return;
+      const val = String(v);
+      try {
+        const opt = this._conditionSelect.querySelector(`option[value="${val.replace(/"/g, '\\"')}"]`);
+        if (opt) opt.selected = true;
+      } catch(e){ /* ignore */ }
+
+      this.conditionId = isFinite(val) ? Number(val) : val;
+
+      // select2 path
+      if (window.jQuery && window.jQuery(this._conditionSelect).data('select2')) {
+        try {
+          window.jQuery(this._conditionSelect).val(val).trigger('change');
+          setTimeout(() => {
+            try {
+              window.jQuery(this._conditionSelect).trigger('change.select2');
+              if (String(window.jQuery(this._conditionSelect).val()) !== val) {
+                const opts = window.jQuery(this._conditionSelect).data('select2-options') || this._select2Options;
+                try {
+                  window.jQuery(this._conditionSelect).select2('destroy');
+                } catch(e){/*ignore*/}
+                try {
+                  window.jQuery(this._conditionSelect).select2(opts);
+                  window.jQuery(this._conditionSelect).val(val).trigger('change');
+                } catch(e){ console.warn('select2 re-init failed in _applyConditionValue', e); }
+              }
+            } catch(e){/*ignore*/}
+          }, 0);
+        } catch(e){
+          try { this._conditionSelect.value = val; } catch(ee){/*ignore*/}
+        }
+      } else {
+        // plain select
+        try { this._conditionSelect.value = val; } catch (e) { /* ignore */ }
+      }
+    }
+
 
     _clearConditionOptions() {
       if (!this._conditionSelect) return;
       while (this._conditionSelect.firstChild) this._conditionSelect.removeChild(this._conditionSelect.firstChild);
       this.conditionId = null;
+      this._pendingConditionValue = null;
+      this._conditionsLoadedFor = null;
       if (window.jQuery && window.jQuery(this._conditionSelect).data('select2')) {
         window.jQuery(this._conditionSelect).val(null).trigger('change');
       } else { this._conditionSelect.value = ''; }
     }
 
-    /* helper: clear inputs for add-mode and set date defaults from modal data-field form-begin/form-end */
+
     _clearInputsForAddMode() {
       try {
         const nameEl = dom.qs('input[data-field="Customer-Editor-Name"]', this._el);
@@ -189,7 +326,6 @@ import { API } from '../../../assets/js/api.js';
           }
         }
 
-        // clear condition select
         if (this._conditionSelect) {
           if (window.jQuery && window.jQuery(this._conditionSelect).data('select2')) {
             window.jQuery(this._conditionSelect).val(null).trigger('change');
@@ -201,12 +337,19 @@ import { API } from '../../../assets/js/api.js';
 
         this._membersMap.clear();
 
+        this.customerIds = [];
+
+        try { this._destroyTable(); } catch(e){/*ignore*/}
+        try { this._renderEmptyState(); } catch(e){/*ignore*/}
+
         const addBtns = Array.from(this._el.querySelectorAll('[data-role="add"]'));
         addBtns.forEach(b => { b.innerHTML = (b.dataset.orig || 'เพิ่มกลุ่มลูกค้า'); b.dataset.mode = 'create'; b.disabled = false; });
       } catch (e) {
         console.warn('_clearInputsForAddMode failed', e);
       }
     }
+
+
 
     /* -------------------
        Public API for edit:
@@ -227,7 +370,6 @@ import { API } from '../../../assets/js/api.js';
 
         if (nameEl) nameEl.value = group.name ?? '';
 
-        // set start/end safely (flatpickr aware)
         try {
           if (startEl) {
             if (startEl._flatpickr && typeof startEl._flatpickr.setDate === 'function') {
@@ -248,95 +390,15 @@ import { API } from '../../../assets/js/api.js';
           }
         } catch (e) { if (endEl) endEl.value = group.end_date ?? ''; }
 
+        const condVal = group.condition_id ?? group.conditionId ?? null;
+        if (condVal !== null && condVal !== undefined && condVal !== '') {
+          this._pendingConditionValue = String(condVal);
+        } else {
+          this._pendingConditionValue = null;
+        }
 
-        // condEl = $('#mySelect2').val();
+        this._loadConditions(this.promotionId).catch(()=>{});
 
-
-
-
-        // load conditions and set selected (set after options are loaded to support select2)
-        this._loadConditions(this.promotionId).then(() => {
-          try {
-            console.log("conditionId : " + (group.condition_id ?? group.conditionId));
-
-            // --- FIX: ensure we select the proper element (was using 'input' erroneously) ---
-            const condEl = dom.qs('select[data-field="Customer-Editor-Condition"]', this._el) || this._conditionSelect;
-
-            const condVal = group.condition_id ?? group.conditionId ?? null;
-            if (condEl && condVal !== null && condVal !== undefined && condVal !== '') {
-              const v = String(condVal);
-
-              // 1) Robust DOM-level selection first (safe regardless of select2)
-              try {
-                const opt = condEl.querySelector(`option[value="${v.replace(/"/g, '\\"')}"]`);
-                if (opt) {
-                  // set option selected attribute (DOM-level)
-                  opt.selected = true;
-                } else {
-                  // if option not present, optionally create it (rare) — commented out by default
-                  // const newOpt = document.createElement('option'); newOpt.value = v; newOpt.textContent = '...'; newOpt.selected = true; condEl.appendChild(newOpt);
-                }
-              } catch (e) {
-                console.warn('failed to set option.selected DOM fallback', e);
-              }
-
-              // set internal state
-              this.conditionId = isFinite(v) ? Number(v) : v;
-
-              // 2) If select2 is active, set via jQuery + trigger change,
-              //    and defer a microtask to avoid race with rendering
-              if (window.jQuery && window.jQuery(condEl).data('select2')) {
-                try {
-                  window.jQuery(condEl).val(v).trigger('change');
-
-                  // small defer to let select2 update UI/repaint (addresses timing issues)
-                  setTimeout(() => {
-                    try {
-                      // extra trigger for select2 specific handlers
-                      window.jQuery(condEl).trigger('change.select2');
-
-                      // fallback: if still not showing, re-init select2 (safe guard)
-                      const sel2 = window.jQuery(condEl).data('select2');
-                      if (!sel2 || String(window.jQuery(condEl).val()) !== v) {
-                        try {
-                          // destroy + re-init (use same options as initial init)
-                          const opts = window.jQuery(condEl).data('select2-options') || { theme: 'bootstrap-5', placeholder: 'เลือกเงื่อนไข', allowClear: true, width: 'resolve', dropdownParent: window.jQuery(document.body) };
-                          window.jQuery(condEl).select2('destroy');
-                          window.jQuery(condEl).select2(opts);
-                          window.jQuery(condEl).val(v).trigger('change');
-                        } catch (ee) {
-                          // non-fatal
-                          console.warn('select2 re-init fallback failed', ee);
-                        }
-                      }
-                    } catch (e) { /* ignore */ }
-                  }, 0);
-                } catch (e) {
-                  console.warn('setting select2 value failed, falling back to DOM value', e);
-                  try { condEl.value = v; } catch (ee) { /* ignore */ }
-                }
-              } else {
-                // plain select (no select2) — set value directly
-                try { condEl.value = v; } catch (e) { /* ignore */ }
-              }
-            } else {
-              // ensure cleared
-              if (this._conditionSelect) {
-                try {
-                  if (window.jQuery && window.jQuery(this._conditionSelect).data('select2')) {
-                    window.jQuery(this._conditionSelect).val(null).trigger('change');
-                  } else {
-                    this._conditionSelect.value = '';
-                    this.conditionId = null;
-                  }
-                } catch (e) { /* ignore */ }
-              }
-            }
-          } catch (e) { /* ignore */ }
-        }).catch(()=>{});
-
-
-        // members -> set authoritative customerIds and membersMap(select_all)
         const members = Array.isArray(group.members) ? group.members : (group.members_list ?? []);
         this.customerIds = members.map(m => Number(m.customer_id)).filter(n => !Number.isNaN(n));
         this._membersMap = new Map();
@@ -346,11 +408,9 @@ import { API } from '../../../assets/js/api.js';
           if (cid) this._membersMap.set(cid, sel);
         });
 
-        // ensure table initialized & refresh (this will sync checkboxes & apply select_all after load)
         if (!this._tableInitialized) this._initTable();
         this._refreshTable(true);
 
-        // change add button label to indicate edit
         const addBtns = Array.from(this._el.querySelectorAll('[data-role="add"]'));
         addBtns.forEach(b => { b.dataset.orig = b.innerHTML; b.disabled = false; b.innerHTML = 'บันทึก'; b.dataset.mode = 'edit'; });
       } catch (e) {
@@ -362,6 +422,7 @@ import { API } from '../../../assets/js/api.js';
     getCustomerIds() { return Array.isArray(this.customerIds) ? this.customerIds.slice() : []; }
 
     setCustomerIds(ids = []) {
+      console.log("ids in function setCustomerIds =" + ids)
       this.customerIds = Array.isArray(ids) ? ids.map(i => Number(i)).filter(n => !Number.isNaN(n)) : [];
       if (this.customerIds.length === 0) { this._destroyTable(); this._renderEmptyState(); }
       else {
@@ -370,17 +431,26 @@ import { API } from '../../../assets/js/api.js';
       }
     }
 
-    open(pid = '', pname = '') {
+    open(pid = '', pname = '', opts = {}) {
       this._pid = pid ?? ''; this._pname = pname ?? ''; if (this._pid) this.promotionId = this._pid;
       this._el.style.display = 'flex'; document.body.style.overflow = 'hidden';
 
-      // If we're in "add mode" (no editing group), clear previous inputs and set default dates from promo
+      const skipClear = opts && opts.skipClearInputs;
+
       if (!this._groupId) {
-        this._clearInputsForAddMode();
-        // load conditions for promotion (options will populate select; select remains cleared)
-        if (this._pid) this._loadConditions(this._pid).catch(err => console.warn('loadConditions on open failed', err));
+        if (!skipClear) {
+          this._clearInputsForAddMode();
+        } else {
+          if (this._conditionSelect) {
+            this._setConditionSelectDisabled(false);
+          }
+        }
+        if (this._pid && !skipClear) {
+          this._loadConditions(this._pid).catch(err => console.warn('loadConditions on open failed', err));
+        } else if (this._pid && skipClear) {
+          this._loadConditions(this._pid).catch(() => { /* ignore - do not clear user selection */ });
+        }
       } else {
-        // if editing an existing group, ensure conditions loaded (loadGroupData handles selecting value)
         if (this._pid) this._loadConditions(this._pid).catch(err => console.warn('loadConditions on open failed', err));
       }
 
@@ -394,22 +464,19 @@ import { API } from '../../../assets/js/api.js';
       document.addEventListener('keydown', this._onKey);
     }
 
+
+
     close() {
-      // reset edit state but keep last values in inputs if user reopened intentionally
       this._groupId = null;
       this._membersMap.clear();
-      // restore add button text if we changed it
       const addBtns = Array.from(this._el.querySelectorAll('[data-role="add"]'));
       addBtns.forEach(b => { b.innerHTML = (b.dataset.orig || 'เพิ่มกลุ่มลูกค้า'); b.dataset.mode = 'create'; });
       this._el.style.display = 'none'; document.body.style.overflow = ''; document.removeEventListener('keydown', this._onKey);
     }
 
-    // add() now handles create OR update depending on this._groupId
     add() {
-      // This triggers "save group" flow
       (async () => {
         try {
-          // clear previous validation UI
           const clearValidation = (el) => {
             if (!el) return;
             el.classList.remove('is-invalid');
@@ -419,7 +486,6 @@ import { API } from '../../../assets/js/api.js';
           const showValidation = (el, msg) => {
             if (!el) return;
             el.classList.add('is-invalid');
-            // create feedback under element (Bootstrap style)
             let fb = el.parentNode.querySelector('.invalid-feedback');
             if (!fb) {
               fb = document.createElement('div');
@@ -438,7 +504,6 @@ import { API } from '../../../assets/js/api.js';
           // clear prev errors
           [nameEl, startEl, endEl, condEl].forEach(clearValidation);
 
-          // basic validation (also try to defer to external form-validate if present)
           let hasError = false;
           const valName = nameEl ? nameEl.value.trim() : '';
           const valStart = startEl ? startEl.value.trim() : '';
@@ -450,7 +515,6 @@ import { API } from '../../../assets/js/api.js';
           if (!valEnd) { showValidation(endEl, 'กรุณากรอกวันที่สิ้นสุด'); hasError = true; }
           if (!valCond) { showValidation(condEl, 'กรุณาเลือกเงื่อนไข'); hasError = true; }
 
-          // date sanity: try parse
           const parseDate = (s) => {
             if (!s) return null;
             const t = Date.parse(s);
@@ -467,7 +531,6 @@ import { API } from '../../../assets/js/api.js';
 
           if (hasError) return;
 
-          // gather members: authoritative list is this.customerIds (set by AddModal or loaded)
           const tableEl = dom.qs(this._tableSelector, this._el);
           const $t = window.jQuery && window.jQuery(tableEl);
           const members = [];
@@ -477,7 +540,6 @@ import { API } from '../../../assets/js/api.js';
               const cid = Number(cidRaw);
               if (!cid || seen.has(cid)) continue;
               seen.add(cid);
-              // try to get select_all from membersMap or row cache, otherwise DOM checkbox
               let sel = 0;
               try {
                 if (this._membersMap && this._membersMap.has(cid)) {
@@ -487,7 +549,6 @@ import { API } from '../../../assets/js/api.js';
                   if (row && row.select_all !== undefined) {
                     sel = (row.select_all === true || Number(row.select_all) === 1) ? 1 : 0;
                   } else {
-                    // try find input in DOM
                     const cb = tableEl.querySelector(`.ce-input-selectall[data-row-id="${cid}"]`);
                     if (cb) {
                       if (cb.type === 'checkbox') sel = cb.checked ? 1 : 0;
@@ -495,7 +556,6 @@ import { API } from '../../../assets/js/api.js';
                     }
                   }
                 } else {
-                  // fallback DOM scan
                   const cb = tableEl.querySelector(`.ce-input-selectall[data-row-id="${cid}"]`);
                   if (cb) sel = (cb.type === 'checkbox') ? (cb.checked ? 1 : 0) : (cb.value ? 1 : 0);
                 }
@@ -506,12 +566,10 @@ import { API } from '../../../assets/js/api.js';
           }
 
           if (members.length === 0) {
-            // show error near toolbar name input
             showValidation(nameEl, 'ต้องมีสมาชิกในกลุ่มอย่างน้อย 1 รายการ');
             return;
           }
 
-          // build payload (normalize dates to "YYYY-MM-DD HH:mm:ss" if possible)
           const fmtDT = (d) => {
             if (!d) return '';
             const pad = (n) => String(n).padStart(2, '0');
@@ -533,34 +591,44 @@ import { API } from '../../../assets/js/api.js';
             members: members
           };
 
-          // If edit mode, include group_id
           if (this._groupId) payload.group_id = Number(this._groupId);
 
-          // UI: disable button and show loading text
           const addBtns = Array.from(this._el.querySelectorAll('[data-role="add"]'));
           addBtns.forEach(b => { b.dataset.orig = b.innerHTML; b.disabled = true; b.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังบันทึก...'; });
 
           // call API
           try {
             const res = await API.insertCustomerGroup(payload);
-            if (res && res.success) {
-              // success: dispatch event + close modal
+              if (res && res.success) {
               try {
                 const eventName = this._groupId ? 'customer:group:updated' : 'customer:group:created';
                 document.dispatchEvent(new CustomEvent(eventName, { detail: { group_id: res.group_id || this._groupId, inserted_members: res.inserted_members, promotion_id: payload.promotion_id } }));
               } catch (e) {}
-              // show brief success (alert fallback)
+
+              try {
+                const pid = payload.promotion_id || this.promotionId;
+                if (pid) {
+                  if (window._CustomerTableManager && typeof window._CustomerTableManager.refresh === 'function') {
+                    window._CustomerTableManager.refresh(pid);
+                  } else {
+                    const sel = `#customersTable-${pid}`;
+                    const $t = window.jQuery ? window.jQuery(sel) : null;
+                    if ($t && $t.data && $t.data('bootstrap.table')) {
+                      try { $t.bootstrapTable('refresh', { silent: true }); } catch (e) { /* ignore */ }
+                    }
+                  }
+                }
+              } catch (e) { console.warn('refresh promo-customer-table after save failed', e); }
+
               try { alert(this._groupId ? 'แก้ไขกลุ่มลูกค้าเรียบร้อย' : 'บันทึกกลุ่มลูกค้าเรียบร้อย'); } catch(e){}
               this.close();
+
             } else {
-              // server returned error
               if (res && res.errors && typeof res.errors === 'object') {
-                // show field errors if provided
                 if (res.errors.name) showValidation(nameEl, res.errors.name);
                 if (res.errors.start_date) showValidation(startEl, res.errors.start_date);
                 if (res.errors.end_date) showValidation(endEl, res.errors.end_date);
                 if (res.errors.members) {
-                  // show near name as generic members error
                   showValidation(nameEl, res.errors.members);
                 }
               } else {
@@ -571,7 +639,6 @@ import { API } from '../../../assets/js/api.js';
             console.error('API error', err);
             alert('เกิดข้อผิดพลาดขณะบันทึก: ' + (err && err.message ? err.message : String(err)));
           } finally {
-            // restore buttons
             addBtns.forEach(b => { b.disabled = false; b.innerHTML = (b.dataset.orig || 'เพิ่มกลุ่มลูกค้า'); });
           }
 
@@ -600,7 +667,6 @@ import { API } from '../../../assets/js/api.js';
       if (this._tableInitialized) return;
 
       try {
-        // defensive: ensure bootstrap-table won't escape our HTML
         try {
           if (window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable && window.jQuery.fn.bootstrapTable.defaults) {
             window.jQuery.fn.bootstrapTable.defaults.escape = false;
@@ -660,6 +726,8 @@ import { API } from '../../../assets/js/api.js';
           search: true,
           showRefresh: true,
           showColumns: true,
+          showExport: true,
+          exportTypes: ['csv', 'excel'],
           sortName: 'id',
           sortOrder: 'ASC',
           clickToSelect: true,
@@ -819,9 +887,8 @@ import { API } from '../../../assets/js/api.js';
                 }
               }
             });
-            // --- END: ensure select_all TD + input exist ---
 
-            // --- START: apply membersMap select_all values to visible rows ---
+
             try {
               if (self._membersMap && self._membersMap.size) {
                 const visible = $(tableEl).bootstrapTable('getData') || [];
@@ -851,13 +918,35 @@ import { API } from '../../../assets/js/api.js';
 
 
         // keep authoritative this.customerIds in sync with user selection
+        // --- MERGE strategy: only add/remove visible-page ids, keep selections from other pages intact ---
         $(tableEl).on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
           try {
+            // visible rows on current page
+            const visible = $(tableEl).bootstrapTable('getData') || [];
+            const visibleIds = visible.map(r => Number(r.id)).filter(id => !Number.isNaN(id));
+
+            // currently selected rows on this page
             const selected = $(tableEl).bootstrapTable('getSelections') || [];
-            const ids = selected.map(r => Number(r.id));
-            self.customerIds = ids;
-          } catch (e) { /* ignore */ }
+            const selectedOnPage = new Set(selected.map(r => Number(r.id)).filter(id => !Number.isNaN(id)));
+
+            // authoritative store as a Set for easy add/remove
+            const store = new Set(Array.isArray(self.customerIds) ? self.customerIds.map(n => Number(n)).filter(n => !Number.isNaN(n)) : []);
+
+            // for each visible id: if currently selected on this page -> add; otherwise -> remove
+            visibleIds.forEach(id => {
+              if (selectedOnPage.has(id)) store.add(id);
+              else store.delete(id);
+            });
+
+            // write back authoritative array (sorted optional)
+            self.customerIds = Array.from(store);
+            // optional: console.debug('customerIds updated:', self.customerIds);
+          } catch (e) {
+            console.warn('sync selection failed', e);
+          }
         });
+
+
 
         this._tableInitialized = true;
       } catch (e) {
@@ -911,4 +1000,4 @@ import { API } from '../../../assets/js/api.js';
 
   // expose globally
   window.CustomerEditorModal = CustomerEditorModal;
-})();
+})(); 

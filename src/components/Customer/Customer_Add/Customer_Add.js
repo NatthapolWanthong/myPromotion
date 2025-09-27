@@ -1,5 +1,5 @@
-// Customer_Add.js (cleaned, removed unused pieces, fixed small bugs)
-// Note: This file exports window.CustomerAddModal (no auto-init here).
+// Customer_Add.js 
+
 (function () {
   'use strict';
 
@@ -33,7 +33,7 @@
       if (!toolbar) return;
 
       this.config.forEach(cfg => {
-        if (dom.qs(`#${cfg.id}-wrapper`)) return; // guard duplicate
+        if (dom.qs(`#${cfg.id}-wrapper`)) return;
         const wrapper = document.createElement('div');
         wrapper.id = `${cfg.id}-wrapper`;
         wrapper.className = 'btn-group filter-group dropdown';
@@ -241,7 +241,6 @@
 
       this._onKey = e => { if (e.key === 'Escape') this.close(); };
 
-      // close handlers
       dom.qsa('[data-role="close"], [data-role="cancel"]', this._el).forEach(b => b.addEventListener('click', () => this.close()));
       const backdrop = dom.qs('[data-role="backdrop"]', this._el); backdrop && backdrop.addEventListener('click', () => this.close());
       dom.qs('#ca-save', this._el)?.addEventListener('click', () => this._onSave());
@@ -255,16 +254,11 @@
       ];
 
       this.filterManager = new FilterManager(cfg, '#ca-toolbar');
-
-      // authoritative selected ids across pages
       this.selectedIds = new Set();
-
-      // UI controls
       this._selectedCountEl = null;
       this._clearSelectedBtn = null;
       this._setupSelectedControls();
 
-      // init table and wire selection handlers
       this._initTable();
     }
 
@@ -282,7 +276,7 @@
 
     /* UI controls */
     _setupSelectedControls() {
-      if (dom.qs('#ca-selected-controls')) return; // guard duplicate
+      if (dom.qs('#ca-selected-controls')) return;
 
       const toolbar = dom.qs('#ca-toolbar');
       if (!toolbar) return;
@@ -331,7 +325,6 @@
       this.updateSelectedCount();
     }
 
-    /* Recompute authoritative store from visible table state */
     _recomputeSelectedFromVisible() {
       const $table = window.jQuery && window.jQuery('#ca-table');
       if (!$table || !$table.length || !$table.bootstrapTable) { this.updateSelectedCount(); return; }
@@ -348,7 +341,6 @@
       this.updateSelectedCount();
     }
 
-    /* Sync visible table checks to match the store */
     _syncTableChecksToStore() {
       const $table = window.jQuery && window.jQuery('#ca-table');
       if (!$table || !$table.length || !$table.bootstrapTable) return;
@@ -388,6 +380,8 @@
         search: true,
         showRefresh: true,
         showColumns: true,
+        showExport: true,
+        exportTypes: ['csv', 'excel'],
         sortName: 'id',
         sortOrder: 'ASC',
         clickToSelect: true,
@@ -405,27 +399,22 @@
         responseHandler(res) { return res; }
       });
 
-      // Use recompute-from-visible strategy on selection events
       ['check.bs.table', 'uncheck.bs.table', 'check-all.bs.table', 'uncheck-all.bs.table'].forEach(evt => {
         $table.on(evt, () => { self._recomputeSelectedFromVisible(); });
       });
 
-      // On load, sync visible checks to store then recompute for safety
       $table.on('load-success.bs.table', () => {
         self._syncTableChecksToStore();
         self._recomputeSelectedFromVisible();
       });
     }
 
-    /* Modal lifecycle */
     setOptions(options = {}) { this.filterManager.setOptions(options); }
 
     open(pid = '') {
       this._el.style.display = 'flex';
       document.body.style.overflow = 'hidden';
       const pidInput = dom.qs('#ca-promotion-id'); if (pidInput) pidInput.value = pid;
-
-      // === NEW: when opening, if there is an editor modal instance, sync selectedIds from it ===
       try {
         const editor = window._customerEditorModal || window.CustomerEditorModal && window.CustomerEditorModal.instance;
         if (editor && typeof editor.getCustomerIds === 'function') {
@@ -458,12 +447,18 @@
       const pid = dom.qs('#ca-promotion-id')?.value ?? '';
       const code = dom.qs('#ca-code')?.value ?? '';
       const name = dom.qs('#ca-name')?.value ?? '';
-      const payload = { promotion_id: pid, code, name, selected_ids: this.getSelectedIds() };
+      const payload = {
+        promotion_id: pid,
+        code,
+        name,
+        selected_ids: this.getSelectedIds(),
+        preserveCondition: true
+      };
+      
+      console.log("payload.selected_ids = " + payload.selected_ids)
       document.dispatchEvent(new CustomEvent('customer:add:submitted', { detail: payload }));
       this.close();
     }
   }
-
-  // export class only (no auto-init)
   window.CustomerAddModal = CustomerAddModal;
 })();

@@ -1,4 +1,3 @@
-// modalProductList.js
 import { API } from "/myPromotion/src/assets/js/api.js";
 
 let products = [];

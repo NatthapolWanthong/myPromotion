@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 26, 2025 at 01:08 PM
+-- Generation Time: Sep 27, 2025 at 10:31 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,45 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `promotion`
 --
-
-DELIMITER $$
---
--- Procedures
---
-CREATE DEFINER=`root`@`localhost` PROCEDURE `drop_target_fks` ()   BEGIN
-  DECLARE done INT DEFAULT 0;
-  DECLARE c_name VARCHAR(255);
-  DECLARE t_name VARCHAR(255);
-  DECLARE col_name VARCHAR(255);
-  DECLARE r_table VARCHAR(255);
-  DECLARE r_col VARCHAR(255);
-
-  DECLARE cur CURSOR FOR
-    SELECT CONSTRAINT_NAME, TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
-    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-    WHERE TABLE_SCHEMA = DATABASE()
-      AND TABLE_NAME IN ('conditions','condition','condition_link_product','condition_link_category')
-      AND REFERENCED_TABLE_NAME IN ('promotion','campaign','products','products_categories');
-
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-
-  OPEN cur;
-  read_loop: LOOP
-    FETCH cur INTO c_name, t_name, col_name, r_table, r_col;
-    IF done THEN
-      LEAVE read_loop;
-    END IF;
-
-    -- build and execute DROP FOREIGN KEY statement
-    SET @s = CONCAT('ALTER TABLE `', t_name, '` DROP FOREIGN KEY `', c_name, '`');
-    PREPARE stmt FROM @s;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
-  END LOOP;
-  CLOSE cur;
-END$$
-
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -83,19 +44,6 @@ CREATE TABLE `campaign` (
   `edit_date` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `promotion` int(10) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `campaign`
---
-
-INSERT INTO `campaign` (`id`, `name`, `code`, `status`, `description`, `type`, `target`, `start_date`, `end_date`, `location`, `note`, `created_by`, `create_date`, `edit_date`, `promotion`) VALUES
-(1, 'โปรลดแรง เดือนเมษา', 'CMP-202504-001', 1, 'แคมเปญลดราคาสินค้าเครื่องมือช่าง', 1, 1, '2025-04-01', '2025-04-30', 'สาขาทั่วประเทศ', 'โปรแรงจำกัดเวลา 1', 2, '2025-03-20 09:00:00', '2025-09-26 11:27:10', 4),
-(2, 'Member Exclusive Q2', 'CMP-202505-002', 1, 'สิทธิพิเศษสำหรับสมาชิก', 1, 2, '2025-05-01', '2025-06-30', 'Online', 'แจกคูปองเฉพาะสมาชิก', 3, '2025-04-10 10:00:00', '2025-09-22 10:23:41', 3),
-(3, 'แคมเปญเก่ายกเลิก', 'CMP-202301-003', 2, 'แคมเปญหมดอายุ/ยกเลิก', 2, 1, '2024-01-01', '2024-02-28', 'สำนักงานใหญ่', 'ยกเลิกแล้ว', 2, '2024-01-01 08:00:00', '2025-09-22 10:23:43', 0),
-(4, 'Back-to-School Promo', 'CMP-202507-004', 2, 'โปรโมชั่นต้อนรับเปิดเทอม', 1, 1, '2025-07-01', '2025-08-15', 'ร้านคู่ค้า', 'เน้นสต็อกสินค้า', 3, '2025-06-01 11:00:00', '2025-09-22 10:23:37', 4),
-(5, 'โปรเทศกาลปลายปี', 'CMP-202512-005', 4, 'เตรียมแคมเปญปลายปี', 2, 1, '2025-12-01', '2025-12-31', 'สาขาใหญ่', 'วางแผนแจกของแถม', 2, '2025-10-01 12:00:00', '2025-09-22 10:20:13', 2),
-(6, 'Weekly Flash Sale', 'CMP-202509-006', 3, 'Flash sale ทุกสัปดาห์', 1, 1, '2025-09-01', '2025-09-30', 'Online + Store', 'ลดหลายสินค้า', 1, '2025-08-25 09:30:00', '2025-09-22 10:23:45', 4),
-(8, 'จดโปร (2025)', 'PROMO25', 2, '', 1, 1, '2025-01-01', '2025-08-31', '', '', NULL, '2025-09-19 12:00:50', '2025-09-23 13:47:01', 8);
 
 -- --------------------------------------------------------
 
@@ -160,47 +108,6 @@ CREATE TABLE `condition` (
   `created_by` varchar(150) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `condition`
---
-
-INSERT INTO `condition` (`id`, `promotion_id`, `type`, `data`, `created_at`, `updated_at`, `campaign_id`, `condition_name`, `condition_xml`, `condition_code`, `code_lang`, `version`, `is_active`, `created_by`) VALUES
-(1, 1, NULL, NULL, '2025-09-10 12:55:34', '2025-09-19 11:32:26', 0, 'เงื่อนไขทดสอบ', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_hj5d9e\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_99xi61\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_a2s2gu\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_vwnecc\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"3\",\"2\"],\"PRODUCT_SELECT\":\"3\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_9o2myq\",\"fields\":{\"Value\":10000,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_tae381\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_1\",\"id\":\"reward_1_ywjniy\",\"fields\":{\"TARGET\":\"total\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_uoleht\",\"fields\":{\"Value\":10,\"Unit\":\"2\"}}}}}}},\"next\":{\"block\":{\"type\":\"controls_if\",\"id\":\"controls_if_azj1t2\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_1wed8n\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_d2flkb\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_pvud49\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"1\",\"2\",\"3\"],\"PRODUCT_SELECT\":\"1\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_3rqf05\",\"fields\":{\"Value\":20000,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_c8bdd1\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_1\",\"id\":\"reward_1_i8s15e\",\"fields\":{\"TARGET\":\"total\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_e2q7oh\",\"fields\":{\"Value\":15,\"Unit\":\"2\"}}}},\"next\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_66y3vl\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_pxt4he\",\"fields\":{\"TARGET\":\"product\"},\"inputs\":{\"PRODUCT_INPUT\":{\"block\":{\"type\":\"object_product\",\"id\":\"object_product_zrddsu\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"6\"],\"PRODUCT_SELECT\":\"6\"}}}}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_51ljxe\",\"fields\":{\"Value\":1,\"Unit\":\"3\"}}}}}}}}}}}},{\"type\":\"controls_if\",\"id\":\"controls_if_azj1t2\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_1wed8n\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_d2flkb\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_pvud49\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"1\",\"2\",\"3\"],\"PRODUCT_SELECT\":\"1\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_3rqf05\",\"fields\":{\"Value\":20000,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_c8bdd1\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_1\",\"id\":\"reward_1_i8s15e\",\"fields\":{\"TARGET\":\"total\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_e2q7oh\",\"fields\":{\"Value\":15,\"Unit\":\"2\"}}}},\"next\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_66y3vl\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_pxt4he\",\"fields\":{\"TARGET\":\"product\"},\"inputs\":{\"PRODUCT_INPUT\":{\"block\":{\"type\":\"object_product\",\"id\":\"object_product_zrddsu\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"6\"],\"PRODUCT_SELECT\":\"6\"}}}}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_51ljxe\",\"fields\":{\"Value\":1,\"Unit\":\"3\"}}}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-10T05:55:34.133Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"3\",\"2\"],\"product\":\"3\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":10000,\"unit\":\"1\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"1\",\"target\":\"total\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":10,\"unit\":\"2\"}}]}}]},{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"1\",\"2\",\"3\"],\"product\":\"1\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":20000,\"unit\":\"1\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"1\",\"target\":\"total\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":15,\"unit\":\"2\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"product\",\"product_ids\":[\"6\"],\"product\":\"6\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"3\"}}]}}]}]},\"saved_at\":\"2025-09-10T05:55:34.136Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-10T05:55:34.133Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"3\",\"2\"],\"product\":\"3\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":10000,\"unit\":\"1\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"1\",\"target\":\"total\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":10,\"unit\":\"2\"}}]}}]},{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"1\",\"2\",\"3\"],\"product\":\"1\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":20000,\"unit\":\"1\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"1\",\"target\":\"total\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":15,\"unit\":\"2\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"product\",\"product_ids\":[\"6\"],\"product\":\"6\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"3\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(2, 1, NULL, NULL, '2025-09-10 13:17:52', '2025-09-10 13:17:52', 0, 'เงื่อนไขทดสอบ2', '{\"mode\":\"advance\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"!hgi45%x;W*AC,pmEcj%\",\"x\":170,\"y\":-30,\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"`gsZ,H5G,c20Q7vBG5gU\",\"fields\":{\"OP\":\"EQ\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"math_number\",\"id\":\"d[P%!b3hnlHb=+4vh@+3\",\"fields\":{\"NUM\":0}}},\"B\":{\"block\":{\"type\":\"math_number\",\"id\":\"cOY%3.ZO!lNbfEXxk,dE\",\"fields\":{\"NUM\":0}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"@eeGm[UZzreQmx?RtAMl\",\"fields\":{\"LABEL_LEFT\":\"ให้ผลตอบแทน\",\"LABEL_EQ\":\"=\"},\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"math_number\",\"id\":\",aG8wHU8JKM-9T(SWfu4\",\"fields\":{\"NUM\":0}}},\"RIGHT\":{\"block\":{\"type\":\"math_number\",\"id\":\"dPPT*)rc?RJy**5NwKt.\",\"fields\":{\"NUM\":2}}}}}}}},{\"type\":\"action_buy\",\"id\":\"Z[P4b:6RV8U-WUeGz_gM\",\"x\":1130,\"y\":390,\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_product\",\"id\":\"Nv3)_t#L`5O^~5Cts\\/ZP\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"A\"}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-10T06:17:52.871Z\",\"generated_by\":\"blockly-compiler-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"EQ\",\"A\":{\"type\":\"NUMBER\",\"value\":0},\"B\":{\"type\":\"NUMBER\",\"value\":0}},\"then\":{\"type\":\"REWARD_BLOCK\",\"left\":{\"type\":\"NUMBER\",\"value\":0},\"right\":{\"type\":\"NUMBER\",\"value\":2}}}]},{\"type\":\"ACTION\",\"action\":\"BUY\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"PRODUCT\",\"product\":\"A\"}}]},\"saved_at\":\"2025-09-10T06:17:52.871Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-10T06:17:52.871Z\",\"generated_by\":\"blockly-compiler-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"EQ\",\"A\":{\"type\":\"NUMBER\",\"value\":0},\"B\":{\"type\":\"NUMBER\",\"value\":0}},\"then\":{\"type\":\"REWARD_BLOCK\",\"left\":{\"type\":\"NUMBER\",\"value\":0},\"right\":{\"type\":\"NUMBER\",\"value\":2}}}]},{\"type\":\"ACTION\",\"action\":\"BUY\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"PRODUCT\",\"product\":\"A\"}}]}', 'dsl-json', '1', 1, 'admin'),
-(19, 5, NULL, NULL, '2025-09-18 14:12:01', '2025-09-19 11:33:06', 0, 'test 11', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_uk5qoe\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_wgp51t\",\"fields\":{\"OP\":\"=\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_sbhfx1\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_3\",\"id\":\"object_3_sl863h\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"3\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_j4xprq\",\"fields\":{\"Value\":2,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":null}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-18T07:12:22.987Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"1\"}},\"then\":null}]}]},\"saved_at\":\"2025-09-18T07:12:22.987Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-18T07:12:22.987Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"1\"}},\"then\":null}]}]}', 'php', '1', 1, 'admin'),
-(20, 5, NULL, NULL, '2025-09-18 14:12:14', '2025-09-19 11:33:10', 0, 'test22', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_peszne\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_uiuq5u\",\"fields\":{\"OP\":\"=\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_4\",\"id\":\"action_4_cejbed\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_2\",\"id\":\"object_2_fza836\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"2\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_6ifa9r\",\"fields\":{\"Value\":2,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":null}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-18T07:12:30.309Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"4\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"2\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"1\"}},\"then\":null}]}]},\"saved_at\":\"2025-09-18T07:12:30.309Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-18T07:12:30.309Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"4\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"2\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"1\"}},\"then\":null}]}]}', 'php', '1', 1, 'admin'),
-(31, 37, NULL, NULL, '2025-09-19 13:36:09', '2025-09-19 13:36:09', 0, 'ซื้อ NEO 155 ลัง แถมทอง 1 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_o8cmph\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_nb3pz3\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_htbau1\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_ghyd1x\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"13\"],\"PRODUCT_SELECT\":\"13\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_y0u8z8\",\"fields\":{\"Value\":155,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_rwuvxd\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_13gwk4\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_qj7c2m\",\"fields\":{\"Value\":1,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:36:09.828Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"13\"],\"product\":\"13\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":155,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:36:09.828Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:36:09.828Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"13\"],\"product\":\"13\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":155,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(32, 37, NULL, NULL, '2025-09-19 13:46:25', '2025-09-19 13:46:25', 0, 'ซื้อ NEO 307 ลัง แถมทอง 2 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_rtqsoy\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_gzz8q1\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_8k8hzn\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_03jeru\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"13\"],\"PRODUCT_SELECT\":\"13\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_ncidbg\",\"fields\":{\"Value\":307,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_oazhcz\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_25lczf\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_h8id87\",\"fields\":{\"Value\":2,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:46:25.917Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"13\"],\"product\":\"13\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":307,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:46:25.917Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:46:25.917Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"13\"],\"product\":\"13\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":307,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(33, 37, NULL, NULL, '2025-09-19 13:47:17', '2025-09-19 13:47:17', 0, 'ซื้อ NEO 610 ลัง แถมทอง 1 บาท', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_ddz3op\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_4r8hhk\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_grxamz\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_8uarda\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"13\"],\"PRODUCT_SELECT\":\"13\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_nkkvs2\",\"fields\":{\"Value\":1,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":null}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:47:17.794Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"13\"],\"product\":\"13\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"1\"}},\"then\":null}]}]},\"saved_at\":\"2025-09-19T06:47:17.794Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:47:17.794Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"13\"],\"product\":\"13\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"1\"}},\"then\":null}]}]}', 'php', '1', 1, 'admin'),
-(34, 38, NULL, NULL, '2025-09-19 13:48:20', '2025-09-19 13:48:20', 0, 'ซื้อ FS คละไซต์ 185 ลัง แจกทอง 1 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_7rwzxz\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_acd92s\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_ux4ke5\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_amfu9x\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"14\"],\"PRODUCT_SELECT\":\"14\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_ft350x\",\"fields\":{\"Value\":185,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_1tx6am\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_g17i6i\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_tmwpig\",\"fields\":{\"Value\":1,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:48:20.344Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"14\"],\"product\":\"14\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":185,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:48:20.344Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:48:20.344Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"14\"],\"product\":\"14\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":185,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(35, 38, NULL, NULL, '2025-09-19 13:48:20', '2025-09-19 13:49:23', 0, 'ซื้อ FS คละไซต์ 325 ลัง แจกทอง 2 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_h4jtfa\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_n743o8\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_xyeiht\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_rqil83\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"14\"],\"PRODUCT_SELECT\":\"14\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_imzyk0\",\"fields\":{\"Value\":325,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_rz4331\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_agdr91\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_9yz497\",\"fields\":{\"Value\":2,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:49:23.727Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"14\"],\"product\":\"14\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":325,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:49:23.727Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:49:23.727Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"14\"],\"product\":\"14\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":325,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(36, 38, NULL, NULL, '2025-09-19 13:48:20', '2025-09-19 13:49:49', 0, 'ซื้อ FS คละไซต์ 460 ลัง แจกทอง 1 บาท', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_axhbcx\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_g0bd9e\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_cmaswo\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_94dywe\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"14\"],\"PRODUCT_SELECT\":\"14\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_2azdaz\",\"fields\":{\"Value\":460,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_feu32p\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_zrofrf\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_uvcw63\",\"fields\":{\"Value\":1,\"Unit\":\"1\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:49:49.540Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"14\"],\"product\":\"14\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":460,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"1\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:49:49.540Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:49:49.540Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"14\"],\"product\":\"14\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":460,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"1\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(37, 39, NULL, NULL, '2025-09-19 13:51:10', '2025-09-19 13:51:10', 0, 'ซื้อ STL มากกว่าหรือเท่ากับ 185 ลัง แถมทอง 1 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_8e1ofy\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_3irwin\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_m7rroj\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_ty7ed4\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"15\"],\"PRODUCT_SELECT\":\"15\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_jy2pdu\",\"fields\":{\"Value\":185,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_d0xspp\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_tnfeqs\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_su87t9\",\"fields\":{\"Value\":1,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:51:10.214Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"15\"],\"product\":\"15\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":185,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:51:10.214Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:51:10.214Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"15\"],\"product\":\"15\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":185,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(38, 39, NULL, NULL, '2025-09-19 13:51:10', '2025-09-19 13:52:26', 0, 'ซื้อ STL มากกว่าหรือเท่ากับ 325 ลัง แถมทอง 2 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_m57h8n\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_vk36jm\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_cykxli\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_t4iri6\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"15\"],\"PRODUCT_SELECT\":\"15\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_sh4pj6\",\"fields\":{\"Value\":325,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_mybg7o\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_vngixr\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_k8hmkc\",\"fields\":{\"Value\":2,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:52:26.909Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"15\"],\"product\":\"15\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":325,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:52:26.909Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:52:26.909Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"15\"],\"product\":\"15\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":325,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(39, 39, NULL, NULL, '2025-09-19 13:51:10', '2025-09-19 13:52:37', 0, 'ซื้อ STL มากกว่าหรือเท่ากับ 460 ลัง แถมทอง 1 บาท', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_7izdfq\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_t4iuai\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_jjk227\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_c9tvzk\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"15\"],\"PRODUCT_SELECT\":\"15\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_epeml8\",\"fields\":{\"Value\":460,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_zq09cj\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_cig188\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_djx0sn\",\"fields\":{\"Value\":1,\"Unit\":\"1\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:52:37.952Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"15\"],\"product\":\"15\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":460,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"1\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:52:37.952Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:52:37.952Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"15\"],\"product\":\"15\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":460,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"1\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(40, 40, NULL, NULL, '2025-09-19 13:53:45', '2025-09-19 13:53:45', 0, 'ซื้อ RHINO ครบ 185 ลัง แถมทอง 1 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_s9i4bi\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_q1qgg6\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_rwp00k\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_t7rced\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"16\"],\"PRODUCT_SELECT\":\"16\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_tfgh7i\",\"fields\":{\"Value\":185,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_rf0wqq\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_5sd6tq\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_1xln9e\",\"fields\":{\"Value\":1,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:53:45.809Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"16\"],\"product\":\"16\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":185,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:53:45.809Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:53:45.809Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"16\"],\"product\":\"16\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":185,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(41, 40, NULL, NULL, '2025-09-19 13:53:45', '2025-09-19 13:54:44', 0, 'ซื้อ RHINO ครบ 325 ลัง แถมทอง 2 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_ydudoj\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_bdnvxq\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_t1wpvk\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_v6pmd9\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"16\"],\"PRODUCT_SELECT\":\"16\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_13eg7k\",\"fields\":{\"Value\":325,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_3q7brr\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_ikygsr\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_m603bj\",\"fields\":{\"Value\":2,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:54:44.551Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"16\"],\"product\":\"16\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":325,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:54:44.551Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:54:44.551Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"16\"],\"product\":\"16\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":325,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(42, 41, NULL, NULL, '2025-09-19 13:55:59', '2025-09-19 13:55:59', 0, 'ซื้อ EUTEK ครบ 145 ลัง แจกทอง 1 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_alrdhr\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_crgagb\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_65ijdb\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_e6gdxb\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"17\"],\"PRODUCT_SELECT\":\"17\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_8dmx02\",\"fields\":{\"Value\":145,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_ikxfbz\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_oi5o8i\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_mchkmj\",\"fields\":{\"Value\":1,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:55:59.482Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"17\"],\"product\":\"17\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":145,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:55:59.482Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:55:59.482Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"17\"],\"product\":\"17\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":145,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(43, 41, NULL, NULL, '2025-09-19 13:56:41', '2025-09-19 13:56:41', 0, 'ซื้อ EUTEK คละไซต์ ครบ 155 ลัง แจกทอง 1 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_kg6zde\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_mwjy0j\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_k1d6ql\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_s7wo1i\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"18\"],\"PRODUCT_SELECT\":\"18\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_lffp7c\",\"fields\":{\"Value\":155,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_oes0pp\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_8jf9kp\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_gbroca\",\"fields\":{\"Value\":1,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-19T06:56:41.731Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"18\"],\"product\":\"18\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":155,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-19T06:56:41.731Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-19T06:56:41.731Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"18\"],\"product\":\"18\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":155,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(44, 40, NULL, NULL, '2025-09-22 09:35:02', '2025-09-22 09:35:15', 0, 'a', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_e2yjjt\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_bpz315\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_88yk9n\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_kmllol\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"1\"],\"PRODUCT_SELECT\":\"1\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_fs7hj8\",\"fields\":{\"Value\":102,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_yctvp5\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_xwyohb\",\"fields\":{\"TARGET\":\"product\"},\"inputs\":{\"PRODUCT_INPUT\":{\"block\":{\"type\":\"object_product\",\"id\":\"object_product_hltbmh\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"1\"],\"PRODUCT_SELECT\":\"1\"}}}}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_gy7b24\",\"fields\":{\"Value\":13,\"Unit\":\"4\"}}}},\"next\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_v8fgj0\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_e01lk9\",\"fields\":{\"TARGET\":\"shirt\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_65aufg\",\"fields\":{\"Value\":34,\"Unit\":\"8\"}}}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-22T02:35:02.760Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"1\"],\"product\":\"1\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":102,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"product\",\"product_ids\":[\"1\"],\"product\":\"1\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":13,\"unit\":\"4\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"shirt\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":34,\"unit\":\"8\"}}]}}]}]},\"saved_at\":\"2025-09-22T02:35:02.760Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-22T02:35:02.760Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"1\"],\"product\":\"1\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":102,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"product\",\"product_ids\":[\"1\"],\"product\":\"1\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":13,\"unit\":\"4\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"shirt\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":34,\"unit\":\"8\"}}]}}]}]}', 'php', '1', 0, 'admin'),
-(45, 41, NULL, NULL, '2025-09-22 14:29:24', '2025-09-22 16:16:48', 0, 'test', '{\"mode\":\"advance\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"Oicv{,UfV.v7$vuN=\\/8q\",\"x\":430,\"y\":110,\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"=1kBKP:lWklk|T3gIi,Y\",\"fields\":{\"OP\":\"GTE\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_buy\",\"id\":\"V2L_*Jp_e}Sax_*H+#MK\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_product\",\"id\":\"fGl1+z_0VDCc0kU`zoZd\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"B\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"qiqQ6Q%YjU*#dZp0Qy{A\",\"fields\":{\"Value\":1000,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"fcQOw]Q=TcV3GCHn6mj~\",\"fields\":{\"LABEL_LEFT\":\"ให้ผลตอบแทน\",\"LABEL_EQ\":\"=\"},\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_discount\",\"id\":\"=_l_spyA1,PfC|Lg%X$.\",\"extraState\":\"<mutation target=\\\"PRODUCT\\\"><\\/mutation>\",\"fields\":{\"TARGET\":\"PRODUCT\"},\"inputs\":{\"PRODUCT_INPUT\":{\"block\":{\"type\":\"object_product\",\"id\":\"OuyuCbzFH9J$*^}IS:@M\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"A\"}}}}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"0$36F#q)hyqP7t72tJ+f\",\"fields\":{\"Value\":10,\"Unit\":\"2\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-22T09:16:39.119Z\",\"generated_by\":\"blockly-compiler-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"GTE\",\"A\":{\"type\":\"ACTION\",\"action\":\"BUY\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"PRODUCT\",\"product\":\"B\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":1000,\"unit\":\"1\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"left\":{\"type\":\"REWARD\",\"subtype\":\"DISCOUNT\",\"target\":\"PRODUCT\",\"product\":{\"type\":\"OBJECT\",\"kind\":\"PRODUCT\",\"product\":\"A\"}},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":10,\"unit\":\"2\"}}}]}]},\"saved_at\":\"2025-09-22T09:16:39.119Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-22T09:16:39.119Z\",\"generated_by\":\"blockly-compiler-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"GTE\",\"A\":{\"type\":\"ACTION\",\"action\":\"BUY\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"PRODUCT\",\"product\":\"B\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":1000,\"unit\":\"1\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"left\":{\"type\":\"REWARD\",\"subtype\":\"DISCOUNT\",\"target\":\"PRODUCT\",\"product\":{\"type\":\"OBJECT\",\"kind\":\"PRODUCT\",\"product\":\"A\"}},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":10,\"unit\":\"2\"}}}]}]}', 'dsl-json', '1', 0, 'admin'),
-(46, 5, NULL, NULL, '2025-09-22 16:47:19', '2025-09-22 16:47:37', 0, 'd', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_mij4bu\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_lnrgkd\",\"fields\":{\"OP\":\"=\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_5\",\"id\":\"action_5_ox7slk\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_3\",\"id\":\"object_3_963zq2\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"3\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_z3owdq\",\"fields\":{\"Value\":2,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":null}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-22T09:47:19.851Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"5\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"1\"}},\"then\":null}]}]},\"saved_at\":\"2025-09-22T09:47:19.851Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-22T09:47:19.851Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"5\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"1\"}},\"then\":null}]}]}', 'php', '1', 0, 'admin');
-INSERT INTO `condition` (`id`, `promotion_id`, `type`, `data`, `created_at`, `updated_at`, `campaign_id`, `condition_name`, `condition_xml`, `condition_code`, `code_lang`, `version`, `is_active`, `created_by`) VALUES
-(47, 41, NULL, NULL, '2025-09-23 09:33:05', '2025-09-23 09:33:19', 0, 'abc', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_fum5hc\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_crm3sp\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_iemwua\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_y8ozks\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"1\",\"2\",\"3\"],\"PRODUCT_SELECT\":\"1\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_1tabj2\",\"fields\":{\"Value\":2000,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_cwd8n3\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_1\",\"id\":\"reward_1_rhbwg6\",\"fields\":{\"TARGET\":\"total\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_ub7ci6\",\"fields\":{\"Value\":20,\"Unit\":\"1\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-23T02:33:05.157Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"1\",\"2\",\"3\"],\"product\":\"1\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2000,\"unit\":\"1\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"1\",\"target\":\"total\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":20,\"unit\":\"1\"}}]}}]}]},\"saved_at\":\"2025-09-23T02:33:05.157Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-23T02:33:05.157Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"1\",\"2\",\"3\"],\"product\":\"1\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2000,\"unit\":\"1\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"1\",\"target\":\"total\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":20,\"unit\":\"1\"}}]}}]}]}', 'php', '1', 0, 'admin'),
-(48, 42, NULL, NULL, '2025-09-23 13:14:53', '2025-09-23 13:14:53', 0, 'ซื้อ Sx-1300 ครบ 102 แถม Sx-1300 13 ลัง และ แถมเสื้อ 34 ตัว', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_8hkkdz\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_44zoh0\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_l3hp0q\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_v42jqw\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"19\"],\"PRODUCT_SELECT\":\"19\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_zasri0\",\"fields\":{\"Value\":102,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_otgqbb\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_5myrfw\",\"fields\":{\"TARGET\":\"product\"},\"inputs\":{\"PRODUCT_INPUT\":{\"block\":{\"type\":\"object_product\",\"id\":\"object_product_hrdnno\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"19\"],\"PRODUCT_SELECT\":\"19\"}}}}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_96ojzh\",\"fields\":{\"Value\":13,\"Unit\":\"4\"}}}},\"next\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_c4z8aq\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_cfvum9\",\"fields\":{\"TARGET\":\"shirt\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_smgvoy\",\"fields\":{\"Value\":34,\"Unit\":\"8\"}}}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-23T06:14:53.909Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"19\"],\"product\":\"19\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":102,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"product\",\"product_ids\":[\"19\"],\"product\":\"19\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":13,\"unit\":\"4\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"shirt\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":34,\"unit\":\"8\"}}]}}]}]},\"saved_at\":\"2025-09-23T06:14:53.910Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-23T06:14:53.909Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"19\"],\"product\":\"19\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":102,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"product\",\"product_ids\":[\"19\"],\"product\":\"19\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":13,\"unit\":\"4\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"shirt\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":34,\"unit\":\"8\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(49, 42, NULL, NULL, '2025-09-23 13:16:37', '2025-09-23 13:16:37', 0, 'ซื้อ Sx-1300 ครบ 201 แถม Sx-1300 26 ลัง และ แถมเสื้อ 67 ตัว', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_8514o9\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_zn9fsh\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_ljqwvl\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_w0hs7i\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"19\"],\"PRODUCT_SELECT\":\"19\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_eq8bo1\",\"fields\":{\"Value\":201,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_969ctm\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_zjfaur\",\"fields\":{\"TARGET\":\"product\"},\"inputs\":{\"PRODUCT_INPUT\":{\"block\":{\"type\":\"object_product\",\"id\":\"object_product_2e8aux\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"19\"],\"PRODUCT_SELECT\":\"19\"}}}}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_1sbrlr\",\"fields\":{\"Value\":26,\"Unit\":\"4\"}}}},\"next\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_3hwt1y\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_jl1gqe\",\"fields\":{\"TARGET\":\"shirt\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_kupvmc\",\"fields\":{\"Value\":67,\"Unit\":\"8\"}}}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-23T06:16:37.487Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"19\"],\"product\":\"19\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":201,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"product\",\"product_ids\":[\"19\"],\"product\":\"19\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":26,\"unit\":\"4\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"shirt\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":67,\"unit\":\"8\"}}]}}]}]},\"saved_at\":\"2025-09-23T06:16:37.487Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-23T06:16:37.487Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"19\"],\"product\":\"19\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":201,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"product\",\"product_ids\":[\"19\"],\"product\":\"19\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":26,\"unit\":\"4\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"shirt\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":67,\"unit\":\"8\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(50, 42, NULL, NULL, '2025-09-23 13:18:04', '2025-09-23 13:25:58', 0, 'ซื้อ Sx-1300 ครบ 235 แถมทอง 1 สลึง และ แถมเสื้อ 34 ตัว', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_v3o54w\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_rrdn59\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_7wmitg\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_mmbj8j\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"8\",\"9\"],\"PRODUCT_SELECT\":\"8\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_d6e3sa\",\"fields\":{\"Value\":235,\"Unit\":\"4\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_d12xlz\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_r9jem2\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_7jylrs\",\"fields\":{\"Value\":1,\"Unit\":\"6\"}}}},\"next\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_v1fyai\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_rbfc10\",\"fields\":{\"TARGET\":\"shirt\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_esn0yu\",\"fields\":{\"Value\":34,\"Unit\":\"8\"}}}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-23T06:25:58.077Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"8\",\"9\"],\"product\":\"8\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":235,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"shirt\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":34,\"unit\":\"8\"}}]}}]}]},\"saved_at\":\"2025-09-23T06:25:58.077Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-23T06:25:58.077Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"8\",\"9\"],\"product\":\"8\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":235,\"unit\":\"4\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"shirt\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":34,\"unit\":\"8\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(51, 42, NULL, NULL, '2025-09-23 13:32:15', '2025-09-23 13:32:21', 0, 'test', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_cts29f\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_4legnu\",\"fields\":{\"OP\":\"=\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_4\",\"id\":\"action_4_h7gejs\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_4\",\"id\":\"object_4_etblhc\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"4\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_5nkht4\",\"fields\":{\"Value\":2,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":null}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-23T06:32:15.797Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"4\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"4\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"1\"}},\"then\":null}]}]},\"saved_at\":\"2025-09-23T06:32:15.797Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-23T06:32:15.797Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"4\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"4\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"1\"}},\"then\":null}]}]}', 'php', '1', 0, 'admin'),
-(52, 99, NULL, NULL, '2025-09-23 13:45:47', '2025-09-23 13:45:47', 0, 'ซื้อ ลวดเชื่อมครบ 1 ห่อ แถมใบตัด 2 ใบ และค่าหยิบ ห่อละ 5 บาท', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_59ko1d\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_r98drx\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_v5ajr5\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_cm8zuz\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"20\"],\"PRODUCT_SELECT\":\"20\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_h7pk1o\",\"fields\":{\"Value\":1,\"Unit\":\"11\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_a6rhps\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_jrdbh0\",\"fields\":{\"TARGET\":\"product\"},\"inputs\":{\"PRODUCT_INPUT\":{\"block\":{\"type\":\"object_product\",\"id\":\"object_product_94tso0\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"22\"],\"PRODUCT_SELECT\":\"22\"}}}}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_0a29vb\",\"fields\":{\"Value\":2,\"Unit\":\"10\"}}}},\"next\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_2hi68x\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_4\",\"id\":\"reward_4_lgejlw\",\"fields\":{\"TARGET\":\"\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_lyl530\",\"fields\":{\"Value\":5,\"Unit\":\"1\"}}}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-23T06:45:47.971Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"20\"],\"product\":\"20\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"11\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"product\",\"product_ids\":[\"22\"],\"product\":\"22\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"10\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"4\",\"target\":\"\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":5,\"unit\":\"1\"}}]}}]}]},\"saved_at\":\"2025-09-23T06:45:47.971Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-23T06:45:47.971Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"20\"],\"product\":\"20\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"11\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"product\",\"product_ids\":[\"22\"],\"product\":\"22\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"10\"}},{\"left\":{\"type\":\"REWARD\",\"subtype\":\"4\",\"target\":\"\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":5,\"unit\":\"1\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(53, 100, NULL, NULL, '2025-09-23 13:48:45', '2025-09-23 13:48:45', 0, 'ซื้อ กันสาด ครบ 200 เมตร ลดตาม 3%', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_oedoee\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_b4hbag\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_wc0uqa\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_b5t2nt\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"21\"],\"PRODUCT_SELECT\":\"21\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_t9gzsa\",\"fields\":{\"Value\":200,\"Unit\":\"7\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_ff913l\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_1\",\"id\":\"reward_1_cb858e\",\"fields\":{\"TARGET\":\"product\"},\"inputs\":{\"PRODUCT_INPUT\":{\"block\":{\"type\":\"object_product\",\"id\":\"object_product_t1vbce\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"21\"],\"PRODUCT_SELECT\":\"21\"}}}}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_zgb6p5\",\"fields\":{\"Value\":3,\"Unit\":\"2\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-23T06:48:45.497Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"21\"],\"product\":\"21\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":200,\"unit\":\"7\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"1\",\"target\":\"product\",\"product_ids\":[\"21\"],\"product\":\"21\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":3,\"unit\":\"2\"}}]}}]}]},\"saved_at\":\"2025-09-23T06:48:45.497Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-23T06:48:45.497Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"21\"],\"product\":\"21\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":200,\"unit\":\"7\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"1\",\"target\":\"product\",\"product_ids\":[\"21\"],\"product\":\"21\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":3,\"unit\":\"2\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(54, 100, NULL, NULL, '2025-09-23 13:49:50', '2025-09-23 13:49:50', 0, 'ซื้อ กันสาด ครบ 350 เมตร แถมทองครึ่งสลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_hvghpy\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_44vnll\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_lldkm6\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_hh5pah\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"21\"],\"PRODUCT_SELECT\":\"21\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_dj5tlp\",\"fields\":{\"Value\":350,\"Unit\":\"7\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_z24ut1\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_85646s\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_aiu7uh\",\"fields\":{\"Value\":0.5,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-23T06:49:50.391Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"21\"],\"product\":\"21\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":350,\"unit\":\"7\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":0.5,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-23T06:49:50.391Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-23T06:49:50.391Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"21\"],\"product\":\"21\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":350,\"unit\":\"7\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":0.5,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(55, 100, NULL, NULL, '2025-09-23 13:50:35', '2025-09-23 13:50:35', 0, 'ซื้อ กันสาด ครบ 500 เมตร แถมทอง 1 สลึง', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_gd5agn\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_h1k8f4\",\"fields\":{\"OP\":\"≥\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_1\",\"id\":\"action_1_74ugjr\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_1\",\"id\":\"object_1_y1yu5t\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_IDS\":[\"21\"],\"PRODUCT_SELECT\":\"21\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_i1pljv\",\"fields\":{\"Value\":500,\"Unit\":\"7\"}}}}}},\"DO0\":{\"block\":{\"type\":\"reward_block\",\"id\":\"reward_block_nim7ke\",\"inputs\":{\"LEFT\":{\"block\":{\"type\":\"reward_2\",\"id\":\"reward_2_6we38j\",\"fields\":{\"TARGET\":\"gold\"}}},\"RIGHT\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_mk2w80\",\"fields\":{\"Value\":1,\"Unit\":\"6\"}}}}}}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-23T06:50:35.704Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"21\"],\"product\":\"21\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":500,\"unit\":\"7\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]},\"saved_at\":\"2025-09-23T06:50:35.704Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-23T06:50:35.704Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"≥\",\"A\":{\"type\":\"ACTION\",\"action\":\"1\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"1\",\"product_ids\":[\"21\"],\"product\":\"21\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":500,\"unit\":\"7\"}},\"then\":{\"type\":\"REWARD_BLOCK\",\"rewards\":[{\"left\":{\"type\":\"REWARD\",\"subtype\":\"2\",\"target\":\"gold\"},\"right\":{\"type\":\"VALUE_UNIT\",\"value\":1,\"unit\":\"6\"}}]}}]}]}', 'php', '1', 1, 'admin'),
-(56, 5, NULL, NULL, '2025-09-24 13:27:16', '2025-09-24 13:27:16', 0, 'd', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_ehkxd8\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_0regkh\",\"fields\":{\"OP\":\"=\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_3\",\"id\":\"action_3_8mbhoa\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_3\",\"id\":\"object_3_5jcu4f\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"3\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_o1pyzk\",\"fields\":{\"Value\":null,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":null}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-24T06:27:16.039Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"3\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":0,\"unit\":\"1\"}},\"then\":null}]}]},\"saved_at\":\"2025-09-24T06:27:16.040Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-24T06:27:16.039Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"3\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":0,\"unit\":\"1\"}},\"then\":null}]}]}', 'php', '1', 1, 'admin'),
-(57, 5, NULL, NULL, '2025-09-24 13:27:30', '2025-09-24 13:27:30', 0, 'asdad', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_miv250\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_s89dtf\",\"fields\":{\"OP\":\"=\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_4\",\"id\":\"action_4_cndkfm\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_3\",\"id\":\"object_3_7jcehq\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"3\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_1jrzm1\",\"fields\":{\"Value\":2,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":null}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-24T06:27:30.044Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"4\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"1\"}},\"then\":null}]}]},\"saved_at\":\"2025-09-24T06:27:30.044Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-24T06:27:30.044Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"4\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":2,\"unit\":\"1\"}},\"then\":null}]}]}', 'php', '1', 1, 'admin'),
-(58, 5, NULL, NULL, '2025-09-24 13:27:37', '2025-09-24 13:27:37', 0, 'asdad', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_jm6rc5\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_jh7m3i\",\"fields\":{\"OP\":\"=\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_4\",\"id\":\"action_4_graq51\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_3\",\"id\":\"object_3_rinsz9\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"3\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_f554f9\",\"fields\":{\"Value\":4,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":null}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-24T06:27:37.210Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"4\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":4,\"unit\":\"1\"}},\"then\":null}]}]},\"saved_at\":\"2025-09-24T06:27:37.210Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-24T06:27:37.210Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"4\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":4,\"unit\":\"1\"}},\"then\":null}]}]}', 'php', '1', 1, 'admin'),
-(59, 5, NULL, NULL, '2025-09-24 13:27:44', '2025-09-24 13:27:44', 0, '12e', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_ikegus\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_b3hezp\",\"fields\":{\"OP\":\"=\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_4\",\"id\":\"action_4_ws5ymk\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_4\",\"id\":\"object_4_ls3sp6\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"4\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_vrn80g\",\"fields\":{\"Value\":null,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":null}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-24T06:27:44.449Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"4\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"4\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":0,\"unit\":\"1\"}},\"then\":null}]}]},\"saved_at\":\"2025-09-24T06:27:44.449Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-24T06:27:44.449Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"=\",\"A\":{\"type\":\"ACTION\",\"action\":\"4\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"4\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":0,\"unit\":\"1\"}},\"then\":null}]}]}', 'php', '1', 1, 'admin'),
-(60, 4, NULL, NULL, '2025-09-25 14:20:53', '2025-09-25 14:20:53', 0, 'asdads', '{\"mode\":\"basic\",\"workspace\":{\"blocks\":{\"languageVersion\":0,\"blocks\":[{\"type\":\"controls_if\",\"id\":\"controls_if_phvgyz\",\"inputs\":{\"IF0\":{\"block\":{\"type\":\"logic_compare\",\"id\":\"logic_compare_uucjb9\",\"fields\":{\"OP\":\"<\"},\"inputs\":{\"A\":{\"block\":{\"type\":\"action_3\",\"id\":\"action_3_nxnshq\",\"inputs\":{\"OBJECT\":{\"block\":{\"type\":\"object_3\",\"id\":\"object_3_r6layy\",\"fields\":{\"LABEL\":\"สินค้า\",\"PRODUCT_SELECT\":\"3\"}}}}}},\"B\":{\"block\":{\"type\":\"Value_Unit\",\"id\":\"Value_Unit_3zb1yw\",\"fields\":{\"Value\":null,\"Unit\":\"1\"}}}}}},\"DO0\":{\"block\":null}}}]}},\"compiled_dsl\":{\"meta\":{\"generated_at\":\"2025-09-25T07:20:53.663Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"<\",\"A\":{\"type\":\"ACTION\",\"action\":\"3\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":0,\"unit\":\"1\"}},\"then\":null}]}]},\"saved_at\":\"2025-09-25T07:20:53.667Z\"}', '{\"meta\":{\"generated_at\":\"2025-09-25T07:20:53.663Z\",\"generated_by\":\"basic-mapper-v1\"},\"rules\":[{\"type\":\"IF\",\"branches\":[{\"cond\":{\"type\":\"COMPARE\",\"op\":\"<\",\"A\":{\"type\":\"ACTION\",\"action\":\"3\",\"object\":{\"type\":\"OBJECT\",\"kind\":\"3\",\"product_ids\":[],\"product\":\"\"}},\"B\":{\"type\":\"VALUE_UNIT\",\"value\":0,\"unit\":\"1\"}},\"then\":null}]}]}', 'php', '1', 1, 'admin');
-
 -- --------------------------------------------------------
 
 --
@@ -223,30 +130,6 @@ INSERT INTO `condition_action` (`id`, `name`, `th_name`) VALUES
 (3, 'display', 'จัดแสดง'),
 (4, 'join', 'เข้าร่วม'),
 (5, 'accumulate', 'สะสมยอด');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `condition_link_category`
---
-
-CREATE TABLE `condition_link_category` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `condition_id` int(10) UNSIGNED NOT NULL,
-  `category_id` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `condition_link_product`
---
-
-CREATE TABLE `condition_link_product` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `condition_id` int(10) UNSIGNED NOT NULL,
-  `product_id` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -539,28 +422,6 @@ CREATE TABLE `customer_groups` (
   `updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `customer_groups`
---
-
-INSERT INTO `customer_groups` (`id`, `name`, `condition_id`, `promotion_id`, `start_date`, `end_date`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
-(2, 'b', 19, 5, '2025-01-01 00:00:00', '2025-08-22 00:00:00', NULL, NULL, '2025-09-25 17:28:42', '2025-09-25 17:38:51'),
-(3, 'c', 60, 4, '2025-01-01 00:00:00', '2025-08-23 00:00:00', NULL, NULL, '2025-09-25 17:33:00', '2025-09-25 17:38:57'),
-(5, 'e', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:06:15', NULL),
-(6, 'f', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:11:10', NULL),
-(8, 'h', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:11:10', NULL),
-(9, 'i', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:11:10', NULL),
-(10, 'j', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:11:10', NULL),
-(11, 'k', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:11:10', NULL),
-(12, 'l', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:11:10', NULL),
-(13, 'm', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:11:10', NULL),
-(14, 'n', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:11:10', NULL),
-(15, 'o', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:11:10', NULL),
-(16, 'p', 2, 1, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 11:11:10', NULL),
-(17, 'asd', 58, 5, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 15:36:17', NULL),
-(18, 'ฟกหฟหกฟก', 58, 5, '2025-01-01 00:00:00', '2025-01-02 00:00:00', NULL, NULL, '2025-09-26 15:42:02', '2025-09-26 16:19:45'),
-(20, 'อื่นๆ', 58, 5, '2025-09-01 00:00:00', '2025-09-30 00:00:00', NULL, NULL, '2025-09-26 17:52:22', '2025-09-26 17:53:46');
-
 -- --------------------------------------------------------
 
 --
@@ -575,61 +436,6 @@ CREATE TABLE `customer_group_members` (
   `added_at` datetime NOT NULL DEFAULT current_timestamp(),
   `select_all` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `customer_group_members`
---
-
-INSERT INTO `customer_group_members` (`id`, `group_id`, `customer_id`, `added_by`, `added_at`, `select_all`) VALUES
-(3, 2, 6676, 0, '2025-09-25 17:28:42', 1),
-(4, 2, 6679, 0, '2025-09-25 17:28:42', 1),
-(5, 2, 6681, 0, '2025-09-25 17:28:42', 0),
-(6, 2, 7028, 0, '2025-09-25 17:28:42', 0),
-(7, 2, 7037, 0, '2025-09-25 17:28:42', 0),
-(8, 2, 7039, 0, '2025-09-25 17:28:42', 0),
-(9, 2, 7043, 0, '2025-09-25 17:28:42', 0),
-(10, 2, 7047, 0, '2025-09-25 17:28:42', 0),
-(11, 2, 7082, 0, '2025-09-25 17:28:42', 0),
-(12, 3, 5402, 0, '2025-09-25 17:33:00', 1),
-(13, 3, 5416, 0, '2025-09-25 17:33:00', 0),
-(14, 3, 5469, 0, '2025-09-25 17:33:00', 0),
-(15, 3, 5553, 0, '2025-09-25 17:33:00', 0),
-(16, 3, 6253, 0, '2025-09-25 17:33:00', 1),
-(17, 3, 6254, 0, '2025-09-25 17:33:00', 1),
-(18, 3, 6256, 0, '2025-09-25 17:33:00', 1),
-(28, 5, 5416, 0, '2025-09-26 11:06:15', 0),
-(29, 5, 5469, 0, '2025-09-26 11:06:15', 0),
-(30, 5, 5553, 0, '2025-09-26 11:06:15', 1),
-(31, 6, 5402, 0, '2025-09-26 11:11:10', 0),
-(32, 6, 7082, 0, '2025-09-25 17:28:42', 0),
-(34, 8, 9168, 0, '2025-09-25 17:44:31', 1),
-(35, 9, 9212, 0, '2025-09-25 17:44:31', 1),
-(36, 10, 9243, 0, '2025-09-25 17:44:31', 0),
-(37, 11, 9254, 0, '2025-09-25 17:44:31', 0),
-(38, 12, 9273, 0, '2025-09-25 17:44:31', 0),
-(39, 13, 12435, 0, '2025-09-25 17:44:31', 0),
-(40, 14, 7047, 0, '2025-09-25 17:28:42', 0),
-(46, 15, 7047, 0, '2025-09-25 17:28:42', 0),
-(47, 16, 7047, 0, '2025-09-25 17:28:42', 0),
-(48, 14, 7082, 0, '2025-09-25 17:28:42', 0),
-(49, 12, 7082, 0, '2025-09-25 17:28:42', 0),
-(50, 11, 9162, 0, '2025-09-25 17:44:31', 1),
-(51, 17, 5402, NULL, '2025-09-26 15:36:17', 0),
-(52, 17, 5469, NULL, '2025-09-26 15:36:17', 0),
-(53, 17, 6058, NULL, '2025-09-26 15:36:17', 0),
-(74, 18, 5385, NULL, '2025-09-26 16:19:45', 0),
-(75, 18, 5402, NULL, '2025-09-26 16:19:45', 0),
-(76, 18, 5416, NULL, '2025-09-26 16:19:45', 0),
-(77, 18, 5469, NULL, '2025-09-26 16:19:45', 0),
-(78, 18, 5553, NULL, '2025-09-26 16:19:45', 0),
-(79, 18, 6058, NULL, '2025-09-26 16:19:45', 0),
-(80, 18, 6253, NULL, '2025-09-26 16:19:45', 0),
-(81, 18, 6254, NULL, '2025-09-26 16:19:45', 0),
-(82, 18, 6256, NULL, '2025-09-26 16:19:45', 0),
-(83, 18, 6259, NULL, '2025-09-26 16:19:45', 0),
-(87, 20, 7039, NULL, '2025-09-26 17:53:46', 0),
-(88, 20, 7043, NULL, '2025-09-26 17:53:46', 1),
-(89, 20, 7124, NULL, '2025-09-26 17:53:46', 1);
 
 -- --------------------------------------------------------
 
@@ -816,7 +622,8 @@ INSERT INTO `products` (`id`, `category_id`, `sku`, `name_en`, `name_th`, `brand
 (19, 4, 'SEAL-SX1300', 'Sealex Sx-1300 Silicone Sealant', 'Sealex Sx-1300', '', '', '2025-09-10 12:51:11', '2025-09-19 14:02:06'),
 (20, 14, 'WR-01', 'Welding Wire', 'ลวดเชื่อม', '', '', '2025-09-10 12:51:11', '2025-09-10 12:51:11'),
 (21, 15, 'AW-01', 'Awning', 'กันสาด', '', '', '2025-09-10 12:51:11', '2025-09-10 12:51:11'),
-(22, 16, 'TR-01', 'TORO', 'ใบตัด', 'TORO', '', '2025-09-10 12:51:11', '2025-09-10 12:51:11');
+(22, 16, 'TR-01', 'TORO', 'ใบตัด', 'TORO', '', '2025-09-10 12:51:11', '2025-09-10 12:51:11'),
+(24, 17, 'TR-02', 'TORO', 'ใบตัด', 'TORO', '', '2025-09-10 12:51:11', '2025-09-10 12:51:11');
 
 -- --------------------------------------------------------
 
@@ -850,7 +657,8 @@ INSERT INTO `products_categories` (`id`, `name_en`, `name_th`, `description`) VA
 (12, 'EUTEK', 'EUTEK', 'สินค้า EUTEK ต่างๆ'),
 (14, 'Welding Rod', 'ลวดเชื่อม', 'สินค้าลวดเชื่อมต่างๆ'),
 (15, 'Awning', 'กันสาด', 'สินค้ากันสาดต่างๆ'),
-(16, 'TORO', 'ใบตัด', 'สินค้าใบตัดต่างๆ');
+(16, 'TORO', 'ใบตัด', 'สินค้าใบตัดต่างๆ'),
+(17, 'test', 'test', 'test');
 
 -- --------------------------------------------------------
 
@@ -875,71 +683,6 @@ CREATE TABLE `promotion` (
   `note` text DEFAULT NULL,
   `description` text DEFAULT NULL,
   `campaign_id` int(10) UNSIGNED DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `promotion`
---
-
-INSERT INTO `promotion` (`id`, `name`, `type`, `target`, `start_date`, `end_date`, `status`, `created_by`, `create_date`, `edit_date`, `promotion`, `code`, `location`, `note`, `description`, `campaign_id`) VALUES
-(1, 'ลดตะปู 20%', 1, 1, '2025-04-01', '2025-04-10', 1, 2, '2025-03-21 09:00:00', NULL, 0, 'PR-202504-1001', 'สาขา A', 'ลดพิเศษเริ่มสัปดาห์แรก', 'ลดตะปูยี่ห้อ X 20%', 1),
-(2, 'ซื้อ 2 แถม 1 สกรู', 1, 1, '2025-04-05', '2025-04-20', 1, 2, '2025-03-22 09:15:00', NULL, 0, 'PR-202504-1002', 'สาขา B', 'โปรกลางเดือน', 'Buy2Get1 สกรูทุกรุ่น', 1),
-(4, 'คูปอง 100 บาท', 2, 2, '2025-04-01', '2025-04-30', 3, 3, '2025-03-24 10:00:00', '2025-09-10 16:58:08', 0, 'PR-202504-1004', 'สาขาทั่วประเทศ', 'แจกคูปอง', 'ใช้ได้กับการสั่งซื้อครบ 1000', 1),
-(5, 'สินค้าตัวโชว์ลด 50%', 1, 1, '2025-04-20', '2025-04-25', 3, 2, '2025-03-25 10:30:00', '2025-09-26 11:27:46', 0, 'PR-202504-1005', 'สาขา C', 'Clearance', 'ตัวโชว์/คืนสภาพ', 1),
-(6, 'Member ลด 10% ทุกชิ้น', 1, 2, '2025-05-01', '2025-05-31', 1, 3, '2025-04-11 10:00:00', NULL, 0, 'PR-202505-2001', 'Online', 'เฉพาะสมาชิก', 'เฉพาะลูกค้าที่ล็อกอินและเป็น member', 2),
-(7, 'คูปองสมาชิก 200', 2, 2, '2025-05-15', '2025-06-15', 1, 3, '2025-04-12 11:00:00', NULL, 0, 'PR-202505-2002', 'Online', 'แจกคูปองส่งท้ายเดือน', 'ใช้กับสินค้าที่ร่วมรายการ', 2),
-(8, 'แจกคะแนนสะสม x2', 1, 2, '2025-06-01', '2025-06-30', 1, 3, '2025-04-13 11:30:00', NULL, 0, 'PR-202506-2003', 'Online', 'สมาชิกเท่านั้น', 'คะแนนสะสม 2 เท่า', 2),
-(9, 'กระเป๋าช่างลด 30%', 1, 1, '2025-07-01', '2025-07-15', 2, 3, '2025-06-02 09:00:00', NULL, 0, 'PR-202507-4001', 'ร้านคู่ค้า', 'Early-bird', 'ลดเฉพาะร้านคู่ค้ารายใหญ่', 4),
-(10, 'ชุดเครื่องมือเด็กโปรโมชั่น', 1, 1, '2025-07-10', '2025-07-25', 1, 3, '2025-06-03 09:30:00', NULL, 0, 'PR-202507-4002', 'สาขา D', 'Back-to-school', 'ลดสำหรับนักเรียน', 4),
-(11, 'แถมอุปกรณ์ฟรีเมื่อซื้อ 3 ชิ้น', 2, 1, '2025-07-05', '2025-08-01', 1, 2, '2025-06-04 10:00:00', NULL, 0, 'PR-202507-4003', 'ร้านคู่ค้า', 'Bundle', 'โปรแถมเมื่อซื้อครบเงื่อนไข', 4),
-(12, 'แจกของสมนาคุณครูช่าง', 2, 1, '2025-07-20', '2025-08-10', 1, 3, '2025-06-05 10:30:00', NULL, 0, 'PR-202507-4004', 'สาขา E', 'CSR', 'แจกของให้ครูช่าง', 4),
-(13, 'ปลายปี ลดทั้งร้าน 12%', 1, 1, '2025-12-01', '2025-12-31', 3, 2, '2025-10-02 12:00:00', '2025-09-10 13:29:45', 0, 'PR-202512-5001', 'สาขาใหญ่', 'เทศกาลปลายปี', 'ลดเฉพาะรายการที่ร่วม', 5),
-(14, 'จับฉลากของขวัญ', 2, 1, '2025-12-24', '2025-12-31', 3, 2, '2025-10-03 12:30:00', '2025-09-10 13:29:49', 0, 'PR-202512-5002', 'สาขาใหญ่', 'จับฉลาก', 'ของขวัญสำหรับลูกค้าหน้าร้าน', 5),
-(15, 'Flash Sale - สว่าน 35%', 1, 1, '2025-09-03', '2025-09-03', 1, 1, '2025-08-26 09:30:00', NULL, 0, 'PR-202509-6001', 'Online', 'Flash sale วันเดียว', 'ลดสว่านรุ่นยอดนิยม', 6),
-(16, 'Flash Sale - ใบตัด 40%', 1, 1, '2025-09-10', '2025-09-10', 1, 1, '2025-08-27 09:45:00', NULL, 0, 'PR-202509-6002', 'Online', 'Flash sale วันเดียว', 'ลดใบตัดทุกขนาด', 6),
-(17, 'Weekend Deal - น้ำยาเชื่อม', 1, 1, '2025-09-12', '2025-09-14', 1, 1, '2025-08-28 10:00:00', NULL, 0, 'PR-202509-6003', 'Online + Store', 'ลดช่วงสุดสัปดาห์', 'โปรสินค้าบางรายการ', 6),
-(18, 'คูปองส่งฟรี 7 วัน', 2, 2, '2025-09-01', '2025-09-07', 1, 1, '2025-08-29 10:15:00', NULL, 0, 'PR-202509-6004', 'Online', 'คูปองส่งฟรี', 'สำหรับการสั่งซื้อผ่านเว็บ', 6),
-(37, 'จดโปรNEO (2025)', 1, 1, '2025-01-01', '2025-08-31', 2, 0, '2025-09-19 13:07:53', '2025-09-19 13:11:17', 0, 'PROMO-1', '', '', '', 8),
-(38, 'จดโปรFS คละไซส์ (2025)', 1, 1, '2025-01-01', '2025-08-31', 2, 0, '2025-09-19 13:09:17', '2025-09-19 13:11:35', 0, 'PROMO-2', '', '', '', 8),
-(39, 'จดโปรSTL (2025)', 1, 1, '2025-01-01', '2025-08-31', 2, 0, '2025-09-19 13:09:50', '2025-09-19 13:11:39', 0, 'PROMO-3', '', '', '', 8),
-(40, 'จดโปรRHINO (2025)', 1, 1, '2025-01-01', '2025-08-31', 2, 0, '2025-09-19 13:10:24', '2025-09-19 13:11:43', 0, 'PROMO-4', '', '', '', 8),
-(41, 'จดโปรEUTEK (2025)', 1, 1, '2025-01-01', '2025-08-31', 2, 0, '2025-09-19 13:10:51', '2025-09-23 09:14:53', 0, 'PROMO-5', '', '', '', 8),
-(42, 'จดโปรSX-1300 (2025)', 1, 1, '2025-01-01', '2025-08-31', 1, 0, '2025-09-19 13:58:30', '2025-09-23 13:33:36', 0, 'PROMO-6', '', '', '', 8),
-(50, 'd', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 16:05:20', NULL, 0, 'PROMO-20250919-4971', '', '', '', NULL),
-(51, '3', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 16:05:26', NULL, 0, 'PROMO-20250919-5674', '', '', '', NULL),
-(52, '3', 1, 1, '2025-01-03', '2025-01-03', 2, 0, '2025-09-19 16:05:31', NULL, 0, 'PROMO-20250919-2335', '', '', '', NULL),
-(53, '3', 1, 1, '2025-01-03', '2025-01-01', 2, 0, '2025-09-19 16:05:36', NULL, 0, 'PROMO-20250919-2980', '', '', '', NULL),
-(54, 'd', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 16:05:57', NULL, 0, 'PROMO-20250919-7355', '', '', '', NULL),
-(55, '3', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 16:06:02', NULL, 0, '3', '', '', '', NULL),
-(62, 'd', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 17:11:32', NULL, 0, '2', '', '', '', NULL),
-(63, 'd', 1, 1, '2025-01-03', '2025-01-02', 2, 0, '2025-09-19 17:12:41', NULL, 0, 'PROMO-20250919-4596', '', '', '', NULL),
-(73, 'd', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 17:22:46', NULL, 0, 'd', '', '', '', NULL),
-(75, 'a', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 17:23:36', NULL, 0, 'sdadd', '', '', '', NULL),
-(76, 's', 1, 1, '2025-01-02', '2025-01-02', 2, 0, '2025-09-19 17:23:43', NULL, 0, 's', '', '', '', NULL),
-(80, 'ห', 1, 1, '2025-01-02', '2025-01-02', 2, 0, '2025-09-19 17:25:48', NULL, 0, 'ห', '', '', '', NULL),
-(84, 'zxczczxczc', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 17:29:00', NULL, 0, 'saada', '', '', '', NULL),
-(85, '2', 1, 1, '2025-01-02', '2025-01-02', 2, 0, '2025-09-19 17:29:10', NULL, 0, 'PROMO-20250919-1973', '', '', '', NULL),
-(88, 'asdadsda', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 17:33:28', NULL, 0, 'asdadsadada', '', '', '', NULL),
-(94, 'asdasda', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 17:40:46', NULL, 0, '2', '', '', '', NULL),
-(95, 'asddsad', 1, 1, '2025-01-02', '2025-01-03', 2, 0, '2025-09-19 17:40:56', NULL, 0, '2', '', '', '', NULL),
-(96, 'd', 1, 1, '2025-01-02', '2025-01-02', 2, 0, '2025-09-19 17:42:56', NULL, 0, '2', '', '', '', NULL),
-(99, 'จดโปรลวดเชื่อม (2025)', 1, 1, '2025-01-01', '2025-08-31', 2, 0, '2025-09-23 13:42:23', NULL, 0, 'PROMO7', '', '', '', 8),
-(100, 'จดโปรกันสาด (2025)', 1, 1, '2025-01-01', '2025-08-31', 2, 0, '2025-09-23 13:47:01', NULL, 0, 'PROMO8', '', '', '', 8);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `promotion_customer_records`
---
-
-CREATE TABLE `promotion_customer_records` (
-  `id` int(11) NOT NULL,
-  `promotion_id` int(10) UNSIGNED NOT NULL,
-  `customer_group_id` int(11) NOT NULL,
-  `created_by` int(11) DEFAULT NULL,
-  `updated_by` int(11) DEFAULT NULL,
-  `create_date` datetime NOT NULL DEFAULT current_timestamp(),
-  `update_date` datetime DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1008,19 +751,6 @@ INSERT INTO `status` (`id`, `name`, `short_name`, `thai_name`, `id_main`, `icon`
 (3, 'Close', 'CLS', 'ปิดใช้งาน', 3, 'x-circle-fill'),
 (4, 'Expire', 'EXP', 'หมดอายุ', 4, 'calendar-x');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `username` varchar(150) NOT NULL,
-  `display_name` varchar(255) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Indexes for dumped tables
 --
@@ -1063,22 +793,6 @@ ALTER TABLE `condition`
 --
 ALTER TABLE `condition_action`
   ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `condition_link_category`
---
-ALTER TABLE `condition_link_category`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `condition_id` (`condition_id`),
-  ADD KEY `category_id` (`category_id`);
-
---
--- Indexes for table `condition_link_product`
---
-ALTER TABLE `condition_link_product`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `condition_id` (`condition_id`),
-  ADD KEY `product_id` (`product_id`);
 
 --
 -- Indexes for table `condition_object`
@@ -1194,15 +908,6 @@ ALTER TABLE `promotion`
   ADD KEY `ix_promotion_campaign_status` (`campaign_id`,`status`);
 
 --
--- Indexes for table `promotion_customer_records`
---
-ALTER TABLE `promotion_customer_records`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uq_promotion_group` (`promotion_id`,`customer_group_id`),
-  ADD KEY `ix_pcr_promotion_id` (`promotion_id`),
-  ADD KEY `ix_pcr_customer_group_id` (`customer_group_id`);
-
---
 -- Indexes for table `promotion_target`
 --
 ALTER TABLE `promotion_target`
@@ -1222,13 +927,6 @@ ALTER TABLE `status`
   ADD KEY `id_main` (`id_main`);
 
 --
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `ux_users_username` (`username`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -1236,7 +934,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `campaign`
 --
 ALTER TABLE `campaign`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `campaign_target`
@@ -1254,25 +952,13 @@ ALTER TABLE `campaign_type`
 -- AUTO_INCREMENT for table `condition`
 --
 ALTER TABLE `condition`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `condition_action`
 --
 ALTER TABLE `condition_action`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `condition_link_category`
---
-ALTER TABLE `condition_link_category`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `condition_link_product`
---
-ALTER TABLE `condition_link_product`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `condition_object`
@@ -1302,13 +988,13 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `customer_groups`
 --
 ALTER TABLE `customer_groups`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `customer_group_members`
 --
 ALTER TABLE `customer_group_members`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `customer_options_area_names`
@@ -1344,25 +1030,19 @@ ALTER TABLE `customer_options_type_areas`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `products_categories`
 --
 ALTER TABLE `products_categories`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `promotion`
 --
 ALTER TABLE `promotion`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
-
---
--- AUTO_INCREMENT for table `promotion_customer_records`
---
-ALTER TABLE `promotion_customer_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `promotion_target`
@@ -1383,12 +1063,6 @@ ALTER TABLE `status`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- Constraints for dumped tables
 --
 
@@ -1397,20 +1071,6 @@ ALTER TABLE `users`
 --
 ALTER TABLE `condition`
   ADD CONSTRAINT `fk_conditions_promotion` FOREIGN KEY (`promotion_id`) REFERENCES `promotion` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `condition_link_category`
---
-ALTER TABLE `condition_link_category`
-  ADD CONSTRAINT `fk_clc_category` FOREIGN KEY (`category_id`) REFERENCES `products_categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_clc_condition` FOREIGN KEY (`condition_id`) REFERENCES `condition` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `condition_link_product`
---
-ALTER TABLE `condition_link_product`
-  ADD CONSTRAINT `fk_clp_condition` FOREIGN KEY (`condition_id`) REFERENCES `condition` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_clp_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `customer`
@@ -1447,13 +1107,6 @@ ALTER TABLE `products`
 --
 ALTER TABLE `promotion`
   ADD CONSTRAINT `fk_promotion_campaign` FOREIGN KEY (`campaign_id`) REFERENCES `campaign` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
--- Constraints for table `promotion_customer_records`
---
-ALTER TABLE `promotion_customer_records`
-  ADD CONSTRAINT `fk_pcr_customer_group` FOREIGN KEY (`customer_group_id`) REFERENCES `customer_groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_pcr_promotion` FOREIGN KEY (`promotion_id`) REFERENCES `promotion` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

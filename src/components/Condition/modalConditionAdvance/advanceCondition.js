@@ -1,6 +1,3 @@
-// advanceCondition.js
-// ================ advanceCondition.js Part1 ================
-
 import ConditionService from "/myPromotion/src/components/Condition/ConditionService.js";
 import { hideOverlay } from '/myPromotion/src/components/Condition/ConditionEvents.js';
 
@@ -436,7 +433,6 @@ window.addEventListener('condition:populate', (ev) => {
       initBlockly();
     } catch(e){ console.warn('initBlockly failed', e); }
 
-    // parse cond/workspace if provided
     const row = det.row || {};
     let cond = det.condition_xml || row.condition_xml || null;
     if (typeof cond === 'string' && cond.trim()) {
@@ -580,9 +576,6 @@ async function onSaveAdvance() {
     try { const btn = document.getElementById("btn-adv-save"); if (btn) { btn.disabled = false; btn.textContent = "Save"; } } catch {}
   }
 }
-
-
-// ================ advanceCondition.js Part2 ================
 
 /* -----------------------
    onLoadAdvance (kept as before, plus set savedConditionId)

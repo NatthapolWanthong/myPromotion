@@ -1,4 +1,3 @@
-// Customer_Editor.js (patched, full file)
 import { API } from '../../../assets/js/api.js';
 
 (function () {
@@ -28,14 +27,14 @@ import { API } from '../../../assets/js/api.js';
       this.dateStart = null;
       this.dateEnd = null;
       this.conditionId = null;
-      this.customerIds = [];     // authoritative ids list (from Customer_Add or loaded group)
+      this.customerIds = [];
       this.promotionId = null;
       this.campaignId = null;
 
 
       // edit-specific
-      this._groupId = null;           // when editing an existing group
-      this._membersMap = new Map();   // customer_id -> select_all (1/0)
+      this._groupId = null;
+      this._membersMap = new Map(); 
 
       // table instance flag
       this._tableInitialized = false;
@@ -53,13 +52,12 @@ import { API } from '../../../assets/js/api.js';
       // bind UI
       this._bindUIListeners();
 
-      // init condition select (select2) control reference
+      // init condition select (select2)
       this._initConditionSelect();
 
       // keyboard close
       this._onKey = (e) => { if (e.key === 'Escape') this.close(); };
 
-      // hide the promotion display per request (remove "Promotion ID: X - ...")
       try {
         const pidSpan = dom.qs('#ce-pid', this._el);
         if (pidSpan && pidSpan.parentNode) {
@@ -74,12 +72,9 @@ import { API } from '../../../assets/js/api.js';
       try {
         const detail = (ev && ev.detail) ? ev.detail : {};
         const ids = Array.isArray(detail.selected_ids) ? detail.selected_ids : [];
-        console.log("detail.selected_ids = " + detail.selected_ids)
 
-        // preserveCondition flag from Add modal => do not clear or reload condition select if true
         const preserve = !!detail.preserveCondition;
 
-        // If preserving, capture current select value so _loadConditions can re-apply it after options are rendered
         if (preserve && this._conditionSelect) {
           try {
             let curVal = null;
@@ -90,15 +85,12 @@ import { API } from '../../../assets/js/api.js';
             }
             this._pendingConditionValue = (curVal !== null && curVal !== undefined && String(curVal) !== '') ? String(curVal) : null;
           } catch (e) {
-            // non-fatal
             this._pendingConditionValue = null;
           }
         } else {
-          // clear any pending when not preserving
           this._pendingConditionValue = null;
         }
 
-        // Save promotion id if provided (but do not show it)
         if (detail.promotion_id !== undefined && detail.promotion_id !== null && detail.promotion_id !== '') {
           this.promotionId = detail.promotion_id;
           this._pid = this.promotionId;
@@ -422,7 +414,6 @@ import { API } from '../../../assets/js/api.js';
     getCustomerIds() { return Array.isArray(this.customerIds) ? this.customerIds.slice() : []; }
 
     setCustomerIds(ids = []) {
-      console.log("ids in function setCustomerIds =" + ids)
       this.customerIds = Array.isArray(ids) ? ids.map(i => Number(i)).filter(n => !Number.isNaN(n)) : [];
       if (this.customerIds.length === 0) { this._destroyTable(); this._renderEmptyState(); }
       else {
@@ -623,10 +614,8 @@ import { API } from '../../../assets/js/api.js';
                   }
                 }
               } catch (e) { console.warn('refresh promo-customer-table after save failed', e); }
-
               try { alert(this._groupId ? 'แก้ไขกลุ่มลูกค้าเรียบร้อย' : 'บันทึกกลุ่มลูกค้าเรียบร้อย'); } catch(e){}
               this.close();
-
             } else {
               if (res && res.errors && typeof res.errors === 'object') {
                 if (res.errors.name) showValidation(nameEl, res.errors.name);
@@ -645,7 +634,6 @@ import { API } from '../../../assets/js/api.js';
           } finally {
             addBtns.forEach(b => { b.disabled = false; b.innerHTML = (b.dataset.orig || 'เพิ่มกลุ่มลูกค้า'); });
           }
-
         } catch (e) {
           console.error('save group failed', e);
           alert('เกิดข้อผิดพลาดไม่คาดคิด');
@@ -653,7 +641,6 @@ import { API } from '../../../assets/js/api.js';
       })();
       try { if (pid) self._updatePromoCustomerBadge(pid).catch(()=>{}); } catch(e){/*ignore*/ }
     }
-
 
     _renderEmptyState() {
       const tbody = dom.qs('#ce-tbody', this._el);
@@ -667,7 +654,6 @@ import { API } from '../../../assets/js/api.js';
     _initTable() {
       const self = this;
       const tableEl = dom.qs(this._tableSelector, this._el);
-      console.debug('CustomerEditorModal._initTable() called', { tableElExists: !!tableEl, jquery: !!window.jQuery, bootstrapTableFn: !!(window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable) });
       if (!tableEl) { console.warn('ce-table element not found'); return; }
       if (this._tableInitialized) return;
 
@@ -715,7 +701,6 @@ import { API } from '../../../assets/js/api.js';
     </div>`;
             }
           }
-
         ];
 
         $(tableEl).bootstrapTable({
@@ -758,14 +743,11 @@ import { API } from '../../../assets/js/api.js';
             const $el = $(this);
             const rowId = $el.data('row-id');
             const checked = $el.prop('checked') ? 1 : 0; 
-            console.debug('ce-input-selectall change', { rowId, checked });
-
             try {
               $(tableEl).bootstrapTable('updateByUniqueId', { id: rowId, row: { select_all: checked } });
             } catch (err) {
               console.warn('updateByUniqueId failed', err);
             }
-
             try {
               const idNum = Number(rowId);
               if (!Number.isNaN(idNum)) self._membersMap.set(idNum, checked);
@@ -774,7 +756,6 @@ import { API } from '../../../assets/js/api.js';
             console.error('ce-input-selectall change handler failed', e);
           }
         });
-
 
         $(tableEl).off('post-body.bs.table.ensureInputs').on('post-body.bs.table.ensureInputs', function () {
           try {
@@ -787,9 +768,7 @@ import { API } from '../../../assets/js/api.js';
               const df = th.getAttribute('data-field') || th.dataset.field;
               if (df === 'select_all') selectIndex = idx;
             });
-
             if (selectIndex === -1) selectIndex = expectedCells - 1;
-
             rows.forEach((tr, idx) => {
               const currCells = tr.children.length;
               if (currCells < expectedCells) {
@@ -808,16 +787,12 @@ import { API } from '../../../assets/js/api.js';
                 const rowObj = $(tableEl).bootstrapTable('getRowByUniqueId', rowId);
                 if (rowObj && rowObj.select_all !== undefined) val = rowObj.select_all;
               } catch (e) { /* ignore */ }
-
               const checked = (val === true || val === 1 || String(val).toLowerCase() === 'true' || String(val) === '1');
-
               const inputId = `ce-select-${rowId}-${idx}`;
               tdSelect.innerHTML = `<div class="form-check" style="display:flex; justify-content:center; align-items:center; height:100%;">
       <input id="${inputId}" class="form-check-input ce-input-selectall" type="checkbox" data-row-id="${rowId}" ${checked ? 'checked' : ''}>
     </div>`;
             });
-
-            console.debug('post-body.ensureInputs: ensured checkboxes count =', tableEl.querySelectorAll('.ce-input-selectall').length);
           } catch (e) {
             console.error('post-body.ensureInputs failed', e);
           }
@@ -838,7 +813,6 @@ import { API } from '../../../assets/js/api.js';
             if (pi) pi.textContent = `Page ${page} / ${totalPages}`;
             const badge = document.querySelector(`#customer-count-${self._pid ?? ''}`);
             if (badge) badge.textContent = String(total ?? 0);
-
 
             const headerThs = tableEl.querySelectorAll('thead th');
             const expectedCells = headerThs.length;
@@ -871,7 +845,6 @@ import { API } from '../../../assets/js/api.js';
               }
             });
 
-
             try {
               if (self._membersMap && self._membersMap.size) {
                 const visible = $(tableEl).bootstrapTable('getData') || [];
@@ -888,13 +861,10 @@ import { API } from '../../../assets/js/api.js';
                   }
                 });
               }
-
               if (self._pid) self._updatePromoCustomerBadge(self._pid).catch(()=>{});
-
             } catch (e) {
               console.warn('apply membersMap failed', e);
             }
-
           } catch (e) {
             console.error('load-success handler failed', e);
           }
@@ -909,7 +879,6 @@ import { API } from '../../../assets/js/api.js';
             const selectedOnPage = new Set(selected.map(r => Number(r.id)).filter(id => !Number.isNaN(id)));
             const store = new Set(Array.isArray(self.customerIds) ? self.customerIds.map(n => Number(n)).filter(n => !Number.isNaN(n)) : []);
 
-
             visibleIds.forEach(id => {
               if (selectedOnPage.has(id)) store.add(id);
               else store.delete(id);
@@ -920,9 +889,6 @@ import { API } from '../../../assets/js/api.js';
             console.warn('sync selection failed', e);
           }
         });
-
-
-
         this._tableInitialized = true;
       } catch (e) {
         console.error('init ce-table failed', e);
@@ -982,7 +948,6 @@ import { API } from '../../../assets/js/api.js';
 
         let total = 0;
         if (res && typeof res === 'object') {
-          // attempt common shapes
           if (typeof res.total === 'number') total = Number(res.total);
           else if (typeof res.total === 'string' && res.total !== '') total = Number(res.total) || 0;
           else if (Array.isArray(res.rows)) total = res.total || res.rows.length || 0;
@@ -1018,32 +983,25 @@ import { API } from '../../../assets/js/api.js';
     
   // -------- update promo badges automatically when any bootstrap-table loads --------
   (function () {
-    // require jQuery & bootstrap-table
     if (typeof window.jQuery === 'undefined') return;
     const $ = window.jQuery;
 
-    // delegated handler: whenever any table triggers load-success.bs.table
     $(document).on('load-success.bs.table', 'table', function (e, data) {
       try {
         const table = this;
         const $table = $(table);
-
-        // try to derive promotion id from table id like "customersTable-<pid>"
         const tid = table.id || '';
         let pid = null;
         const m = tid.match(/^customersTable-(.+)$/);
         if (m && m[1]) pid = m[1];
 
-        // also support badges keyed by promotion id included on table dataset: data-promotion-id
         if (!pid && table.dataset && table.dataset.promotionId) pid = table.dataset.promotionId;
 
-        // compute total (prefer data.total provided by bootstrap-table response)
         let total = 0;
         if (data && typeof data === 'object') {
           if (typeof data.total === 'number') total = Number(data.total);
           else if (typeof data.total === 'string' && data.total !== '') total = Number(data.total) || 0;
         }
-        // fallback to option.totalRows (bootstrap-table stores it)
         if ((!total || total === 0) && $table.length && $table.data('bootstrap.table')) {
           try {
             const opts = $table.bootstrapTable('getOptions') || {};
@@ -1051,14 +1009,12 @@ import { API } from '../../../assets/js/api.js';
           } catch (e) { /* ignore */ }
         }
 
-        // if pid available update matching badges; else try to find any badge elements related to this table
         if (pid) {
           const badge = document.querySelector(`#customer-count-${pid}`);
           if (badge) badge.textContent = String(total ?? 0);
           const modalBadge = document.querySelector(`#promo-count-modal-${pid}`);
           if (modalBadge) modalBadge.textContent = String(total ?? 0);
         } else {
-          // fallback: if table has a nearest wrapper with data-promotion-id
           let wrapperPid = null;
           const wrap = $table.closest('[data-promotion-id]');
           if (wrap && wrap.length) wrapperPid = wrap.attr('data-promotion-id');
@@ -1068,7 +1024,6 @@ import { API } from '../../../assets/js/api.js';
             const modalBadge = document.querySelector(`#promo-count-modal-${wrapperPid}`);
             if (modalBadge) modalBadge.textContent = String(total ?? 0);
           } else {
-            // last resort: update any visible badge elements inside same container as the table
             try {
               const parent = table.closest ? table.closest('.promo-card, .card, .container') : null;
               if (parent) {
@@ -1083,7 +1038,6 @@ import { API } from '../../../assets/js/api.js';
       }
     });
 
-    // Also update on post-body (table rows rendered) just in case response handler didn't include total
     $(document).on('post-body.bs.table', 'table', function () {
       try {
         const table = this;
@@ -1108,6 +1062,4 @@ import { API } from '../../../assets/js/api.js';
     });
 
   })();
-
-
 })(); 

@@ -59,7 +59,6 @@
     <script type="module" src="/myPromotion/src/components/status-count/status-count.js"></script>
     <script type="module" src="/myPromotion/src/components/searchBar/searchBar.js"></script>
     <script type="module" src="/myPromotion/src/assets/js/main.js"></script>
-    <script defer type="module" src="index.js"></script>
     <script defer type="module" src="/myPromotion/src/components/modal/CreateCampaign/modalCreateCampaign.js"></script>
     <script src="./assets/vendor/flatpickr/flatpickr"></script>
     <script src="./assets/vendor/flatpickr/th.js"></script>

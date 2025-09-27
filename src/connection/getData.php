@@ -169,12 +169,7 @@ if (in_array("Products", $include)) {
 if (in_array("ProductsCategories", $include)) {
   $response["ProductsCategories"] = loadProductsCategories($connection);
 }
-if (in_array("ConditionLinkProduct", $include)) {
-  $response["ConditionLinkProduct"] = loadConditionLinkProduct($connection);
-}
-if (in_array("ConditionLinkProductCategories", $include)) {
-  $response["ConditionLinkProductCategories"] = loadConditionLinkProductCategories($connection);
-}
+
 
 mysqli_close($connection);
 echo json_encode($response, JSON_UNESCAPED_UNICODE);

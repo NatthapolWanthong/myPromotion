@@ -1,5 +1,3 @@
-// ConditionInit.js
-// Thin initializer: called on DOMContentLoaded to bootstrap condition module
 import { initFormSubmit, initFormHandlers } from './ConditionForm.js';
 import { initConditionModule } from './ConditionEvents.js';
 import { initTemplates } from './ConditionTemplates.js';

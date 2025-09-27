@@ -1,4 +1,3 @@
-// Customer.js
 import { API } from '../../assets/js/api.js';
 
 (function () {
@@ -6,15 +5,11 @@ import { API } from '../../assets/js/api.js';
 
   /**
    * CustomerTableManager
-   * - scan DOM for tables with id `customersTable-<pid>`
-   * - init bootstrap-table with server-side ajax using API.getCustomerGroup
-   * - expose initTableForPid(pid, tableEl) and refresh(pid)
    */
   class CustomerTableManager {
     constructor() {
-      this._tables = new Map(); // pid -> { el, $el }
+      this._tables = new Map();
       
-      // auto-scan existing DOM tables
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => this.scanAndInit());
       } else {
@@ -121,7 +116,6 @@ import { API } from '../../assets/js/api.js';
     async _ajaxHandler(params, pid, $table) {
       try {
         const data = params.data || {};
-        // bootstrap-table may send limit and offset or page/size depending on config
         const limit = Number(data.limit || data.pageSize || 10);
         const offset = Number(data.offset || 0);
         const page = Math.floor(offset / limit) + 1;
@@ -148,7 +142,7 @@ import { API } from '../../assets/js/api.js';
   }
 
   /* -------------------------
-     init module + modal wiring (your original logic kept)
+     init module + modal wiring
      ------------------------- */
   async function initCustomerModule() {
     const EditorClass = window.CustomerEditorModal || null;
@@ -159,10 +153,8 @@ import { API } from '../../assets/js/api.js';
     try { EditorModal = EditorClass ? new EditorClass() : null; } catch (e) { console.error('EditorModal init failed', e); }
     try { AddModal = AddClass ? new AddClass() : null; } catch (e) { console.error('AddModal init failed', e); }
 
-    // create or reuse global manager
     if (!window._CustomerTableManager) window._CustomerTableManager = new CustomerTableManager();
 
-    // wire click to open editor modal (button that lives outside tables)
     document.addEventListener('click', function (ev) {
       const btn = ev.target.closest && ev.target.closest('.btn-ModalCustomerEditor');
       if (!btn) return;
@@ -272,7 +264,6 @@ import { API } from '../../assets/js/api.js';
     try {
       if (typeof API !== 'undefined' && API.getCustomerOptions) {
         const options = await API.getCustomerOptions();
-        console.log('Customer options loaded:', options);
         if (AddModal && typeof AddModal.setOptions === 'function') {
           AddModal.setOptions(options || {});
         }

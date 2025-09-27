@@ -1,7 +1,5 @@
 let savedStatus = []
 
-
-
 export function UpdateStatusCount(total, counts, StatusOptions) {
   function isPromotionPage() {
     return window.location.pathname.includes("promotion.php");

@@ -1,5 +1,3 @@
-// ConditionTemplates.js
-
 import { genId, setProductInputsState, $ } from './ConditionHelpers.js';
 import { API } from '/myPromotion/src/assets/js/api.js';
 
@@ -61,7 +59,6 @@ function getRewardObjectOptionsForAction(actionValOrLabel){
   return [];
 }
 
-
 export function initTemplates(){
   conditionsContainer = document.getElementById('conditionsContainer');
   conditionTemplate = document.getElementById('condition-template');
@@ -82,12 +79,8 @@ export function initTemplates(){
   if(conditionsContainer.children.length === 0) addConditionItem();
 }
 
-
 /**
- * addConditionItem(defaultData)
- * defaultData: { action, object, productId, productName, comparator, value, unit, rewards: [] }
- *
- * NOTE: returns wrapper synchronously, but sets wrapper._ready to a Promise that resolves once async options are loaded and defaults applied.
+ * addConditionItem
  */
 export function addConditionItem(defaultData = null){
   if(!conditionTemplate || !conditionsContainer) return null;
@@ -196,7 +189,7 @@ export function addConditionItem(defaultData = null){
     }catch(e){
       console.warn('getFormOptions failed', e);
     }
-  })().catch(()=>{ /* swallow so wrapper._ready won't reject by default */ });
+  })().catch(()=>{ /*  */ });
   wrapper._ready = readyPromise;
   conditionsContainer.appendChild(wrapper);
   try { updateProductVisibility((objectSel && objectSel.value) || (defaultData && defaultData.object) || ''); } catch(e){}

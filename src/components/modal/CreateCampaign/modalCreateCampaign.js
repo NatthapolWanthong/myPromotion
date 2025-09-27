@@ -104,7 +104,7 @@ function bindEvents() {
 }
 
 function generateAutoCode() {
-  const prefix = "CMP"; // หรือ PROMO ก็ได้
+  const prefix = "CMP";
   const datePart = new Date().toISOString().slice(0,10).replace(/-/g,"");
   const rand = Math.floor(Math.random()*10000).toString().padStart(4,"0");
   return `${prefix}-${datePart}-${rand}`;

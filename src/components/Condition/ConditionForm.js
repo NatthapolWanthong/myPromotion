@@ -1,5 +1,3 @@
-// ConditionForm.js
-
 import { el } from './ConditionHelpers.js';
 import { parseBlocklyJsonToConditionItems, parseCompiledDslToFormDefaults } from './ConditionParser.js';
 import { API } from '/myPromotion/src/assets/js/api.js';

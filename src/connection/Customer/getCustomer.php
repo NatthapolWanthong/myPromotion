@@ -1,6 +1,4 @@
 <?php
-// getCustomer.php (enhanced to support fetching by ids)
-// Expect JSON body or form POST. Accept 'ids' => array of ids to filter.
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -58,7 +56,6 @@ $orderDir = ($order === 'DESC') ? 'DESC' : 'ASC';
 
 $whereParts = [];
 
-// If ids array provided, build WHERE c.id IN (...)
 if ($idsFilterProvided) {
     // sanitize: cast each to int
     $cleanIds = array_values(array_map(function($v){ return intval($v); }, $ids));
@@ -101,7 +98,7 @@ if (!$idsFilterProvided) {
                     $sub[] = $meta['col_id'] . ' = ' . intval($v);
                 } else {
                     $safe = $mysqli->real_escape_string(mb_strtolower($v, 'UTF-8'));
-                    // compare code or name (case-insensitive)
+                    // compare code or name
                     $sub[] = "LOWER({$meta['join']}.code) = '{$safe}'";
                     $sub[] = "LOWER({$meta['join']}.name) = '{$safe}'";
                 }
@@ -169,5 +166,4 @@ if ($res = $mysqli->query($dataSql)) {
     $res->free();
 }
 
-// respond in bootstrap-table expected shape: { total: N, rows: [...] }
 echo json_encode(['total' => $total, 'rows' => $rows], JSON_UNESCAPED_UNICODE);

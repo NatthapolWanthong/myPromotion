@@ -1,5 +1,3 @@
-// Customer_Add.js 
-
 (function () {
   'use strict';
 
@@ -19,7 +17,6 @@
 
   /* ---------------------------
      FilterManager
-     - Responsible for building filter dropdowns in toolbar
      --------------------------- */
   class FilterManager {
     constructor(config = [], toolbarSelector = '#ca-toolbar') {
@@ -455,7 +452,6 @@
         preserveCondition: true
       };
       
-      console.log("payload.selected_ids = " + payload.selected_ids)
       document.dispatchEvent(new CustomEvent('customer:add:submitted', { detail: payload }));
       this.close();
     }

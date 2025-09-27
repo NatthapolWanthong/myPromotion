@@ -1,4 +1,3 @@
-// src/assets/js/ConditionBlockHelper.js
 export class ConditionBlockHelper {
   // --- Helpers internal ---
   static _safeVal(v){ return (v === null || v === undefined) ? '' : v; }
@@ -8,15 +7,6 @@ export class ConditionBlockHelper {
     return [v];
   }
 
-  /**
-   * สร้าง controls_if block จาก object condition เดียว
-   * condition: {
-   *   ACTION, OBJECT,
-   *   PRODUCT_IDS: [], PRODUCT_NAMES: [],
-   *   COMPARATOR, VALUE, UNIT,
-   *   rewards: [ { rewardAction, rewardObject, rewardProductIds[], rewardValue, rewardUnit } , ... ]
-   * }
-   */
   static buildIfBlockFromCondition(condition = {}){
     const genId = (prefix='id') => prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
@@ -28,15 +18,14 @@ export class ConditionBlockHelper {
     };
     const comparator = String(condition.COMPARATOR ?? condition.comparator ?? '') || '';
     const op = opMap[comparator] || (comparator ? comparator.toString().toUpperCase() : 'EQ');
-
-    // Left: prefer product quantity block with product ids array, else promotion total
+    
     const productIds = this._ensureArray(condition.PRODUCT_IDS ?? condition.PRODUCT_ID ?? []);
     let leftBlock;
     if(productIds.length){
       leftBlock = {
         type: "get_product_quantity",
         id: genId('getqty'),
-        fields: { PRODUCT_IDS: productIds.map(String) } // keep array
+        fields: { PRODUCT_IDS: productIds.map(String) } 
       };
     } else {
       leftBlock = {
@@ -64,7 +53,7 @@ export class ConditionBlockHelper {
       }
     };
 
-    // build reward blocks chain (DO0) - chain via "next"
+    // build reward blocks chain
     const rewards = Array.isArray(condition.rewards) ? condition.rewards : (condition.rewards ? [condition.rewards] : []);
     let rewardHead = null;
     let last = null;
@@ -77,8 +66,7 @@ export class ConditionBlockHelper {
         const rUnit = this._safeVal(r.rewardUnit ?? r.REWARD_UNIT ?? '');
 
         let block;
-        // heuristics:
-        // rewardAction '3' or unit percent -> percentage reward
+
         if ((rUnit && String(rUnit).toLowerCase() === 'percent') || rAction === '3'){
           block = {
             type: "apply_percentage_reward",
@@ -171,7 +159,7 @@ export class ConditionBlockHelper {
   static parseBlocklyToConditionArray(parsed){
     try {
       if(!parsed) return [];
-      const blkList = parsed.blocks?.blocks ?? parsed.blocks ?? []; // tolerate nested shapes
+      const blkList = parsed.blocks?.blocks ?? parsed.blocks ?? [];
       const out = [];
 
       // helper to read number/value safely
@@ -225,11 +213,7 @@ export class ConditionBlockHelper {
         return rewards;
       };
 
-      // For each top-level block: if controls_if -> parse
-      // If blocks are chained via "next" at top level (as in sample), we need to walk top-level chain too.
       const topLevelBlocks = [];
-      // flatten top-level chain: some JSON uses a single 'blocks' array with 'next' linking subsequent 'controls_if'
-      // We will follow each starting block in parsed.blocks.blocks
       const visited = new Set();
       const pushBlockRecursive = (b) => {
         if(!b || !b.id || visited.has(b.id)) return;
@@ -253,14 +237,12 @@ export class ConditionBlockHelper {
         let productIds = [];
         if(compare){
           comparator = compare.fields?.OP ?? '';
-          // left block may be get_product_quantity or get_promotion_total
           const left = compare.inputs?.A?.block ?? null;
           const right = compare.inputs?.B?.block ?? null;
           if(right){
             value = right.fields?.NUM ?? right.fields?.VALUE ?? '';
           }
           if(left){
-            // product ids array or single PRODUCT_ID
             if(Array.isArray(left.fields?.PRODUCT_IDS) && left.fields.PRODUCT_IDS.length){
               productIds = left.fields.PRODUCT_IDS.map(String);
             } else if (left.fields?.PRODUCT_ID){
@@ -288,15 +270,7 @@ export class ConditionBlockHelper {
     }
   }
 
-    /**
-   * Try to read values from dynamic condition items (preferred), otherwise fallback.
-   * Returns the Blockly-like JSON and writes it into #conditionBlockJson hidden input when present.
-   *
-   * Accepts either form element or (if omitted) #condition-form.
-   *
-   * NOTE: This version returns BOTH { blocks: ..., fields: { ... } }
-   * so legacy code that expects blockJson.fields will work.
-   */
+
   static updateHiddenInput(formEl) {
     try {
       if (!formEl || !(formEl instanceof Element)) {
@@ -361,7 +335,6 @@ export class ConditionBlockHelper {
           } catch(e){ console.warn('read cond item failed', e); }
         });
       } else {
-        // fallback single-condition (previous fallback behavior)
         const action = (formEl.querySelector('.condition-form-action')?.value ?? '').toString();
         const object = (formEl.querySelector('.condition-form-object')?.value ?? '').toString();
         const pidEl = formEl.querySelector('#selectedProductId_condition') || formEl.querySelector('.selectedProductId_condition');
@@ -408,64 +381,61 @@ export class ConditionBlockHelper {
       }
 
       // --- Build workspace (Blockly-like) ---
-      const workspace = this.buildBlocklyFromConditionsArray(conds); // returns { blocks: { languageVersion:0, blocks: [...] }, variables: [] }
-
-      // --- Build compiled_dsl in IF/branches shape (one IF per condition) ---
-          // --- Build compiled_dsl in IF/branches shape (one IF per condition) ---
-    const compiledRules = conds.map(c => {
-      const condNode = {
-        type: "COMPARE",
-        op: String(c.COMPARATOR || '').toUpperCase() || '',
-        A: {
-          type: "ACTION",
-          action: String(c.ACTION || ''),
-          object: {
-            type: "OBJECT",
-            kind: String(c.OBJECT || ''),
-            product: Array.isArray(c.PRODUCT_IDS) && c.PRODUCT_IDS.length ? String(c.PRODUCT_IDS[0]) : ''
-          }
-        },
-        B: {
-          type: "VALUE_UNIT",
-          value: (c.VALUE !== undefined && c.VALUE !== null && c.VALUE !== '') ? Number(c.VALUE) : 0,
-          unit: String(c.UNIT || '')
-        }
-      };
-
-      // Build rewards array (preserve all rewards)
-      let thenNode = null;
-      if (Array.isArray(c.rewards) && c.rewards.length) {
-        const compiledRewards = c.rewards.map(r => {
-          return {
-            left: {
-              type: "REWARD",
-              subtype: String(r.rewardAction || r.REWARD_ACTION || ''),
-              target: String(r.rewardObject || r.REWARD_OBJECT || ''),
-              product_ids: Array.isArray(r.rewardProductIds) ? r.rewardProductIds.map(String) : (r.rewardProductId ? [String(r.rewardProductId)] : []),
-              product: (Array.isArray(r.rewardProductIds) && r.rewardProductIds.length) ? String(r.rewardProductIds[0]) : (r.rewardProductId ? String(r.rewardProductId) : '')
-            },
-            right: {
-              type: "VALUE_UNIT",
-              value: (r.rewardValue !== undefined && r.rewardValue !== null && r.rewardValue !== '') ? Number(r.rewardValue) : 0,
-              unit: String(r.rewardUnit || r.REWARD_UNIT || '')
+      const workspace = this.buildBlocklyFromConditionsArray(conds);
+      const compiledRules = conds.map(c => {
+        const condNode = {
+          type: "COMPARE",
+          op: String(c.COMPARATOR || '').toUpperCase() || '',
+          A: {
+            type: "ACTION",
+            action: String(c.ACTION || ''),
+            object: {
+              type: "OBJECT",
+              kind: String(c.OBJECT || ''),
+              product: Array.isArray(c.PRODUCT_IDS) && c.PRODUCT_IDS.length ? String(c.PRODUCT_IDS[0]) : ''
             }
-          };
-        });
-        thenNode = { type: "REWARD_BLOCK", rewards: compiledRewards };
-      } else {
-        thenNode = null;
-      }
-
-      return {
-        type: "IF",
-        branches: [
-          {
-            cond: condNode,
-            then: thenNode
+          },
+          B: {
+            type: "VALUE_UNIT",
+            value: (c.VALUE !== undefined && c.VALUE !== null && c.VALUE !== '') ? Number(c.VALUE) : 0,
+            unit: String(c.UNIT || '')
           }
-        ]
-      };
-    });
+        };
+
+        // Build rewards array
+        let thenNode = null;
+        if (Array.isArray(c.rewards) && c.rewards.length) {
+          const compiledRewards = c.rewards.map(r => {
+            return {
+              left: {
+                type: "REWARD",
+                subtype: String(r.rewardAction || r.REWARD_ACTION || ''),
+                target: String(r.rewardObject || r.REWARD_OBJECT || ''),
+                product_ids: Array.isArray(r.rewardProductIds) ? r.rewardProductIds.map(String) : (r.rewardProductId ? [String(r.rewardProductId)] : []),
+                product: (Array.isArray(r.rewardProductIds) && r.rewardProductIds.length) ? String(r.rewardProductIds[0]) : (r.rewardProductId ? String(r.rewardProductId) : '')
+              },
+              right: {
+                type: "VALUE_UNIT",
+                value: (r.rewardValue !== undefined && r.rewardValue !== null && r.rewardValue !== '') ? Number(r.rewardValue) : 0,
+                unit: String(r.rewardUnit || r.REWARD_UNIT || '')
+              }
+            };
+          });
+          thenNode = { type: "REWARD_BLOCK", rewards: compiledRewards };
+        } else {
+          thenNode = null;
+        }
+
+        return {
+          type: "IF",
+          branches: [
+            {
+              cond: condNode,
+              then: thenNode
+            }
+          ]
+        };
+      });
 
 
       const compiled_dsl = {
@@ -473,7 +443,7 @@ export class ConditionBlockHelper {
         rules: compiledRules
       };
 
-      // package: mode=advance (structure must match Advance)
+      // package: mode=advance
       const conditionXml = {
         mode: "advance",
         workspace: workspace,
@@ -481,16 +451,13 @@ export class ConditionBlockHelper {
         saved_at: (new Date()).toISOString()
       };
 
-      // write to hidden input (blockly JSON) — keep legacy field for compatibility if needed
       const hid = formEl.querySelector('#conditionBlockJson');
       if (hid) hid.value = JSON.stringify(conditionXml);
 
-      // also return structure for caller use
       return { conditionXml, blocks: workspace.blocks ?? workspace, compiled_dsl };
 
     } catch(err) {
       console.warn('ConditionBlockHelper.updateHiddenInput error:', err);
-      // fallback minimal shape
       const fallbackWorkspace = this.buildBlocklyFromConditionsArray([]);
       const compiled_dsl = { meta: { generated_at: (new Date()).toISOString(), generated_by: "basic-mapper-v1" }, rules: [] };
       const conditionXml = { mode: "advance", workspace: fallbackWorkspace, compiled_dsl, saved_at: (new Date()).toISOString() };

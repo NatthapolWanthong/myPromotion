@@ -1,20 +1,10 @@
-// ConditionEvents.js (REFACOTRED for per-card lists + modal form)
-/* Responsibilities:
-   - Provide per-card condition list UI (pagination/search) via initConditionListForCard
-   - Provide modal form opening via OpenConditionForm (keeps edit view modal)
-   - Reuse existing API.getCondition / deleteCondition
-*/
-
 import { $, el, eHtml, debounce, trap, release, cleanBootstrapBackdrops } from './ConditionHelpers.js';
-import { initTemplates } from './ConditionTemplates.js';
 import { initFormHandlers } from './ConditionForm.js';
 import { API } from '/myPromotion/src/assets/js/api.js';
 import { parseBlocklyJsonToConditionItems } from './ConditionParser.js';
 
-// per-card UI state map: promotionId -> { page, per_page, total_pages, q, currentConditions, elements... }
 const perCardState = new Map();
 const conditionOverlay = document.getElementById("condition-overlay")
-// overlay/edit modal references (shared)
 let overlay = null;
 let editView = null;
 
@@ -43,7 +33,6 @@ export function hideOverlay(){
 function escHandler(e){ if(e.key === 'Escape' || e.key === 'Esc'){ const ev = editView || $('#condition-edit-view'); if(ev && !ev.classList.contains('d-none')) { showOverlay(); showEditView(null); } else hideOverlay(); } }
 
 function showEditView(data = null){
-  // show edit view portion of modal and hide others (list removed)
   editView = editView || $('#condition-edit-view');
   if(!editView) return;
   document.querySelectorAll('#conditionTab .nav-link').forEach(t => t.classList.remove('active'));
@@ -337,8 +326,6 @@ function bindHeaderButtons(){
 
 /* ---------------------------
    Modal form opening for edit/create
-   OpenConditionForm(promotionId, promotionName, triggerEl = null, row=null)
-   - Opens modal and shows edit form (populated with row if provided)
    --------------------------- */
 export async function OpenConditionForm(promotionId, promotionName = '', triggerEl = null, row = null){
   try{
@@ -388,7 +375,7 @@ export async function OpenConditionForm(promotionId, promotionName = '', trigger
 }
 
 /* ---------------------------
-   initConditionModule (keeps event listeners for older .btn-open-condition, and global events)
+   initConditionModule 
    --------------------------- */
 export function initConditionModule(){
   bindHeaderButtons()

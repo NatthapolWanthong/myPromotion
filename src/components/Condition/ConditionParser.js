@@ -1,8 +1,3 @@
-// ConditionParser.js
-// Parsing + mapping utilities for condition JSON (Blockly-like).
-// Returns both array-form (productIds/productNames) and single-first (productId/productName) for compatibility.
-
-// Toggle debug logs
 const DEBUG = true;
 
 /* -----------------------
@@ -116,8 +111,7 @@ function extractProductNamesFromNode(node){
 }
 
 /* -----------------------
-   Reward extraction (normalize)
-   returns rewardProductIds (array) and rewardProductId (single-first)
+   Reward extraction 
    ----------------------- */
 export function extractRewardFromBlock(rewBlock){
   if(!rewBlock || typeof rewBlock !== 'object') {
@@ -221,7 +215,6 @@ export function collectRewardsChain(startBlock){
 
 /* -----------------------
    parseBlocklyJsonToConditionItems
-   returns items with productIds (array) AND productId (single), productNames and rewards[].rewardProductIds
    ----------------------- */
 export function parseBlocklyJsonToConditionItems(blocklyJson){
   try{
@@ -354,7 +347,6 @@ export function parseBlocklyJsonToConditionItems(blocklyJson){
 
 /* -----------------------
    parseCompiledDslToFormDefaults
-   returns defaults with productIds & productId and rewardProductIds & rewardProductId
    ----------------------- */
 export function parseCompiledDslToFormDefaults(compiledDsl) {
   const out = [];

@@ -1,5 +1,3 @@
-// promotionTable.js
-
 (function () {
   function escAttr(v = '') {
     return String(v).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

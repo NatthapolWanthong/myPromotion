@@ -101,7 +101,6 @@
     <!-- ======= Your modules (type=module) - load AFTER libs ======= -->
     <script type="module" src="/myPromotion/src/components/Condition/ConditionInit.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionEvents.js"></script>
-    <script type="module" src="/myPromotion/src/components/Condition/ConditionTemplates.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionIndex.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionForm.js"></script>
     <script type="module" src="/myPromotion/src/components/Condition/ConditionHelpers.js"></script>

@@ -1,7 +1,3 @@
-// ConditionHelpers.js
-// Small reusable utilities for modal-condition module.
-// Exports lightweight DOM helpers and small UI helpers.
-
 export const $ = sel => document.querySelector(sel);
 export const $$ = sel => Array.from(document.querySelectorAll(sel));
 export const el = id => document.getElementById(id);
@@ -24,9 +20,6 @@ export function debounce(fn, wait=350){
 
 /**
  * setProductInputsState(nameInput, idInput, show)
- * - nameInput: visible input element for product name
- * - idInput: hidden input element for product id
- * - show: boolean - show/require when true, hide/disable when false
  */
 export function setProductInputsState(nameInput, idInput, show){
   if(!nameInput || !idInput) return;
@@ -54,9 +47,6 @@ export function setProductInputsState(nameInput, idInput, show){
 
 /* -------------------------
   Focus trap helpers (for overlay)
-   - trap(container) to enable
-   - release(container) to disable
-   Keep minimal and robust
    ------------------------- */
 const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 export function trap(container){

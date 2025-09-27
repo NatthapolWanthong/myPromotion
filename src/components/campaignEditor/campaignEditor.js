@@ -54,14 +54,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.querySelector('[data-field="form-begin"]').value = campaign.start_date.replace(' ', 'T');
       document.querySelector('[data-field="form-end"]').value = campaign.end_date.replace(' ', 'T');
       const beginInput = document.querySelector('[data-field="form-begin"]')
-      if (beginInput && beginInput._flatpickr) {
-        beginInput._flatpickr.setDate(campaign.start_date, true); 
-      }
       const endInput = document.querySelector('[data-field="form-end"]')
-      if (endInput && endInput._flatpickr) {
-        endInput._flatpickr.setDate(campaign.end_date, true); 
-      }
-
+      const createInput = document.querySelector('[data-field="form-create"]')
+      beginInput._flatpickr.setDate(campaign.start_date, true); 
+      endInput._flatpickr.setDate(campaign.end_date, true); 
+      createInput._flatpickr.setDate(campaign.end_date, true); 
 
       document.querySelector('.icon-status').innerHTML = `
       <i class="bi bi-${CampaignStatus.icon} icon" style="color: ${MainStatus.main_Color};"></i>
@@ -74,7 +71,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.querySelector('.total').textContent = `จำนวนโปรโมชั่นทั้งหมด : ${campaign.promotion ?? '0'}`;
       document.querySelector('[data-field="form-note"]').value = campaign.note || '';
 
-      // อัปเดตสถานะ Icon และข้อความ
       const statusIcon = container.querySelector('.SelectStatus-icon');
       const statusLabel = container.querySelector('.SelectStatus-label');
       statusIcon.className = `bi bi-${CampaignStatus.icon}`;

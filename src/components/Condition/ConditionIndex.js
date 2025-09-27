@@ -1,5 +1,3 @@
-// ConditionIndex.js (updated exports)
-
 import { OpenConditionForm, initConditionModule, initConditionListForCard, loadConditionsForCard, refreshConditionsListUI } from './ConditionEvents.js';
 import { init as initCondition } from './ConditionInit.js';
 import {
@@ -18,7 +16,6 @@ import { $, $$, el, genId, eHtml, debounce } from './ConditionHelpers.js';
 
 export { OpenConditionForm, initConditionModule, initConditionListForCard, loadConditionsForCard, refreshConditionsListUI };
 
-/* existing wrappers */
 export function parseConditionData(blocklyJson) {
   return parseBlocklyJsonToConditionItems(blocklyJson);
 }

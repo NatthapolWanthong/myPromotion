@@ -1,4 +1,3 @@
-// generateCard.js
 
 import { FormHelper } from "/myPromotion/src/assets/js/formHelper.js";
 import { CardEditController } from "./CardEditor.js";
@@ -541,14 +540,12 @@ export class CampaignCard {
 
   (function ensureCustomerTableInit(pid) {
     const selector = `#customersTable-${pid}`;
-    const elementTimeoutMs = 10000; // wait up to 10s for the element to appear
+    const elementTimeoutMs = 10000;
     const managerPollIntervalMs = 250;
-    const managerPollMaxAttempts = 80; // ~20s max polling for manager when queued
+    const managerPollMaxAttempts = 80;
 
-    // ensure global pending queue exists
     window._pendingCustomerInits = window._pendingCustomerInits || [];
 
-    // process pending queue: try to init any entries where both el+manager ready
     function processPendingQueue() {
       if (!window._pendingCustomerInits || !window._pendingCustomerInits.length) return;
       if (!window._CustomerTableManager || typeof window._CustomerTableManager.initTableForPid !== 'function') return;
@@ -561,7 +558,6 @@ export class CampaignCard {
             try { window._CustomerTableManager.initTableForPid(entry.pid, el); }
             catch (err) { console.warn('initTableForPid threw for pid', entry.pid, err); remaining.push(entry); }
           } else {
-            // element still missing -> keep it queued (maybe created later)
             remaining.push(entry);
           }
         } catch (e) {
@@ -609,7 +605,6 @@ export class CampaignCard {
     if (done) return;
     done = true;
     try { mo && mo.disconnect(); } catch(_) {}
-    // try init immediately, else push to queue for manager
     if (!tryInitNow(el)) {
       window._pendingCustomerInits.push({ pid, selector });
       startManagerPollIfNeeded();
@@ -691,14 +686,11 @@ export class CampaignCard {
           allowInput: true
         };
 
-        // only initialize date-picker elements that belong to the current card we just appended
         const cardDatePickers = card.querySelectorAll('.date-picker');
         cardDatePickers.forEach(el => {
           try {
-            // If input has a clearly non-empty and parseable value, pass it; otherwise allowInput true will handle it
             flatpickr(el, defaultOptions);
           } catch (e) {
-            // don't spam console for invalid single inputs
             console.debug('flatpickr init failed for one input (ignored)', e);
           }
         });

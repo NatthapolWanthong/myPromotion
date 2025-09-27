@@ -1,4 +1,3 @@
-// SearchBar.js
 import { API } from '/myPromotion/src/assets/js/api.js';
 import { getOptions } from '/myPromotion/src/assets/js/store/optionsStore.js';
 import { CampaignCard , PromotionCard } from "/myPromotion/src/components/card/generateCard.js";
@@ -107,7 +106,7 @@ function updateQueryStateFromUI() {
   queryState.target = [...document.querySelectorAll('.targetOptionFilter input:checked')].map(i => i.value);
   queryState.status = [...document.querySelectorAll('.statusOptionFilter input:checked')].map(i => i.value);
 
-  // Sort (ใช้จาก active-dot)
+  // Sort
   const activeSort = document.querySelector('.sort-option.active-dot');
   const activeOrder = document.querySelector('.order-option.active-dot');
   if (activeSort) queryState.sortBy = activeSort.dataset.field;

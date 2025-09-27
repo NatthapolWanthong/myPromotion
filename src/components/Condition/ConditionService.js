@@ -1,6 +1,4 @@
-// /myPromotion/src/components/Condition/ConditionService.js
-// Central service for Condition CRUD (normalize payload + call API)
-// Export: default ConditionService and named ConditionService
+
 import { API } from "/myPromotion/src/assets/js/api.js";
 
 function normalizePayload(input = {}) {

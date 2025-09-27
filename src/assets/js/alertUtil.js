@@ -1,7 +1,5 @@
 import Swal from 'https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm';
 
-
-
 export const swalConfirm = Swal.mixin({
       customClass: {
         confirmButton: "btn btn-danger me-2",
@@ -28,8 +26,6 @@ export const swalToast = Swal.mixin({
   }
 })
 
-
-
 /**
  * @param {string} message - ข้อความที่จะแสดง
  * @param {'success'|'error'|'warning'|'info'|'question'} type - ประเภท toast
@@ -40,8 +36,6 @@ export function showToast(message, type = 'info') {
     title: message
   })
 }
-
-
 
 /**
  * แสดง alert
